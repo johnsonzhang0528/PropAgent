@@ -1,0 +1,34 @@
+/* Reset and base styles for the React application */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Inter", "SF Pro Display", "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-secondary, #F8FAFC); /* 統一背景色 */
+  color: var(--text-primary, #1E293B); /* 確保文字對比度 */
+}
+
+#root {
+  height: 100%;
+  min-height: 100vh;
+}
+
+/* Remove default link and button styles that conflict with Ant Design */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}

@@ -1,0 +1,362 @@
+/* PropAgent Pro - Glassmorphism 玻璃態樣式系統 */
+
+/* 選單玻璃態樣式 */
+.glassmorphism-menu .ant-menu-item {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-radius: 12px !important;
+  margin: 6px 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+.glassmorphism-menu .ant-menu-item:hover {
+  background: rgba(16, 185, 129, 0.15) !important;
+  backdrop-filter: blur(12px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  transform: translateX(4px) !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2) !important;
+}
+
+.glassmorphism-menu .ant-menu-item-selected {
+  background: rgba(16, 185, 129, 0.2) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.glassmorphism-menu .ant-menu-item-selected::after {
+  display: none !important;
+}
+
+.glassmorphism-menu .ant-menu-item-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) !important;
+}
+
+/* 頭部區域玻璃態升級 */
+.glassmorphism-header {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 用戶下拉選單玻璃態 */
+.glassmorphism-user-dropdown {
+  background: rgba(16, 185, 129, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  border-radius: 16px !important;
+  transition: all 0.3s ease !important;
+}
+
+.glassmorphism-user-dropdown:hover {
+  background: rgba(16, 185, 129, 0.15) !important;
+  backdrop-filter: blur(12px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* 按鈕玻璃態樣式 */
+.glassmorphism-button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+.glassmorphism-button:hover {
+  background: rgba(16, 185, 129, 0.15) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* 通知徽章玻璃態 */
+.glassmorphism-badge {
+  background: rgba(239, 68, 68, 0.9) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
+}
+
+/* 統計數字強調效果 */
+.glassmorphism-stat-value {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) !important;
+}
+
+/* 表格行玻璃態懸停效果 */
+.ant-table-tbody > tr:hover > td {
+  background: rgba(16, 185, 129, 0.05) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* 響應式玻璃態調整 */
+@media (max-width: 768px) {
+  .glassmorphism-menu .ant-menu-item {
+    margin: 4px 8px !important;
+    border-radius: 8px !important;
+  }
+  
+  .glassmorphism-user-dropdown {
+    border-radius: 12px !important;
+  }
+  
+  .glassmorphism-button {
+    border-radius: 8px !important;
+  }
+}
+
+/* 無障礙支援 - 降級方案 */
+@media (prefers-reduced-motion: reduce) {
+  .glassmorphism-menu .ant-menu-item,
+  .glassmorphism-button,
+  .glassmorphism-user-dropdown {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* 登入卡片玻璃態樣式 */
+.glassmorphism-login-card {
+  position: relative;
+}
+
+.glassmorphism-login-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.glassmorphism-login-card:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(24px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+  transform: translateY(-4px) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+  transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+/* 輸入框玻璃態樣式 */
+.glassmorphism-input:focus,
+.glassmorphism-input:focus-within {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(12px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15), 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+.glassmorphism-input:hover {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(130%) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+/* 主要按鈕玻璃態懸停效果 */
+.glassmorphism-primary-button:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.glassmorphism-primary-button:active {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 信息卡片玻璃態樣式 */
+.glassmorphism-info-card {
+  position: relative;
+}
+
+.glassmorphism-info-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(16, 185, 129, 0.6) 50%, transparent 100%);
+}
+
+/* Dashboard 統計值玻璃態效果 */
+.dashboard-stats-card .ant-statistic-content-value {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) !important;
+}
+
+/* 不支援 backdrop-filter 的降級方案 */
+@supports not (backdrop-filter: blur(1px)) {
+  .glassmorphism-menu .ant-menu-item {
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+  
+  .glassmorphism-menu .ant-menu-item:hover {
+    background: rgba(16, 185, 129, 0.25) !important;
+  }
+  
+  .glassmorphism-menu .ant-menu-item-selected {
+    background: rgba(16, 185, 129, 0.3) !important;
+  }
+  
+  .glassmorphism-header {
+    background: rgba(255, 255, 255, 0.95) !important;
+  }
+  
+  .glassmorphism-user-dropdown {
+    background: rgba(16, 185, 129, 0.2) !important;
+  }
+  
+  .glassmorphism-button {
+    background: rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  .glassmorphism-login-card {
+    background: rgba(255, 255, 255, 0.25) !important;
+  }
+  
+  .glassmorphism-input {
+    background: rgba(255, 255, 255, 0.8) !important;
+  }
+  
+  .glassmorphism-primary-button {
+    background: rgba(16, 185, 129, 0.95) !important;
+  }
+  
+  .glassmorphism-info-card {
+    background: rgba(255, 255, 255, 0.5) !important;
+  }
+}
+
+/* ==================== 玻璃態導航組件專用樣式 ==================== */
+
+/* 玻璃態頭部導航 */
+.glassmorphism-header {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(249, 250, 251, 0.9) 100%) !important;
+  backdrop-filter: blur(12px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.4) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
+  position: relative;
+}
+
+.glassmorphism-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(16, 185, 129, 0.3) 50%, transparent 100%);
+}
+
+/* 玻璃態選單 */
+.glassmorphism-menu {
+  background: transparent !important;
+}
+
+.glassmorphism-menu .ant-menu-item {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  margin: 6px 8px !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.glassmorphism-menu .ant-menu-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  transition: left 0.5s ease;
+}
+
+.glassmorphism-menu .ant-menu-item:hover::before {
+  left: 100%;
+}
+
+.glassmorphism-menu .ant-menu-item:hover {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+}
+
+.glassmorphism-menu .ant-menu-item-selected {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: white !important;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+}
+
+.glassmorphism-menu .ant-menu-item-icon {
+  font-size: 16px;
+  margin-right: 12px;
+}
+
+/* 玻璃態按鈕增強 */
+.glassmorphism-button {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.glassmorphism-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(16, 185, 129, 0.3) 50%, transparent 100%);
+  transition: left 0.4s ease;
+}
+
+.glassmorphism-button:hover::before {
+  left: 100%;
+}
+
+.glassmorphism-button:hover {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2) !important;
+}

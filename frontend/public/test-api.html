@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>測試 Analytics API</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Analytics API 測試</h1>
+    <div id="results"></div>
+    
+    <script>
+    const API_BASE_URL = 'http://localhost:3000';
+    const analyticsApi = axios.create({
+        baseURL: `${API_BASE_URL}/api/analytics`,
+        timeout: 10000,
+    });
+    
+    async function testAPI() {
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '<p>正在測試 API...</p>';
+        
+        try {
+            // 測試客戶狀態分布
+            console.log('測試客戶狀態分布...');
+            const statusResponse = await analyticsApi.get('/test/customer-status-distribution');
+            console.log('客戶狀態分布數據:', statusResponse.data);
+            
+            // 測試購買意願分布
+            console.log('測試購買意願分布...');
+            const intentResponse = await analyticsApi.get('/test/purchase-intent-distribution');
+            console.log('購買意願分布數據:', intentResponse.data);
+            
+            // 測試房產價格分布
+            console.log('測試房產價格分布...');
+            const priceResponse = await analyticsApi.get('/test/price-range-distribution');
+            console.log('房產價格分布數據:', priceResponse.data);
+            
+            // 測試月度趨勢
+            console.log('測試月度趨勢...');
+            const trendsResponse = await analyticsApi.get('/test/monthly-trends');
+            console.log('月度趨勢數據:', trendsResponse.data);
+            
+            resultsDiv.innerHTML = `
+                <h2>API 測試成功！</h2>
+                <p><strong>客戶狀態分布:</strong> ${JSON.stringify(statusResponse.data, null, 2)}</p>
+                <p><strong>購買意願分布:</strong> ${JSON.stringify(intentResponse.data, null, 2)}</p>
+                <p><strong>房產價格分布:</strong> ${JSON.stringify(priceResponse.data, null, 2)}</p>
+                <p><strong>月度趨勢:</strong> ${JSON.stringify(trendsResponse.data, null, 2)}</p>
+            `;
+        } catch (error) {
+            console.error('API 測試錯誤:', error);
+            resultsDiv.innerHTML = `
+                <h2>API 測試失敗</h2>
+                <p><strong>錯誤:</strong> ${error.message}</p>
+                <p><strong>詳細:</strong> ${error.response ? JSON.stringify(error.response.data) : 'No response data'}</p>
+            `;
+        }
+    }
+    
+    // 頁面載入後自動測試
+    testAPI();
+    </script>
+</body>
+</html>

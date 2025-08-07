@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>圖表 ClipPath 問題調試</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        .issue { color: red; font-weight: bold; }
+        .fixed { color: green; font-weight: bold; }
+        code { background: #f5f5f5; padding: 2px 4px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>圖表 ClipPath 問題調試報告</h1>
+    
+    <div class="debug-section">
+        <h2>問題診斷</h2>
+        <p class="issue">發現問題：Recharts 的 clipPath 高度計算錯誤</p>
+        <ul>
+            <li><strong>客戶狀態分布圖</strong>: <code>height="0"</code> - 圓餅圖被完全裁切</li>
+            <li><strong>月度趨勢圖</strong>: <code>height="10"</code> - 線圖幾乎看不見</li>
+        </ul>
+    </div>
+    
+    <div class="debug-section">
+        <h2>修復措施</h2>
+        <p class="fixed">已應用修復：增加圖表 margin 和容器空間</p>
+        <ul>
+            <li>✅ CustomerStatusChart: 增加 PieChart margin</li>
+            <li>✅ PurchaseIntentChart: 增加 BarChart margin (top: 40, bottom: 80)</li>
+            <li>✅ PropertyPriceChart: 增加 AreaChart margin (top: 40, bottom: 80)</li>
+            <li>✅ MonthlyTrendsChart: 增加 LineChart margin (top: 40, bottom: 80)</li>
+        </ul>
+    </div>
+    
+    <div class="debug-section">
+        <h2>期望結果</h2>
+        <p>修復後的圖表應該顯示：</p>
+        <ol>
+            <li><strong>客戶狀態分布</strong>: 完整的圓餅圖，包含標籤和圖例</li>
+            <li><strong>購買意願分布</strong>: 完整的柱狀圖，6個柱子清晰可見</li>
+            <li><strong>房產價格分布</strong>: 完整的面積圖，漸層效果正常</li>
+            <li><strong>月度趨勢分析</strong>: 完整的雙線圖，7個月份數據點清晰</li>
+        </ol>
+    </div>
+    
+    <div class="debug-section">
+        <h2>測試步驟</h2>
+        <ol>
+            <li>訪問 <a href="http://localhost:5174/analytics">分析儀表板</a></li>
+            <li>檢查四個圖表區塊是否完整顯示</li>
+            <li>確認圖表內容不再被裁切</li>
+            <li>測試圖表的互動功能（tooltip、legend等）</li>
+        </ol>
+    </div>
+    
+    <script>
+        console.log('=== ClipPath 修復調試工具 ===');
+        console.log('如果圖表仍有問題，請檢查瀏覽器控制台的錯誤信息');
+        
+        // 檢測當前頁面是否為分析頁面
+        if (window.location.pathname === '/analytics') {
+            setTimeout(() => {
+                const clipPaths = document.querySelectorAll('defs clipPath rect');
+                console.log('檢測到的 clipPath 元素:', clipPaths.length);
+                clipPaths.forEach((rect, index) => {
+                    const height = rect.getAttribute('height');
+                    const width = rect.getAttribute('width');
+                    console.log(`ClipPath ${index + 1}: height=${height}, width=${width}`);
+                    if (parseInt(height) < 50) {
+                        console.warn(`⚠️ ClipPath ${index + 1} 高度過小: ${height}px`);
+                    }
+                });
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

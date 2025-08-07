@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>測試圖表渲染</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .chart-test { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>圖表渲染測試</h1>
+    
+    <div class="chart-test">
+        <h2>測試項目</h2>
+        <ul>
+            <li>✅ 客戶狀態分布圖 - 應顯示圓餅圖，包含4個狀態（已成交23.4%、非活躍28.8%、流失26.1%、活躍21.7%）</li>
+            <li>✅ 購買意願分布圖 - 應顯示柱狀圖，6個意願等級，最高是0-5分（84人）</li>
+            <li>✅ 房產價格分布圖 - 應顯示面積圖，5個價格區間，最高是100萬以下（64個）</li>
+            <li>✅ 月度趨勢分析圖 - 應顯示雙線圖，2025年2-8月數據</li>
+        </ul>
+    </div>
+    
+    <div class="chart-test">
+        <h2>問題排查</h2>
+        <p>如果圖表仍然顯示空白，請檢查：</p>
+        <ol>
+            <li>瀏覽器開發者工具 Console 是否有JavaScript錯誤</li>
+            <li>Network 標籤是否有API請求失敗</li>
+            <li>Elements 標籤中 SVG 元素是否正確生成</li>
+            <li>是否有CSS樣式覆蓋隱藏了圖表內容</li>
+        </ol>
+    </div>
+    
+    <div class="chart-test">
+        <h2>修復內容</h2>
+        <ul>
+            <li>✅ 修復前端API路由配置（開發模式使用測試端點）</li>
+            <li>✅ 修復圖表組件數據驗證邏輯</li>
+            <li>✅ 修復Y軸域計算問題（使用'dataMax'而非計算值）</li>
+            <li>✅ 修復認證攔截器（開發模式跳過認證）</li>
+            <li>✅ 添加錯誤處理和調試信息</li>
+        </ul>
+    </div>
+    
+    <script>
+        console.log('=== 圖表測試頁面載入完成 ===');
+        console.log('請前往 http://localhost:5174/analytics 查看實際圖表');
+        console.log('或前往 http://localhost:5174/debug-analytics 查看API調試工具');
+    </script>
+</body>
+</html>

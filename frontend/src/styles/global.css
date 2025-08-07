@@ -1,0 +1,462 @@
+/* PropAgent Pro - Minimalist Modern Design System */
+@import './minimalist.css';
+
+/* Global Reset */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.ant-layout {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+}
+
+/* ==================== 極簡頁面容器系統 ==================== */
+
+/* 主要頁面容器 - 修復寬度約束 */
+.page-container {
+  padding: var(--space-2xl);
+  background-color: var(--bg-primary);
+  margin: var(--space-xl);
+  min-height: calc(100vh - 7rem);
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 數據展示容器 */
+.stats-container {
+  padding: var(--space-xl);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-2xl);
+  border: 1px solid var(--border-primary);
+}
+
+/* 內容卡片容器 */
+.content-card {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-primary);
+  margin-bottom: var(--space-md);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.content-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive adjustments - 強化約束 */
+@media (max-width: 768px) {
+  .page-container {
+    margin: var(--space-md);
+    padding: var(--space-lg);
+    max-width: calc(100vw - var(--space-md) * 2);
+    overflow-x: hidden;
+  }
+  
+  .responsive-container {
+    padding: 0 var(--space-md);
+  }
+}
+
+@media (max-width: 576px) {
+  .page-container {
+    margin: var(--space-sm);
+    padding: var(--space-md);
+    max-width: calc(100vw - var(--space-sm) * 2);
+    overflow-x: hidden;
+  }
+  
+  .responsive-container {
+    padding: 0 var(--space-sm);
+  }
+}
+
+/* Ant Design Component Overrides */
+.ant-typography {
+  margin-bottom: 0.5em;
+}
+
+.ant-typography:last-child {
+  margin-bottom: 0;
+}
+
+/* Menu Items */
+.ant-menu-item {
+  margin: var(--space-xs) 0 !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.ant-menu-item-selected {
+  background-color: rgba(37, 99, 235, 0.1) !important;
+  color: var(--primary-blue) !important;
+}
+
+/* Card Styling */
+.ant-card {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--border-primary) !important;
+  box-shadow: var(--shadow-sm) !important;
+  background-color: var(--bg-primary) !important;
+}
+
+.ant-card:hover {
+  box-shadow: var(--shadow-md) !important;
+}
+
+.ant-card-head {
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--border-primary) !important;
+  padding: var(--space-lg) var(--space-xl) !important;
+}
+
+.ant-card-body {
+  padding: var(--space-xl) !important;
+}
+
+/* ==================== 極簡現代設計專用樣式 ==================== */
+
+/* ==================== 房地產業務專用樣式 ==================== */
+
+/* 物業狀態標籤 */
+.property-status {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.property-status.available {
+  color: var(--info);
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.property-status.sold {
+  color: var(--success);
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.property-status.pending {
+  color: var(--warning);
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.property-status.reserved {
+  color: #8B5CF6;
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
+/* 價格等級標識 */
+.price-level {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bg-primary);
+}
+
+.price-level.luxury {
+  background-color: #7C2D12;
+}
+
+.price-level.premium {
+  background-color: #9333EA;
+}
+
+.price-level.standard {
+  background-color: var(--primary-green);
+}
+
+/* 數據統計卡片 */
+.stat-card {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-primary);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card .ant-statistic-title {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: var(--space-sm);
+}
+
+.stat-card .ant-statistic-content {
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-weight: 700;
+}
+
+/* 特色數據卡片 */
+.featured-stat {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--primary-blue);
+}
+
+.featured-stat .ant-statistic-content {
+  color: var(--primary-blue);
+}
+
+/* ==================== 極簡工具類樣式 ==================== */
+
+/* 純色背景 */
+.bg-primary {
+  background-color: var(--primary-blue);
+}
+
+.bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.bg-success {
+  background-color: var(--success);
+}
+
+/* 文字顏色 */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-error { color: var(--error); }
+
+/* 狀態指示器 */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: var(--space-sm);
+}
+
+.status-dot.success { background-color: var(--success); }
+.status-dot.warning { background-color: var(--warning); }
+.status-dot.error { background-color: var(--error); }
+.status-dot.info { background-color: var(--info); }
+
+/* ==================== 極簡佈局工具類 ==================== */
+
+/* Flexbox 工具 */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.flex-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* 分隔線 */
+.divider {
+  height: 1px;
+  background-color: var(--border-primary);
+  margin: var(--space-lg) 0;
+}
+
+.divider-vertical {
+  width: 1px;
+  background-color: var(--border-primary);
+  margin: 0 var(--space-md);
+  height: 24px;
+}
+
+/* Ant Design 按鈕樣式重設計 - 修復寬度約束 */
+.ant-btn {
+  border-radius: var(--radius-md) !important;
+  font-weight: 500 !important;
+  height: auto !important;
+  padding: var(--space-md) var(--space-xl) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--space-sm) !important;
+  transition: all 0.2s ease-in-out !important;
+  font-family: var(--font-family) !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.ant-btn-primary {
+  background-color: var(--primary-blue) !important;
+  border-color: var(--primary-blue) !important;
+  color: var(--bg-primary) !important;
+  box-shadow: none !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: #1D4ED8 !important; /* Blue 700 */
+  border-color: #1D4ED8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.ant-btn-default {
+  background-color: var(--bg-primary) !important;
+  border-color: var(--border-primary) !important;
+  color: var(--text-primary) !important;
+  box-shadow: none !important;
+}
+
+.ant-btn-default:hover {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--primary-blue) !important;
+  color: var(--primary-blue) !important;
+}
+
+
+/* Ant Design 表單樣式重設計 - 修復寬度約束 */
+.ant-input,
+.ant-input-number,
+.ant-select-selector,
+.ant-picker {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border-primary) !important;
+  padding: var(--space-md) !important;
+  font-size: 16px !important;
+  font-family: var(--font-family) !important;
+  transition: all 0.2s ease-in-out !important;
+  height: auto !important;
+  min-height: 44px !important;
+  background-color: var(--bg-primary) !important;
+  box-shadow: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.ant-input:focus,
+.ant-input-number:focus,
+.ant-select-selector:focus,
+.ant-picker:focus {
+  border-color: var(--primary-blue) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+  outline: none !important;
+}
+
+.ant-input:hover,
+.ant-input-number:hover,
+.ant-select-selector:hover,
+.ant-picker:hover {
+  border-color: var(--primary-blue) !important;
+}
+
+/* Ant Design 表格樣式重設計 - 修復溢出問題 */
+.ant-table {
+  border-radius: var(--radius-md) !important;
+  overflow: hidden !important;
+  border: 1px solid var(--border-primary) !important;
+  background-color: var(--bg-primary) !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.ant-table-wrapper {
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.ant-table-thead > tr > th {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  border-bottom: 1px solid var(--border-primary) !important;
+  padding: var(--space-lg) var(--space-xl) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-table-tbody > tr > td {
+  padding: var(--space-lg) var(--space-xl) !important;
+  border-bottom: 1px solid var(--border-primary) !important;
+  font-family: var(--font-family) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: rgba(37, 99, 235, 0.04) !important;
+}
+
+/* Ant Design 標籤樣式重設計 */
+.ant-tag {
+  border-radius: var(--radius-sm) !important;
+  padding: var(--space-xs) var(--space-sm) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  font-family: var(--font-family) !important;
+  border: none !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.025em !important;
+}
+
+/* 響應式設計調整 */
+@media (max-width: 768px) {
+  .ant-card-body {
+    padding: var(--space-lg) !important;
+  }
+  
+  .ant-btn {
+    padding: var(--space-sm) var(--space-md) !important;
+    font-size: 14px !important;
+  }
+  
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: var(--space-md) var(--space-lg) !important;
+    font-size: 14px !important;
+  }
+}

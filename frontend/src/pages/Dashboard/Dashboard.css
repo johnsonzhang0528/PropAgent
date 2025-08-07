@@ -1,0 +1,277 @@
+/* PropAgent Pro Dashboard - 極簡扁平化設計 */
+
+/* 主要容器 */
+.dashboard-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px;
+  background: #FFFFFF;
+  min-height: calc(100vh - 72px);
+}
+
+/* 響應式適配 */
+@media (max-width: 992px) {
+  .dashboard-container {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+}
+
+/* 標題樣式 */
+.dashboard-container h1 {
+  margin-bottom: 48px;
+  color: #1E293B;
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* ==================== 極簡統計卡片 ==================== */
+
+/* 統計卡片網格容器 */
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+@media (max-width: 992px) {
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+}
+
+/* 統計卡片容器 */
+.dashboard-stats-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.dashboard-stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #2563EB;
+}
+
+/* ==================== 極簡表格卡片 ==================== */
+
+.dashboard-table-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.dashboard-table-card .ant-card-head {
+  background: #FAFAFA;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 20px 24px;
+}
+
+.dashboard-table-card .ant-card-body {
+  padding: 0;
+}
+
+/* ==================== 扁平化按鈕系統 ==================== */
+
+.dashboard-button-primary {
+  background: #2563EB;
+  border: 1px solid #2563EB;
+  border-radius: 8px;
+  color: #FFFFFF;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+}
+
+.dashboard-button-primary:hover {
+  background: #1D4ED8;
+  border-color: #1D4ED8;
+  color: #FFFFFF;
+}
+
+.dashboard-button-secondary {
+  background: #FFFFFF;
+  border: 1px solid #2563EB;
+  border-radius: 8px;
+  color: #2563EB;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+}
+
+.dashboard-button-secondary:hover {
+  background: #F8FAFC;
+  border-color: #1D4ED8;
+  color: #1D4ED8;
+}
+
+/* ==================== 統計數字樣式 ==================== */
+
+.ant-statistic-title {
+  font-size: 14px !important;
+  color: #475569 !important;
+  font-weight: 500 !important;
+  margin-bottom: 8px !important;
+  line-height: 1.4 !important;
+}
+
+.ant-statistic-content {
+  font-size: 2rem !important;
+  font-weight: 600 !important;
+  font-family: "Inter", sans-serif !important;
+  line-height: 1.2 !important;
+}
+
+.ant-statistic-content-value {
+  color: #1E293B !important;
+}
+
+.ant-statistic-content-prefix {
+  font-size: 1.25rem !important;
+  margin-right: 8px !important;
+  color: #475569 !important;
+}
+
+/* 統計卡片狀態樣式 */
+.stat-customers {
+  border-left: 4px solid #10B981;
+}
+
+.stat-customers .ant-statistic-content-value {
+  color: #10B981 !important;
+}
+
+.stat-properties {
+  border-left: 4px solid #3B82F6;
+}
+
+.stat-properties .ant-statistic-content-value {
+  color: #3B82F6 !important;
+}
+
+.stat-revenue {
+  border-left: 4px solid #EF4444;
+}
+
+.stat-revenue .ant-statistic-content-value {
+  color: #EF4444 !important;
+}
+
+.stat-deals {
+  border-left: 4px solid #8B5CF6;
+}
+
+.stat-deals .ant-statistic-content-value {
+  color: #8B5CF6 !important;
+}
+
+/* ==================== 狀態標籤系統 ==================== */
+
+.status-tag-success {
+  background: #10B981;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 16px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-tag-warning {
+  background: #F59E0B;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 16px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-tag-error {
+  background: #EF4444;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 16px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-tag-info {
+  background: #3B82F6;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 16px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ==================== 表格樣式 ==================== */
+
+.dashboard-table-card .ant-table {
+  border-radius: 0;
+}
+
+.dashboard-table-card .ant-table-thead > tr > th {
+  background: #FAFAFA;
+  border-bottom: 1px solid #E2E8F0;
+  color: #1E293B;
+  font-weight: 600;
+  padding: 16px 20px;
+}
+
+.dashboard-table-card .ant-table-tbody > tr > td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.dashboard-table-card .ant-table-tbody > tr:hover > td {
+  background: #F8FAFC;
+}
+
+/* ==================== 輔助文字樣式 ==================== */
+
+.dashboard-meta-text {
+  font-size: 12px;
+  color: #94A3B8;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+.dashboard-value-text {
+  font-weight: 600;
+  color: #10B981;
+}
+
+.dashboard-link-text {
+  color: #2563EB;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.dashboard-link-text:hover {
+  color: #1D4ED8;
+  text-decoration: none;
+}

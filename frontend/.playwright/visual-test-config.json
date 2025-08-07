@@ -1,0 +1,114 @@
+{
+  "visualTestConfig": {
+    "description": "PropAgent Pro 視覺回歸測試配置",
+    "version": "1.0.0",
+    "lastUpdated": "2024-03-01",
+    "testSuites": {
+      "login": {
+        "description": "登入頁面視覺測試",
+        "files": ["login.visual.spec.ts"],
+        "screenshots": [
+          "login-page-desktop.png",
+          "login-page-mobile.png",
+          "login-form-card.png",
+          "login-form-empty.png",
+          "login-form-filled.png",
+          "login-loading-button.png",
+          "login-error-state.png",
+          "login-validation-errors.png",
+          "login-background-layout.png",
+          "login-demo-credentials.png",
+          "login-mobile-focus.png",
+          "login-button-hover.png",
+          "login-input-focus.png"
+        ],
+        "breakpoints": ["mobile-small", "mobile", "tablet", "desktop", "large"]
+      },
+      "customer": {
+        "description": "客戶管理頁面視覺測試",
+        "files": ["customer.visual.spec.ts"],
+        "screenshots": [
+          "customer-list-desktop.png",
+          "customer-list-mobile.png",
+          "customer-stats-cards.png",
+          "customer-search-filter.png",
+          "customer-table-desktop.png",
+          "customer-list-mobile-items.png",
+          "customer-detail-drawer.png",
+          "customer-detail-mobile.png",
+          "customer-status-tags.png",
+          "customer-empty-state.png",
+          "customer-loading-spinner.png"
+        ],
+        "breakpoints": ["mobile-small", "mobile", "tablet", "desktop"]
+      },
+      "analytics": {
+        "description": "分析儀表板視覺測試",
+        "files": ["analytics.visual.spec.ts"],
+        "screenshots": [
+          "analytics-dashboard-desktop.png",
+          "analytics-dashboard-mobile.png",
+          "customer-status-chart.png",
+          "purchase-intent-chart.png",
+          "property-price-chart.png",
+          "monthly-trends-chart.png",
+          "statistics-cards.png",
+          "analytics-dashboard-dark.png",
+          "loading-spinner.png",
+          "analytics-error-state.png"
+        ],
+        "breakpoints": ["mobile", "tablet", "desktop", "large"]
+      }
+    },
+    "commonElements": {
+      "navigation": {
+        "desktop": "responsive-navigation-desktop.png",
+        "mobile": "responsive-navigation-mobile.png"
+      },
+      "layout": {
+        "header": "layout-header.png",
+        "sidebar": "layout-sidebar.png",
+        "footer": "layout-footer.png"
+      }
+    },
+    "testSettings": {
+      "threshold": 0.3,
+      "animations": "disabled",
+      "fullPage": true,
+      "timeout": 30000,
+      "retries": 2
+    },
+    "browsers": {
+      "chromium": {
+        "enabled": true,
+        "viewports": [
+          { "width": 1200, "height": 800 },
+          { "width": 375, "height": 667 }
+        ]
+      },
+      "firefox": {
+        "enabled": true,
+        "viewports": [
+          { "width": 1200, "height": 800 }
+        ]
+      },
+      "webkit": {
+        "enabled": true,
+        "viewports": [
+          { "width": 1200, "height": 800 }
+        ]
+      }
+    },
+    "screenshotNaming": {
+      "pattern": "{testName}-{viewport}-{browser}.png",
+      "includeDate": false,
+      "includeBrowser": false
+    },
+    "reportSettings": {
+      "outputPath": "playwright-report",
+      "includeTrace": true,
+      "includeVideo": "retain-on-failure",
+      "includeScreenshots": "only-on-failure"
+    }
+  }
+}

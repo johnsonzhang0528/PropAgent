@@ -1,0 +1,227 @@
+{
+  "timestamp": "2025-08-04T19:30:43.356Z",
+  "summary": {
+    "total": 12,
+    "passed": 0,
+    "failed": 12,
+    "successRate": 0
+  },
+  "results": [
+    {
+      "page": "Dashboard 主頁",
+      "viewport": "桌面端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "stat-card",
+          "found": false
+        },
+        {
+          "element": "grid-cols-4",
+          "found": false
+        },
+        {
+          "element": "table",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "登入頁面",
+      "viewport": "桌面端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "form-input",
+          "found": false
+        },
+        {
+          "element": "card",
+          "found": false
+        },
+        {
+          "element": "btn-primary",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "客戶管理",
+      "viewport": "桌面端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "table",
+          "found": false
+        },
+        {
+          "element": "card-header",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "房產管理",
+      "viewport": "桌面端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "grid",
+          "found": false
+        },
+        {
+          "element": "card",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "Dashboard 主頁",
+      "viewport": "平板端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "stat-card",
+          "found": false
+        },
+        {
+          "element": "grid-cols-4",
+          "found": false
+        },
+        {
+          "element": "table",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "登入頁面",
+      "viewport": "平板端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "form-input",
+          "found": false
+        },
+        {
+          "element": "card",
+          "found": false
+        },
+        {
+          "element": "btn-primary",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "客戶管理",
+      "viewport": "平板端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "table",
+          "found": false
+        },
+        {
+          "element": "card-header",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "房產管理",
+      "viewport": "平板端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "grid",
+          "found": false
+        },
+        {
+          "element": "card",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "Dashboard 主頁",
+      "viewport": "手機端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "stat-card",
+          "found": false
+        },
+        {
+          "element": "grid-cols-4",
+          "found": false
+        },
+        {
+          "element": "table",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "登入頁面",
+      "viewport": "手機端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "form-input",
+          "found": false
+        },
+        {
+          "element": "card",
+          "found": false
+        },
+        {
+          "element": "btn-primary",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "客戶管理",
+      "viewport": "手機端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "table",
+          "found": false
+        },
+        {
+          "element": "card-header",
+          "found": false
+        }
+      ]
+    },
+    {
+      "page": "房產管理",
+      "viewport": "手機端",
+      "status": 200,
+      "hasExpectedElements": false,
+      "elementCheck": [
+        {
+          "element": "grid",
+          "found": false
+        },
+        {
+          "element": "card",
+          "found": false
+        }
+      ]
+    }
+  ]
+}

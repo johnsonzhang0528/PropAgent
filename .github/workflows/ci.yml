@@ -1,0 +1,29 @@
+name: PropAgent Pro CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: |
+          cd frontend && npm ci
+          cd ../backend && npm ci
+      - name: Run tests
+        run: |
+          cd frontend && npm run test
+          cd ../backend && npm run test
+      - name: Build applications
+        run: |
+          cd frontend && npm run build
+          cd ../backend && npm run build

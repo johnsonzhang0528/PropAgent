@@ -1,0 +1,22 @@
+node_modules/
+*.log
+*.pid
+dist/
+.env
+# MongoDB data files
+mongodb/data/
+!mongodb/data/.gitkeep
+
+# MongoDB data and binaries
+mongodb/data/
+mongodb/mongodb-linux-x86_64-ubuntu2404-8.0.4/
+mongodb/mongodb-linux-x86_64-ubuntu2404-8.0.4.tgz
+!mongodb/data/.gitkeep
+!mongodb/.gitkeep
+
+
+# GitHub CLI files
+gh.tar.gz
+gh_2.40.1_linux_amd64.tar.gz
+gh_2.40.1_linux_amd64/
+
