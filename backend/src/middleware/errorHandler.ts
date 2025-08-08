@@ -2,9 +2,11 @@ import { Request, Response, NextFunction } from "express";
 
 interface CustomError extends Error {
   statusCode?: number;
+  status?: string;
   code?: string;
   keyValue?: any;
   errors?: any;
+  isOperational?: boolean;
 }
 
 class AppError extends Error {
@@ -85,7 +87,7 @@ const globalErrorHandler = (
     error.message = err.message;
 
     if (error.name === 'CastError') error = handleCastErrorDB(error);
-    if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+    if (error.code === '11000') error = handleDuplicateFieldsDB(error);
     if (error.name === 'ValidationError') error = handleValidationErrorDB(error);
     if (error.name === 'JsonWebTokenError') error = handleJWTError();
     if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();

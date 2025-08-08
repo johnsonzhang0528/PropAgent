@@ -250,20 +250,38 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         />
       </div>
 
-      {/* 房產數量統計 */}
+      {/* 房產統計資訊 */}
       <div style={{
         position: 'absolute',
         top: 10,
         left: 10,
         zIndex: 1000,
         background: 'white',
-        padding: '8px 12px',
-        borderRadius: '6px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+        padding: '12px 16px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+        minWidth: '200px'
       }}>
-        <Space>
-          <HomeOutlined />
-          <Text strong>{properties.length} 個房產</Text>
+        <Space direction="vertical" size="small" style={{ width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <HomeOutlined />
+            <Text strong>總計 {properties.length} 個房產</Text>
+          </div>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div style={{ width: '8px', height: '8px', backgroundColor: '#52c41a', borderRadius: '50%' }}></div>
+              <span>可售: {properties.filter(p => p.status === 'available').length}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div style={{ width: '8px', height: '8px', backgroundColor: '#faad14', borderRadius: '50%' }}></div>
+              <span>預訂: {properties.filter(p => p.status === 'reserved').length}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div style={{ width: '8px', height: '8px', backgroundColor: '#ff4d4f', borderRadius: '50%' }}></div>
+              <span>已售: {properties.filter(p => p.status === 'sold').length}</span>
+            </div>
+          </div>
         </Space>
       </div>
 

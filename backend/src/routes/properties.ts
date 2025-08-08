@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import { Property } from '../models/Property';
 import { Customer } from '../models/Customer';
 import { authMiddleware, AuthRequest } from '../middleware/auth';

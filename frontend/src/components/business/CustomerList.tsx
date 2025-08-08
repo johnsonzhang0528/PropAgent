@@ -333,12 +333,21 @@ const CustomerList: React.FC = () => {
 
   // 處理分頁變更
   const handlePageChange = (page: number, pageSize?: number) => {
-    setPagination(prev => ({
-      ...prev,
+    const newPagination = {
       current: page,
-      pageSize: pageSize || prev.pageSize
-    }));
-    loadCustomers(page);
+      pageSize: pageSize || pagination.pageSize,
+      total: pagination.total
+    };
+    setPagination(newPagination);
+    
+    // 如果 pageSize 變更，重置到第一頁
+    if (pageSize && pageSize !== pagination.pageSize) {
+      newPagination.current = 1;
+      setPagination(newPagination);
+      loadCustomers(1);
+    } else {
+      loadCustomers(page);
+    }
   };
 
   // 處理表單提交
@@ -346,6 +355,13 @@ const CustomerList: React.FC = () => {
     setIsModalVisible(false);
     setEditingCustomer(null);
     loadCustomers(pagination.current); // 重新載入當前頁
+  };
+
+  // 處理搜尋
+  const handleSearch = (value: string) => {
+    setFilters(prev => ({ ...prev, search: value }));
+    setPagination(prev => ({ ...prev, current: 1 }));
+    loadCustomers(1);
   };
 
   return (
@@ -373,7 +389,8 @@ const CustomerList: React.FC = () => {
               style={{ width: 300 }}
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-              onSearch={() => loadCustomers(1)}
+              onSearch={handleSearch}
+              allowClear
             />
             <Select
               style={{ width: 120 }}
