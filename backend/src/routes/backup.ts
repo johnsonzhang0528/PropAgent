@@ -6,6 +6,8 @@ import archiver from 'archiver';
 import * as cron from 'node-cron';
 import { promisify } from 'util';
 import mongoose from 'mongoose';
+import { authMiddleware } from '../middleware/auth';
+import { backupLimiter } from '../middleware/security';
 
 const router = express.Router();
 const execAsync = promisify(exec);
@@ -48,18 +50,46 @@ class BackupService {
   // 創建數據庫備份
   async createDatabaseBackup(): Promise<string> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupDir = path.join(this.config.backupPath, `db-backup-${timestamp}`);
+    const backupFile = path.join(this.config.backupPath, `db-backup-${timestamp}.json`);
     
     try {
-      // 使用 mongodump 創建備份
       const databaseName = this.getDatabaseName();
-      const command = `mongodump --uri="${this.config.mongoUri}" --out="${backupDir}"`;
-      
       console.log(`🗃️  開始數據庫備份: ${databaseName}`);
-      await execAsync(command);
       
-      console.log(`✅ 數據庫備份完成: ${backupDir}`);
-      return backupDir;
+      // 獲取所有集合
+      const collections = await mongoose.connection.db.listCollections().toArray();
+      const backupData: any = {
+        database: databaseName,
+        timestamp: new Date().toISOString(),
+        collections: {}
+      };
+
+      // 備份每個集合的數據
+      for (const collection of collections) {
+        const collectionName = collection.name;
+        console.log(`📄 備份集合: ${collectionName}`);
+        
+        try {
+          const data = await mongoose.connection.db.collection(collectionName).find({}).toArray();
+          backupData.collections[collectionName] = {
+            count: data.length,
+            data: data
+          };
+        } catch (collectionError) {
+          console.warn(`⚠️  集合 ${collectionName} 備份失敗:`, collectionError);
+          backupData.collections[collectionName] = {
+            error: collectionError.message,
+            count: 0,
+            data: []
+          };
+        }
+      }
+
+      // 寫入備份文件
+      fs.writeFileSync(backupFile, JSON.stringify(backupData, null, 2));
+      
+      console.log(`✅ 數據庫備份完成: ${backupFile}`);
+      return backupFile;
     } catch (error) {
       console.error('❌ 數據庫備份失敗:', error);
       throw new Error(`數據庫備份失敗: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -156,8 +186,10 @@ class BackupService {
         archive.on('error', reject);
         archive.pipe(output);
 
-        // 添加數據庫備份
-        archive.directory(databasePath, 'database');
+        // 添加數據庫備份文件（現在是JSON文件）
+        if (fs.existsSync(databasePath)) {
+          archive.file(databasePath, { name: 'database.json' });
+        }
         
         // 添加文件備份
         if (filesPath && fs.existsSync(filesPath)) {
@@ -220,11 +252,43 @@ class BackupService {
   // 恢復數據庫
   async restoreDatabase(backupPath: string): Promise<void> {
     try {
-      const databaseName = this.getDatabaseName();
-      const command = `mongorestore --uri="${this.config.mongoUri}" --drop "${backupPath}/${databaseName}"`;
+      console.log(`🔄 開始恢復數據庫: ${backupPath}`);
       
-      console.log(`🔄 開始恢復數據庫: ${databaseName}`);
-      await execAsync(command);
+      // 讀取備份文件
+      if (!fs.existsSync(backupPath)) {
+        throw new Error('備份文件不存在');
+      }
+
+      const backupData = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
+      
+      if (!backupData.collections) {
+        throw new Error('無效的備份文件格式');
+      }
+
+      // 恢復每個集合
+      for (const [collectionName, collectionData] of Object.entries(backupData.collections as any)) {
+        if (collectionData.error) {
+          console.warn(`⚠️  跳過有錯誤的集合: ${collectionName}`);
+          continue;
+        }
+
+        console.log(`📄 恢復集合: ${collectionName} (${collectionData.count} 筆記錄)`);
+        
+        try {
+          // 先清空集合
+          await mongoose.connection.db.collection(collectionName).deleteMany({});
+          
+          // 插入備份數據
+          if (collectionData.data && collectionData.data.length > 0) {
+            await mongoose.connection.db.collection(collectionName).insertMany(collectionData.data);
+          }
+          
+          console.log(`✅ 集合 ${collectionName} 恢復完成`);
+        } catch (collectionError) {
+          console.error(`❌ 集合 ${collectionName} 恢復失敗:`, collectionError);
+          throw new Error(`集合 ${collectionName} 恢復失敗: ${collectionError.message}`);
+        }
+      }
       
       console.log('✅ 數據庫恢復完成');
     } catch (error) {
@@ -363,10 +427,17 @@ class BackupService {
 // 創建備份服務實例
 const backupService = new BackupService();
 
-// 路由
+// 路由 - 加入安全性和權限控制
 
-// 手動創建備份
-router.post('/create', async (req, res) => {
+// 手動創建備份 (需要管理員權限)
+router.post('/create', authMiddleware, backupLimiter, async (req: any, res) => {
+  // 檢查用戶權限
+  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+    return res.status(403).json({
+      success: false,
+      message: '權限不足，僅管理員可執行備份操作'
+    });
+  }
   try {
     const { type = 'full' } = req.body;
     
@@ -399,8 +470,8 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// 獲取備份列表
-router.get('/list', (req, res) => {
+// 獲取備份列表 (需要登入即可)
+router.get('/list', authMiddleware, (req: any, res) => {
   try {
     const backups = backupService.getBackupList();
     
@@ -419,8 +490,15 @@ router.get('/list', (req, res) => {
   }
 });
 
-// 下載備份文件
-router.get('/download/:filename', (req, res) => {
+// 下載備份文件 (需要管理員權限)
+router.get('/download/:filename', authMiddleware, (req: any, res) => {
+  // 檢查用戶權限
+  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+    return res.status(403).json({
+      success: false,
+      message: '權限不足，僅管理員可下載備份文件'
+    });
+  }
   try {
     const { filename } = req.params;
     const filePath = path.join((backupService as any).config.backupPath, filename);
@@ -443,8 +521,15 @@ router.get('/download/:filename', (req, res) => {
   }
 });
 
-// 恢復數據庫
-router.post('/restore', async (req, res) => {
+// 恢復數據庫 (需要超級管理員權限)
+router.post('/restore', authMiddleware, backupLimiter, async (req: any, res) => {
+  // 檢查用戶權限
+  if (req.user.role !== 'super_admin') {
+    return res.status(403).json({
+      success: false,
+      message: '權限不足，僅超級管理員可執行數據庫恢復操作'
+    });
+  }
   try {
     const { backupPath } = req.body;
     
@@ -471,8 +556,15 @@ router.post('/restore', async (req, res) => {
   }
 });
 
-// 導出數據
-router.post('/export', async (req, res) => {
+// 導出數據 (需要管理員權限)
+router.post('/export', authMiddleware, backupLimiter, async (req: any, res) => {
+  // 檢查用戶權限
+  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+    return res.status(403).json({
+      success: false,
+      message: '權限不足，僅管理員可執行數據導出操作'
+    });
+  }
   try {
     const { format = 'json', collection } = req.body;
     
@@ -512,8 +604,15 @@ router.post('/export', async (req, res) => {
   }
 });
 
-// 刪除備份
-router.delete('/:filename', (req, res) => {
+// 刪除備份 (需要管理員權限)
+router.delete('/:filename', authMiddleware, (req: any, res) => {
+  // 檢查用戶權限
+  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+    return res.status(403).json({
+      success: false,
+      message: '權限不足，僅管理員可刪除備份文件'
+    });
+  }
   try {
     const { filename } = req.params;
     const filePath = path.join((backupService as any).config.backupPath, filename);
@@ -546,8 +645,15 @@ router.delete('/:filename', (req, res) => {
   }
 });
 
-// 清理過期備份
-router.post('/cleanup', async (req, res) => {
+// 清理過期備份 (需要管理員權限)
+router.post('/cleanup', authMiddleware, backupLimiter, async (req: any, res) => {
+  // 檢查用戶權限
+  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+    return res.status(403).json({
+      success: false,
+      message: '權限不足，僅管理員可執行備份清理操作'
+    });
+  }
   try {
     await backupService.cleanupOldBackups();
     
@@ -565,8 +671,15 @@ router.post('/cleanup', async (req, res) => {
   }
 });
 
-// 獲取備份配置
-router.get('/config', (req, res) => {
+// 獲取備份配置 (需要管理員權限)
+router.get('/config', authMiddleware, (req: any, res) => {
+  // 檢查用戶權限
+  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+    return res.status(403).json({
+      success: false,
+      message: '權限不足，僅管理員可查看備份配置'
+    });
+  }
   res.json({
     success: true,
     data: {

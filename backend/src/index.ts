@@ -20,6 +20,7 @@ import documentRoutes from './routes/documents';
 import notificationRoutes from './routes/notifications';
 import backupRoutes from './routes/backup';
 import securityRoutes from './routes/security';
+import taskRoutes from './routes/tasks';
 
 dotenv.config();
 
@@ -137,6 +138,7 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/security', securityRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // 根路由
 app.get('/', (req, res) => {
@@ -153,7 +155,8 @@ app.get('/', (req, res) => {
       documents: '/api/documents/*',
       notifications: '/api/notifications/*',
       backup: '/api/backup/*',
-      security: '/api/security/*'
+      security: '/api/security/*',
+      tasks: '/api/tasks/*'
     }
   });
 });

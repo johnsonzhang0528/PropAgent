@@ -240,10 +240,10 @@ router.post('/block-ip', adminLimiter, (req, res) => {
   }
 });
 
-// 解除封鎖 IP
+// 解除封鎖 IP (POST)
 router.post('/unblock-ip', adminLimiter, (req, res) => {
   try {
-    const { ip } = req.body;
+    const { ip, reason = '手動解除封鎖' } = req.body;
     
     if (!ip) {
       return res.status(400).json({
@@ -252,20 +252,69 @@ router.post('/unblock-ip', adminLimiter, (req, res) => {
       });
     }
 
+    // 檢查 IP 是否真的被封鎖
+    if (!securityMonitor.isIPBlocked(ip)) {
+      return res.status(400).json({
+        success: false,
+        message: `IP ${ip} 並未被封鎖`
+      });
+    }
+
     securityMonitor.unblockIP(ip);
+    securityMonitor.addSuspiciousActivity(ip, `MANUAL_UNBLOCK: ${reason}`);
     
-    console.log(`✅ 解除封鎖 IP: ${ip}`);
+    console.log(`✅ 解除封鎖 IP: ${ip} - 原因: ${reason}`);
     
     res.json({
       success: true,
       message: `IP ${ip} 已解除封鎖`,
-      data: { ip }
+      data: { ip, reason, timestamp: new Date().toISOString() }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       message: '解除封鎖 IP 失敗',
       error: 'UNBLOCK_IP_ERROR'
+    });
+  }
+});
+
+// 解除封鎖 IP (DELETE)
+router.delete('/unblock-ip/:ip', adminLimiter, (req, res) => {
+  try {
+    const { ip } = req.params;
+    const { reason = '管理員刪除' } = req.query;
+    
+    if (!ip) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供要解除封鎖的 IP 地址'
+      });
+    }
+
+    // 檢查 IP 是否真的被封鎖
+    if (!securityMonitor.isIPBlocked(ip)) {
+      return res.status(400).json({
+        success: false,
+        message: `IP ${ip} 並未被封鎖`
+      });
+    }
+
+    securityMonitor.unblockIP(ip);
+    securityMonitor.addSuspiciousActivity(ip, `DELETE_UNBLOCK: ${reason}`);
+    
+    console.log(`🗑️  刪除封鎖 IP: ${ip} - 原因: ${reason}`);
+    
+    res.json({
+      success: true,
+      message: `IP ${ip} 已解除封鎖`,
+      data: { ip, reason, timestamp: new Date().toISOString() }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: '解除封鎖 IP 失敗',
+      error: 'DELETE_UNBLOCK_IP_ERROR'
     });
   }
 });

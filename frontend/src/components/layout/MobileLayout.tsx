@@ -13,7 +13,8 @@ import {
   LogoutOutlined,
   SettingOutlined,
   MenuOutlined,
-  CloseOutlined
+  CloseOutlined,
+  UnorderedListOutlined
 } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
@@ -40,6 +41,11 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
       key: '/dashboard',
       icon: <DashboardOutlined />,
       label: '儀表板'
+    },
+    {
+      key: '/tasks',
+      icon: <UnorderedListOutlined />,
+      label: '任務管理'
     },
     {
       key: '/customers',

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, List, Tag, Button, Space, Typography, Row, Col, Input, Select, DatePicker } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, List, Tag, Button, Space, Typography, Row, Col, Input, Select, DatePicker, Modal, Form, message, Popconfirm } from 'antd';
 import { 
   UserOutlined, 
   PhoneOutlined, 
@@ -8,83 +8,101 @@ import {
   SearchOutlined,
   CalendarOutlined,
   FilterOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
+import { useAppSelector } from '../../store/hooks';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
 const { Option } = Select;
 
 interface Task {
-  id: string;
-  icon: React.ReactNode;
-  text: string;
+  _id: string;
+  title: string;
+  description?: string;
   priority: 'high' | 'medium' | 'low';
-  time: string;
   status: 'pending' | 'completed' | 'in_progress';
   category: string;
+  dueDate?: string;
+  assignedTo?: any;
+  customerId?: any;
+  propertyId?: any;
+  tags?: string[];
+  notes?: string;
+  createdBy?: any;
+  updatedBy?: any;
+  createdAt: string;
+  updatedAt: string;
+  isOverdue?: boolean;
+  daysRemaining?: number;
 }
 
 const TasksPage: React.FC = () => {
+  const { user, token } = useAppSelector((state) => state.auth);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('all');
   const [searchText, setSearchText] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [form] = Form.useForm();
+  const [stats, setStats] = useState({
+    pending: 0,
+    in_progress: 0,
+    completed: 0,
+    total: 0
+  });
 
-  const allTasks: Task[] = [
-    { 
-      id: '1',
-      icon: <UserOutlined style={{ color: '#1890ff' }} />, 
-      text: '明天 10:00 - 王先生看房預約', 
-      priority: 'high',
-      time: '明天 10:00',
-      status: 'pending',
-      category: '預約'
-    },
-    { 
-      id: '2',
-      icon: <PhoneOutlined style={{ color: '#fa8c16' }} />, 
-      text: '回電陳女士房價詢問', 
-      priority: 'medium',
-      time: '今天 15:00',
-      status: 'pending',
-      category: '聯絡'
-    },
-    { 
-      id: '3',
-      icon: <HomeOutlined style={{ color: '#52c41a' }} />, 
-      text: '更新信義區房產照片', 
-      priority: 'medium',
-      time: '本週內',
-      status: 'in_progress',
-      category: '維護'
-    },
-    { 
-      id: '4',
-      icon: <TrophyOutlined style={{ color: '#722ed1' }} />, 
-      text: '準備月度業績報告', 
-      priority: 'low',
-      time: '下週五',
-      status: 'pending',
-      category: '報告'
-    },
-    { 
-      id: '5',
-      icon: <PhoneOutlined style={{ color: '#1890ff' }} />, 
-      text: '聯絡新客戶李先生', 
-      priority: 'high',
-      time: '今天 14:00',
-      status: 'completed',
-      category: '聯絡'
-    },
-    { 
-      id: '6',
-      icon: <UserOutlined style={{ color: '#52c41a' }} />, 
-      text: '帶看房產 - 大安區公寓', 
-      priority: 'high',
-      time: '昨天 16:00',
-      status: 'completed',
-      category: '預約'
-    },
-  ];
+  // API 請求函數
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/tasks', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setTasks(result.data.tasks || []);
+      } else {
+        message.error('獲取任務列表失敗');
+      }
+    } catch (error) {
+      console.error('獲取任務錯誤:', error);
+      message.error('獲取任務列表失敗');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/tasks/stats/summary', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setStats(result.data);
+      }
+    } catch (error) {
+      console.error('獲取統計錯誤:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+    fetchStats();
+  }, []);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -122,15 +140,175 @@ const TasksPage: React.FC = () => {
     }
   };
 
-  const filteredTasks = allTasks.filter(task => {
+  const filteredTasks = tasks.filter(task => {
     const matchesFilter = filter === 'all' || task.status === filter;
-    const matchesSearch = task.text.toLowerCase().includes(searchText.toLowerCase());
+    const matchesSearch = task.title.toLowerCase().includes(searchText.toLowerCase()) ||
+                         (task.description && task.description.toLowerCase().includes(searchText.toLowerCase()));
     return matchesFilter && matchesSearch;
   });
 
-  const pendingTasks = allTasks.filter(task => task.status === 'pending').length;
-  const completedTasks = allTasks.filter(task => task.status === 'completed').length;
-  const inProgressTasks = allTasks.filter(task => task.status === 'in_progress').length;
+  // CRUD 操作函數
+  const handleCreateTask = async (values: any) => {
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: values.title,
+          description: values.description,
+          priority: values.priority,
+          category: values.category,
+          dueDate: values.dueDate?.toISOString(),
+          notes: values.notes
+        })
+      });
+
+      if (response.ok) {
+        message.success('任務創建成功');
+        fetchTasks();
+        fetchStats();
+        setIsModalVisible(false);
+        form.resetFields();
+      } else {
+        message.error('任務創建失敗');
+      }
+    } catch (error) {
+      console.error('創建任務錯誤:', error);
+      message.error('任務創建失敗');
+    }
+  };
+
+  const handleUpdateTask = async (values: any) => {
+    if (!editingTask) return;
+    
+    try {
+      const response = await fetch(`/api/tasks/${editingTask._id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: values.title,
+          description: values.description,
+          priority: values.priority,
+          category: values.category,
+          status: values.status,
+          dueDate: values.dueDate?.toISOString(),
+          notes: values.notes
+        })
+      });
+
+      if (response.ok) {
+        message.success('任務更新成功');
+        fetchTasks();
+        fetchStats();
+        setIsModalVisible(false);
+        setEditingTask(null);
+        form.resetFields();
+      } else {
+        message.error('任務更新失敗');
+      }
+    } catch (error) {
+      console.error('更新任務錯誤:', error);
+      message.error('任務更新失敗');
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        message.success('任務刪除成功');
+        fetchTasks();
+        fetchStats();
+      } else {
+        message.error('任務刪除失敗');
+      }
+    } catch (error) {
+      console.error('刪除任務錯誤:', error);
+      message.error('任務刪除失敗');
+    }
+  };
+
+  const handleStatusUpdate = async (taskId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        message.success('任務狀態更新成功');
+        fetchTasks();
+        fetchStats();
+      } else {
+        message.error('任務狀態更新失敗');
+      }
+    } catch (error) {
+      console.error('更新狀態錯誤:', error);
+      message.error('任務狀態更新失敗');
+    }
+  };
+
+  const openCreateModal = () => {
+    setEditingTask(null);
+    form.resetFields();
+    setIsModalVisible(true);
+  };
+
+  const openEditModal = (task: Task) => {
+    setEditingTask(task);
+    form.setFieldsValue({
+      title: task.title,
+      description: task.description,
+      priority: task.priority,
+      category: task.category,
+      status: task.status,
+      dueDate: task.dueDate ? new Date(task.dueDate) : null,
+      notes: task.notes
+    });
+    setIsModalVisible(true);
+  };
+
+  const getTaskIcon = (category: string) => {
+    switch (category) {
+      case '預約': return <UserOutlined style={{ color: '#1890ff' }} />;
+      case '聯絡': return <PhoneOutlined style={{ color: '#fa8c16' }} />;
+      case '維護': return <HomeOutlined style={{ color: '#52c41a' }} />;
+      case '報告': return <TrophyOutlined style={{ color: '#722ed1' }} />;
+      default: return <UserOutlined style={{ color: '#666' }} />;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = date.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return '今天';
+    if (days === 1) return '明天';
+    if (days === -1) return '昨天';
+    if (days > 0) return `${days}天後`;
+    if (days < 0) return `${Math.abs(days)}天前`;
+    
+    return date.toLocaleDateString('zh-TW');
+  };
 
   return (
     <div style={{ background: '#f5f7fa', minHeight: '100vh', padding: '24px' }}>
@@ -149,7 +327,7 @@ const TasksPage: React.FC = () => {
           <Col xs={24} sm={8}>
             <Card style={{ textAlign: 'center', borderRadius: '12px' }}>
               <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#fa8c16', marginBottom: '8px' }}>
-                {pendingTasks}
+                {stats.pending}
               </div>
               <Text style={{ color: '#666' }}>待處理任務</Text>
             </Card>
@@ -157,7 +335,7 @@ const TasksPage: React.FC = () => {
           <Col xs={24} sm={8}>
             <Card style={{ textAlign: 'center', borderRadius: '12px' }}>
               <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#1890ff', marginBottom: '8px' }}>
-                {inProgressTasks}
+                {stats.in_progress}
               </div>
               <Text style={{ color: '#666' }}>進行中任務</Text>
             </Card>
@@ -165,7 +343,7 @@ const TasksPage: React.FC = () => {
           <Col xs={24} sm={8}>
             <Card style={{ textAlign: 'center', borderRadius: '12px' }}>
               <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#52c41a', marginBottom: '8px' }}>
-                {completedTasks}
+                {stats.completed}
               </div>
               <Text style={{ color: '#666' }}>已完成任務</Text>
             </Card>
@@ -197,6 +375,16 @@ const TasksPage: React.FC = () => {
                 <Option value="completed">已完成</Option>
               </Select>
             </Col>
+            <Col xs={24} sm={12} md={4}>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={openCreateModal}
+                style={{ width: '100%' }}
+              >
+                新增任務
+              </Button>
+            </Col>
           </Row>
         </Card>
 
@@ -206,75 +394,255 @@ const TasksPage: React.FC = () => {
           style={{ borderRadius: '12px' }}
         >
           <List
+            loading={loading}
             itemLayout="horizontal"
             dataSource={filteredTasks}
-            renderItem={task => (
-              <List.Item 
-                style={{ 
-                  borderBottom: '1px solid #f0f0f0', 
-                  paddingBottom: '16px', 
-                  marginBottom: '16px',
-                  opacity: task.status === 'completed' ? 0.7 : 1
-                }}
-                actions={[
-                  <Button 
-                    type="text" 
-                    icon={<CheckCircleOutlined />}
-                    disabled={task.status === 'completed'}
-                  >
-                    標記完成
-                  </Button>
-                ]}
-              >
-                <List.Item.Meta
-                  avatar={
-                    <div style={{
-                      width: '48px',
-                      height: '48px',
-                      borderRadius: '12px',
-                      background: `${(task.icon as any).props?.style?.color || '#1890ff'}15`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      {task.icon}
-                    </div>
-                  }
-                  title={
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <Text 
-                        strong 
-                        style={{ 
-                          fontSize: '16px',
-                          textDecoration: task.status === 'completed' ? 'line-through' : 'none'
-                        }}
+            renderItem={task => {
+              const icon = getTaskIcon(task.category);
+              return (
+                <List.Item 
+                  style={{ 
+                    borderBottom: '1px solid #f0f0f0', 
+                    paddingBottom: '16px', 
+                    marginBottom: '16px',
+                    opacity: task.status === 'completed' ? 0.7 : 1
+                  }}
+                  actions={[
+                    <Button 
+                      type="text" 
+                      icon={<CheckCircleOutlined />}
+                      disabled={task.status === 'completed'}
+                      onClick={() => handleStatusUpdate(task._id, 'completed')}
+                    >
+                      標記完成
+                    </Button>,
+                    <Button 
+                      type="text" 
+                      icon={<EditOutlined />}
+                      onClick={() => openEditModal(task)}
+                    >
+                      編輯
+                    </Button>,
+                    <Popconfirm
+                      title="確定要刪除這個任務嗎？"
+                      onConfirm={() => handleDeleteTask(task._id)}
+                      okText="確定"
+                      cancelText="取消"
+                    >
+                      <Button 
+                        type="text" 
+                        danger
+                        icon={<DeleteOutlined />}
                       >
-                        {task.text}
-                      </Text>
-                      <Space>
-                        <Tag color={getStatusColor(task.status)} style={{ borderRadius: '6px' }}>
-                          {getStatusText(task.status)}
-                        </Tag>
-                        <Tag color={getPriorityColor(task.priority)} style={{ borderRadius: '6px' }}>
-                          {getPriorityText(task.priority)}
-                        </Tag>
-                      </Space>
-                    </div>
-                  }
-                  description={
-                    <div style={{ marginTop: '8px' }}>
-                      <Text style={{ color: '#999', fontSize: '14px', marginRight: '16px' }}>
-                        <CalendarOutlined style={{ marginRight: '4px' }} />
-                        {task.time}
-                      </Text>
-                      <Tag style={{ borderRadius: '4px' }}>{task.category}</Tag>
-                    </div>
-                  }
-                />
-              </List.Item>
-            )}
+                        刪除
+                      </Button>
+                    </Popconfirm>
+                  ]}
+                >
+                  <List.Item.Meta
+                    avatar={
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '12px',
+                        background: `${(icon as any).props?.style?.color || '#1890ff'}15`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {icon}
+                      </div>
+                    }
+                    title={
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <Text 
+                            strong 
+                            style={{ 
+                              fontSize: '16px',
+                              textDecoration: task.status === 'completed' ? 'line-through' : 'none'
+                            }}
+                          >
+                            {task.title}
+                          </Text>
+                          {task.isOverdue && (
+                            <Tag color="red" size="small" style={{ marginLeft: '8px' }}>逾期</Tag>
+                          )}
+                        </div>
+                        <Space>
+                          <Tag color={getStatusColor(task.status)} style={{ borderRadius: '6px' }}>
+                            {getStatusText(task.status)}
+                          </Tag>
+                          <Tag color={getPriorityColor(task.priority)} style={{ borderRadius: '6px' }}>
+                            {getPriorityText(task.priority)}
+                          </Tag>
+                        </Space>
+                      </div>
+                    }
+                    description={
+                      <div style={{ marginTop: '8px' }}>
+                        {task.description && (
+                          <div style={{ marginBottom: '4px' }}>
+                            <Text style={{ color: '#666', fontSize: '14px' }}>{task.description}</Text>
+                          </div>
+                        )}
+                        <div>
+                          {task.dueDate && (
+                            <Text style={{ color: '#999', fontSize: '14px', marginRight: '16px' }}>
+                              <CalendarOutlined style={{ marginRight: '4px' }} />
+                              {formatDate(task.dueDate)}
+                            </Text>
+                          )}
+                          <Tag style={{ borderRadius: '4px' }}>{task.category}</Tag>
+                          {task.tags && task.tags.map(tag => (
+                            <Tag key={tag} style={{ borderRadius: '4px', marginLeft: '4px' }}>{tag}</Tag>
+                          ))}
+                        </div>
+                      </div>
+                    }
+                  />
+                </List.Item>
+              );
+            }}
           />
         </Card>
+
+        {/* 新增/編輯任務 Modal */}
+        <Modal
+          title={editingTask ? '編輯任務' : '新增任務'}
+          open={isModalVisible}
+          onCancel={() => {
+            setIsModalVisible(false);
+            setEditingTask(null);
+            form.resetFields();
+          }}
+          footer={null}
+          width={600}
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={editingTask ? handleUpdateTask : handleCreateTask}
+          >
+            <Form.Item
+              name="title"
+              label="任務標題"
+              rules={[{ required: true, message: '請輸入任務標題' }]}
+            >
+              <Input placeholder="請輸入任務標題" />
+            </Form.Item>
+            
+            <Form.Item
+              name="description"
+              label="任務描述"
+            >
+              <Input.TextArea 
+                rows={3} 
+                placeholder="請輸入任務描述（可選）" 
+              />
+            </Form.Item>
+            
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="priority"
+                  label="優先級"
+                  rules={[{ required: true, message: '請選擇優先級' }]}
+                  initialValue="medium"
+                >
+                  <Select>
+                    <Option value="high">高</Option>
+                    <Option value="medium">中</Option>
+                    <Option value="low">低</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="category"
+                  label="任務分類"
+                  rules={[{ required: true, message: '請選擇任務分類' }]}
+                >
+                  <Select>
+                    <Option value="預約">預約</Option>
+                    <Option value="聯絡">聯絡</Option>
+                    <Option value="維護">維護</Option>
+                    <Option value="報告">報告</Option>
+                    <Option value="跟進">跟進</Option>
+                    <Option value="其他">其他</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            
+            {editingTask && (
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="status"
+                    label="任務狀態"
+                  >
+                    <Select>
+                      <Option value="pending">待處理</Option>
+                      <Option value="in_progress">進行中</Option>
+                      <Option value="completed">已完成</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="dueDate"
+                    label="截止日期"
+                  >
+                    <DatePicker 
+                      style={{ width: '100%' }}
+                      placeholder="選擇截止日期（可選）"
+                      showTime
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            )}
+            
+            {!editingTask && (
+              <Form.Item
+                name="dueDate"
+                label="截止日期"
+              >
+                <DatePicker 
+                  style={{ width: '100%' }}
+                  placeholder="選擇截止日期（可選）"
+                  showTime
+                />
+              </Form.Item>
+            )}
+            
+            <Form.Item
+              name="notes"
+              label="備註"
+            >
+              <Input.TextArea 
+                rows={2} 
+                placeholder="任務備註（可選）" 
+              />
+            </Form.Item>
+            
+            <Form.Item style={{ textAlign: 'right', marginBottom: 0 }}>
+              <Space>
+                <Button onClick={() => {
+                  setIsModalVisible(false);
+                  setEditingTask(null);
+                  form.resetFields();
+                }}>
+                  取消
+                </Button>
+                <Button type="primary" htmlType="submit">
+                  {editingTask ? '更新' : '創建'}
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
 
       </Space>
     </div>

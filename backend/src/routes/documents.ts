@@ -140,7 +140,7 @@ router.post('/upload', authMiddleware, upload.array('files', 10), async (req: an
   }
 });
 
-// 獲取文檔列表
+// 獲取文檔列表（增強搜尋）
 router.get('/', authMiddleware, async (req: any, res) => {
   try {
     const {
@@ -152,7 +152,13 @@ router.get('/', authMiddleware, async (req: any, res) => {
       relatedType,
       relatedId,
       sortBy = 'uploadedAt',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
+      fileType, // 新增：按文件類型過濾
+      dateFrom, // 新增：開始日期
+      dateTo,   // 新增：結束日期
+      sizeMin,  // 新增：最小文件大小
+      sizeMax,  // 新增：最大文件大小
+      uploader  // 新增：上傳者過濾
     } = req.query;
 
     const pageNumber = parseInt(page as string);
@@ -171,12 +177,73 @@ router.get('/', authMiddleware, async (req: any, res) => {
       query.tags = { $in: tagArray };
     }
 
+    // 增強搜尋功能
     if (search) {
+      const searchRegex = { $regex: search, $options: 'i' };
       query.$or = [
-        { originalName: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { tags: { $regex: search, $options: 'i' } }
+        { originalName: searchRegex },
+        { description: searchRegex },
+        { tags: searchRegex },
+        { filename: searchRegex } // 新增：搜尋檔案名
       ];
+    }
+
+    // 文件類型過濾
+    if (fileType) {
+      switch (fileType) {
+        case 'image':
+          query.mimetype = { $regex: '^image/', $options: 'i' };
+          break;
+        case 'document':
+          query.$or = [
+            { mimetype: { $regex: 'pdf', $options: 'i' } },
+            { mimetype: { $regex: 'word', $options: 'i' } },
+            { mimetype: { $regex: 'excel', $options: 'i' } },
+            { mimetype: { $regex: 'powerpoint', $options: 'i' } },
+            { mimetype: { $regex: 'text', $options: 'i' } }
+          ];
+          break;
+        case 'video':
+          query.mimetype = { $regex: '^video/', $options: 'i' };
+          break;
+        case 'audio':
+          query.mimetype = { $regex: '^audio/', $options: 'i' };
+          break;
+        case 'archive':
+          query.$or = [
+            { mimetype: { $regex: 'zip', $options: 'i' } },
+            { mimetype: { $regex: 'rar', $options: 'i' } },
+            { mimetype: { $regex: '7z', $options: 'i' } }
+          ];
+          break;
+      }
+    }
+
+    // 日期範圍過濾
+    if (dateFrom || dateTo) {
+      query.uploadedAt = {};
+      if (dateFrom) {
+        query.uploadedAt.$gte = new Date(dateFrom as string);
+      }
+      if (dateTo) {
+        query.uploadedAt.$lte = new Date(dateTo as string);
+      }
+    }
+
+    // 文件大小過濾
+    if (sizeMin || sizeMax) {
+      query.size = {};
+      if (sizeMin) {
+        query.size.$gte = parseInt(sizeMin as string);
+      }
+      if (sizeMax) {
+        query.size.$lte = parseInt(sizeMax as string);
+      }
+    }
+
+    // 上傳者過濾
+    if (uploader) {
+      query.uploadedBy = uploader;
     }
 
     if (relatedType && relatedId) {
@@ -186,7 +253,9 @@ router.get('/', authMiddleware, async (req: any, res) => {
 
     // 構建排序
     const sort: any = {};
-    sort[sortBy as string] = sortOrder === 'desc' ? -1 : 1;
+    const allowedSortFields = ['uploadedAt', 'originalName', 'size', 'category'];
+    const sortField = allowedSortFields.includes(sortBy as string) ? sortBy : 'uploadedAt';
+    sort[sortField as string] = sortOrder === 'desc' ? -1 : 1;
 
     // 執行查詢
     const [documents, total] = await Promise.all([
@@ -199,10 +268,13 @@ router.get('/', authMiddleware, async (req: any, res) => {
       Document.countDocuments(query)
     ]);
 
-    // 添加圖標信息
+    // 添加圖標信息和額外的元數據
     const documentsWithIcons = documents.map(doc => ({
       ...doc.toJSON(),
-      icon: getFileIcon(doc.mimetype, doc.originalName)
+      icon: getFileIcon(doc.mimetype, doc.originalName),
+      downloadUrl: `/api/documents/${doc._id}/download`,
+      previewUrl: doc.mimetype.startsWith('image/') || doc.mimetype === 'application/pdf' 
+        ? `/api/documents/${doc._id}/preview` : null
     }));
 
     res.json({
@@ -215,6 +287,19 @@ router.get('/', authMiddleware, async (req: any, res) => {
         pages: Math.ceil(total / limitNumber),
         hasNext: pageNumber < Math.ceil(total / limitNumber),
         hasPrev: pageNumber > 1
+      },
+      filters: {
+        category,
+        tags,
+        search,
+        fileType,
+        dateFrom,
+        dateTo,
+        sizeMin,
+        sizeMax,
+        uploader,
+        sortBy: sortField,
+        sortOrder
       }
     });
 
@@ -260,10 +345,12 @@ router.get('/:id', authMiddleware, async (req: any, res) => {
   }
 });
 
-// 下載文件
+// 下載文件（增強權限控制）
 router.get('/:id/download', authMiddleware, async (req: any, res) => {
   try {
-    const document = await Document.findById(req.params.id);
+    const userId = req.user?.id;
+    const document = await Document.findById(req.params.id)
+      .populate('uploadedBy', '_id name email');
 
     if (!document) {
       return res.status(404).json({
@@ -272,28 +359,59 @@ router.get('/:id/download', authMiddleware, async (req: any, res) => {
       });
     }
 
+    // 權限檢查：公開文檔或自己上傳的文檔
+    const canAccess = document.isPublic || 
+                     document.uploadedBy._id.toString() === userId ||
+                     req.user?.role === 'admin'; // 管理員可訪問所有文檔
+
+    if (!canAccess) {
+      return res.status(403).json({
+        success: false,
+        message: '沒有權限下載此文檔'
+      });
+    }
+
     if (!fs.existsSync(document.path)) {
       return res.status(404).json({
         success: false,
-        message: '文件不存在'
+        message: '文件不存在於服務器'
       });
     }
+
+    // 記錄下載日誌（可選）
+    console.log(`文件下載: ${document.originalName} by ${req.user?.name || req.user?.email}`);
 
     // 設置下載頭
     res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(document.originalName)}"`);
     res.setHeader('Content-Type', document.mimetype);
     res.setHeader('Content-Length', document.size.toString());
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
 
-    // 創建文件流
+    // 創建文件流並處理錯誤
     const fileStream = fs.createReadStream(document.path);
+    
+    fileStream.on('error', (error) => {
+      console.error('文件流錯誤:', error);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: '文件讀取錯誤'
+        });
+      }
+    });
+
     fileStream.pipe(res);
 
   } catch (error) {
     console.error('下載文件錯誤:', error);
-    res.status(500).json({
-      success: false,
-      message: '下載文件失敗'
-    });
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: '下載文件失敗'
+      });
+    }
   }
 });
 
@@ -400,10 +518,11 @@ router.put('/:id', authMiddleware, async (req: any, res) => {
   }
 });
 
-// 刪除文檔（軟刪除）
+// 刪除文檔（增強權限控制）
 router.delete('/:id', authMiddleware, async (req: any, res) => {
   try {
     const userId = req.user?.id;
+    const userRole = req.user?.role;
     const document = await Document.findById(req.params.id);
 
     if (!document) {
@@ -413,8 +532,10 @@ router.delete('/:id', authMiddleware, async (req: any, res) => {
       });
     }
 
-    // 檢查權限
-    if (document.uploadedBy.toString() !== userId) {
+    // 權限檢查：上傳者或管理員可刪除
+    const canDelete = document.uploadedBy.toString() === userId || userRole === 'admin';
+
+    if (!canDelete) {
       return res.status(403).json({
         success: false,
         message: '沒有權限刪除此文檔'
@@ -423,6 +544,9 @@ router.delete('/:id', authMiddleware, async (req: any, res) => {
 
     // 軟刪除
     await document.softDelete();
+
+    // 記錄刪除日誌
+    console.log(`文檔刪除: ${document.originalName} by ${req.user?.name || req.user?.email}`);
 
     res.json({
       success: true,
@@ -434,6 +558,171 @@ router.delete('/:id', authMiddleware, async (req: any, res) => {
     res.status(500).json({
       success: false,
       message: '刪除文檔失敗'
+    });
+  }
+});
+
+// 批量刪除文檔
+router.post('/batch/delete', authMiddleware, async (req: any, res) => {
+  try {
+    const { ids } = req.body;
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供要刪除的文檔ID列表'
+      });
+    }
+
+    const results = {
+      success: 0,
+      failed: 0,
+      errors: [] as string[]
+    };
+
+    for (const id of ids) {
+      try {
+        const document = await Document.findById(id);
+        
+        if (!document) {
+          results.failed++;
+          results.errors.push(`文檔 ${id} 不存在`);
+          continue;
+        }
+
+        // 權限檢查
+        const canDelete = document.uploadedBy.toString() === userId || userRole === 'admin';
+        
+        if (!canDelete) {
+          results.failed++;
+          results.errors.push(`沒有權限刪除文檔: ${document.originalName}`);
+          continue;
+        }
+
+        await document.softDelete();
+        results.success++;
+        
+        console.log(`批量刪除: ${document.originalName} by ${req.user?.name || req.user?.email}`);
+        
+      } catch (error) {
+        results.failed++;
+        results.errors.push(`刪除文檔 ${id} 時發生錯誤: ${error instanceof Error ? error.message : '未知錯誤'}`);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `批量刪除完成：成功 ${results.success} 個，失敗 ${results.failed} 個`,
+      results
+    });
+
+  } catch (error) {
+    console.error('批量刪除錯誤:', error);
+    res.status(500).json({
+      success: false,
+      message: '批量刪除失敗'
+    });
+  }
+});
+
+// 恢復已刪除的文檔（管理員功能）
+router.post('/:id/restore', authMiddleware, async (req: any, res) => {
+  try {
+    const userRole = req.user?.role;
+
+    if (userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: '只有管理員可以恢復文檔'
+      });
+    }
+
+    const document = await Document.findById(req.params.id);
+
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: '文檔不存在'
+      });
+    }
+
+    if (document.status !== 'deleted') {
+      return res.status(400).json({
+        success: false,
+        message: '文檔未被刪除，無需恢復'
+      });
+    }
+
+    await document.restore();
+
+    console.log(`文檔恢復: ${document.originalName} by ${req.user?.name || req.user?.email}`);
+
+    res.json({
+      success: true,
+      message: '文檔恢復成功'
+    });
+
+  } catch (error) {
+    console.error('恢復文檔錯誤:', error);
+    res.status(500).json({
+      success: false,
+      message: '恢復文檔失敗'
+    });
+  }
+});
+
+// 快速搜尋（新增）
+router.get('/search/quick', authMiddleware, async (req: any, res) => {
+  try {
+    const { q, limit = 10 } = req.query;
+    
+    if (!q || (q as string).trim().length < 2) {
+      return res.json({
+        success: true,
+        documents: [],
+        message: '搜尋關鍵字至少需要2個字符'
+      });
+    }
+    
+    const searchTerm = (q as string).trim();
+    const searchRegex = { $regex: searchTerm, $options: 'i' };
+    
+    const documents = await Document.find({
+      status: 'active',
+      $or: [
+        { originalName: searchRegex },
+        { description: searchRegex },
+        { tags: searchRegex }
+      ]
+    })
+    .populate('uploadedBy', 'name')
+    .sort({ uploadedAt: -1 })
+    .limit(parseInt(limit as string));
+    
+    const results = documents.map(doc => ({
+      _id: doc._id,
+      originalName: doc.originalName,
+      description: doc.description,
+      category: doc.category,
+      uploadedAt: doc.uploadedAt,
+      uploadedBy: doc.uploadedBy,
+      icon: getFileIcon(doc.mimetype, doc.originalName),
+      sizeFormatted: doc.sizeFormatted
+    }));
+    
+    res.json({
+      success: true,
+      documents: results,
+      total: results.length
+    });
+    
+  } catch (error) {
+    console.error('快速搜尋錯誤:', error);
+    res.status(500).json({
+      success: false,
+      message: '搜尋失敗'
     });
   }
 });

@@ -29,6 +29,7 @@ import {
   Empty,
   Spin
 } from 'antd';
+import { propertyService, type Property, type PropertySearchParams, type PropertyStats } from '../../services/propertyService';
 import {
   PlusOutlined,
   SearchOutlined,
@@ -59,81 +60,7 @@ const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 
-// 物件類型定義
-interface Property {
-  _id: string;
-  property_type: 'apartment' | 'house' | 'office' | 'land' | 'other';
-  listing_type: 'sale' | 'rent';
-  title: string;
-  description?: string;
-  address: string;
-  district: string;
-  city: string;
-  postal_code?: string;
-  price: number;
-  area: number;
-  area_unit: 'ping' | 'sqm' | 'sqft';
-  bedrooms?: number;
-  bathrooms?: number;
-  parking_spots?: number;
-  floor?: number;
-  total_floors?: number;
-  building_age?: number;
-  features: string[];
-  amenities: string[];
-  status: 'available' | 'sold' | 'rented' | 'withdrawn';
-  available_from?: string;
-  images: string[];
-  documents: string[];
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
-  transport_info?: {
-    mrt_stations: string[];
-    distance_to_mrt: number;
-  };
-  agent_id: {
-    _id: string;
-    first_name: string;
-    last_name: string;
-    phone: string;
-    email: string;
-  };
-  company_id?: string;
-  created_at: string;
-  updated_at: string;
-  views_count?: number;
-  favorites_count?: number;
-}
-
-interface PropertySearchParams {
-  search?: string;
-  property_type?: string;
-  listing_type?: string;
-  status?: string;
-  min_price?: number;
-  max_price?: number;
-  min_area?: number;
-  max_area?: number;
-  bedrooms?: number;
-  district?: string;
-  agent_id?: string;
-  sort_by?: string;
-  sort_order?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
-}
-
-interface PropertyStats {
-  total_properties: number;
-  available_properties: number;
-  sold_properties: number;
-  rented_properties: number;
-  average_price: number;
-  total_portfolio_value: number;
-  success_rate: string;
-}
+// PropertySearchParams 和其他類型從 propertyService 導入
 
 const PropertyList: React.FC = () => {
   // 狀態管理
@@ -158,30 +85,12 @@ const PropertyList: React.FC = () => {
   const loadProperties = useCallback(async (params: PropertySearchParams = searchParams) => {
     setLoading(true);
     try {
-      const queryParams = new URLSearchParams();
-      
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          queryParams.append(key, value.toString());
-        }
-      });
-
-      const response = await fetch(`/api/properties?${queryParams}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setProperties(data.data.properties);
-        setTotal(data.data.pagination.total);
-      } else {
-        message.error('載入物件列表失敗');
-      }
+      const response = await propertyService.getProperties(params);
+      setProperties(response.data.properties);
+      setTotal(response.data.pagination.total);
     } catch (error) {
       console.error('載入物件列表錯誤:', error);
-      message.error('網絡錯誤，請稍後再試');
+      message.error(error instanceof Error ? error.message : '載入失敗');
     } finally {
       setLoading(false);
     }
@@ -190,16 +99,8 @@ const PropertyList: React.FC = () => {
   // 載入統計數據
   const loadStats = useCallback(async () => {
     try {
-      const response = await fetch('/api/properties/stats/overview', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data.data);
-      }
+      const response = await propertyService.getPropertyStats();
+      setStats(response.data);
     } catch (error) {
       console.error('載入統計數據錯誤:', error);
     }
@@ -233,28 +134,15 @@ const PropertyList: React.FC = () => {
   // 創建物件
   const handleCreate = async (values: any) => {
     try {
-      const response = await fetch('/api/properties', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        },
-        body: JSON.stringify(values)
-      });
-
-      if (response.ok) {
-        message.success('物件創建成功');
-        setShowCreateModal(false);
-        form.resetFields();
-        loadProperties();
-        loadStats();
-      } else {
-        const error = await response.json();
-        message.error(error.message || '創建失敗');
-      }
+      await propertyService.createProperty(values);
+      message.success('物件創建成功');
+      setShowCreateModal(false);
+      form.resetFields();
+      loadProperties();
+      loadStats();
     } catch (error) {
       console.error('創建物件錯誤:', error);
-      message.error('網絡錯誤，請稍後再試');
+      message.error(error instanceof Error ? error.message : '創建失敗');
     }
   };
 
@@ -263,29 +151,16 @@ const PropertyList: React.FC = () => {
     if (!currentProperty) return;
 
     try {
-      const response = await fetch(`/api/properties/${currentProperty._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        },
-        body: JSON.stringify(values)
-      });
-
-      if (response.ok) {
-        message.success('物件更新成功');
-        setShowEditModal(false);
-        setCurrentProperty(null);
-        form.resetFields();
-        loadProperties();
-        loadStats();
-      } else {
-        const error = await response.json();
-        message.error(error.message || '更新失敗');
-      }
+      await propertyService.updateProperty(currentProperty._id, values);
+      message.success('物件更新成功');
+      setShowEditModal(false);
+      setCurrentProperty(null);
+      form.resetFields();
+      loadProperties();
+      loadStats();
     } catch (error) {
       console.error('更新物件錯誤:', error);
-      message.error('網絡錯誤，請稍後再試');
+      message.error(error instanceof Error ? error.message : '更新失敗');
     }
   };
 
@@ -298,24 +173,13 @@ const PropertyList: React.FC = () => {
       cancelText: '取消',
       onOk: async () => {
         try {
-          const response = await fetch(`/api/properties/${propertyId}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-            }
-          });
-
-          if (response.ok) {
-            message.success('物件刪除成功');
-            loadProperties();
-            loadStats();
-          } else {
-            const error = await response.json();
-            message.error(error.message || '刪除失敗');
-          }
+          await propertyService.deleteProperty(propertyId);
+          message.success('物件刪除成功');
+          loadProperties();
+          loadStats();
         } catch (error) {
           console.error('刪除物件錯誤:', error);
-          message.error('網絡錯誤，請稍後再試');
+          message.error(error instanceof Error ? error.message : '刪除失敗');
         }
       }
     });
@@ -324,38 +188,34 @@ const PropertyList: React.FC = () => {
   // 查看客戶匹配
   const handleViewMatches = async (property: Property) => {
     try {
-      const response = await fetch(`/api/properties/${property._id}/matches?limit=10`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
+      const response = await propertyService.getCustomerMatches(property._id, 10);
+      Modal.info({
+        title: `${property.title} - 客戶匹配`,
+        width: 800,
+        content: (
+          <div>
+            <p>找到 {response.data.total_matches} 個匹配客戶</p>
+            <Table
+              size="small"
+              dataSource={response.data.matched_customers}
+              columns={[
+                { 
+                  title: '客戶姓名', 
+                  key: 'name',
+                  render: (_, record) => `${record.first_name} ${record.last_name}` 
+                },
+                { title: '匹配分數', dataIndex: 'match_score', key: 'score', render: (score) => `${score}分` },
+                { title: '意願評分', dataIndex: 'purchase_intent_score', key: 'intent' },
+                { title: '聯繫電話', dataIndex: 'phone', key: 'phone' }
+              ]}
+              pagination={false}
+            />
+          </div>
+        )
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        Modal.info({
-          title: `${property.title} - 客戶匹配`,
-          width: 800,
-          content: (
-            <div>
-              <p>找到 {data.data.total_matches} 個匹配客戶</p>
-              <Table
-                size="small"
-                dataSource={data.data.matched_customers}
-                columns={[
-                  { title: '客戶姓名', dataIndex: 'first_name', key: 'name' },
-                  { title: '匹配分數', dataIndex: 'match_score', key: 'score', render: (score) => `${score}分` },
-                  { title: '意願評分', dataIndex: 'purchase_intent_score', key: 'intent' },
-                  { title: '狀態', dataIndex: 'status', key: 'status' }
-                ]}
-                pagination={false}
-              />
-            </div>
-          )
-        });
-      }
     } catch (error) {
       console.error('查看匹配錯誤:', error);
-      message.error('載入匹配數據失敗');
+      message.error(error instanceof Error ? error.message : '載入匹配數據失敗');
     }
   };
 
@@ -384,10 +244,10 @@ const PropertyList: React.FC = () => {
             </div>
             <div style={{ fontSize: 12 }}>
               <Tag color={record.property_type === 'apartment' ? 'blue' : 'green'}>
-                {record.property_type === 'apartment' ? '公寓' : '房屋'}
+                {propertyService.getPropertyTypeText(record.property_type)}
               </Tag>
               <Tag color={record.listing_type === 'sale' ? 'orange' : 'purple'}>
-                {record.listing_type === 'sale' ? '出售' : '出租'}
+                {propertyService.getListingTypeText(record.listing_type)}
               </Tag>
             </div>
           </div>

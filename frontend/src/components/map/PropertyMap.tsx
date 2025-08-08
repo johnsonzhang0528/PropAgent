@@ -96,7 +96,18 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 }) => {
   const [currentLocation, setCurrentLocation] = useState<Coordinates | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const mapRef = useRef<any>(null);
+
+  // 檢測移動設備
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // 獲取當前位置
   useEffect(() => {
@@ -124,7 +135,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 
     return divIcon({
       html: `
-        <div style="
+        <div class="property-marker" style="
           background: ${color};
           width: ${size}px;
           height: ${size}px;
@@ -146,6 +157,13 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
             🏠
           </div>
         </div>
+        <style>
+          .property-marker:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+            z-index: 1000;
+          }
+        </style>
       `,
       className: '',
       iconSize: [size, size],
@@ -219,7 +237,8 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
     position: isFullscreen ? 'fixed' : 'relative',
     top: isFullscreen ? 0 : 'auto',
     left: isFullscreen ? 0 : 'auto',
-    zIndex: isFullscreen ? 9999 : 'auto'
+    zIndex: isFullscreen ? 9999 : 'auto',
+    minHeight: '300px'
   };
 
   return (
@@ -227,7 +246,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
       {/* 地圖控制按鈕 */}
       <div style={{
         position: 'absolute',
-        top: 10,
+        top: isMobile ? 60 : 10,
         right: 10,
         zIndex: 1000,
         display: 'flex',
@@ -257,10 +276,11 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         left: 10,
         zIndex: 1000,
         background: 'white',
-        padding: '12px 16px',
+        padding: isMobile ? '8px 12px' : '12px 16px',
         borderRadius: '8px',
         boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
-        minWidth: '200px'
+        minWidth: isMobile ? '150px' : '200px',
+        fontSize: isMobile ? '12px' : '14px'
       }}>
         <Space direction="vertical" size="small" style={{ width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

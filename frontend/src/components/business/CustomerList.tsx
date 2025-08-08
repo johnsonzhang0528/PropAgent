@@ -23,7 +23,8 @@ import {
   DeleteOutlined,
   PlusOutlined,
   SearchOutlined,
-  FilterOutlined
+  FilterOutlined,
+  StarOutlined
 } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import CustomerForm from './CustomerForm';
@@ -77,6 +78,11 @@ const CustomerList: React.FC = () => {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  
+  // 意願評分模態框狀態
+  const [scoreModalVisible, setScoreModalVisible] = useState(false);
+  const [scoringCustomer, setScoringCustomer] = useState<Customer | null>(null);
+  const [scoreForm] = Form.useForm();
 
   const dispatch = useAppDispatch();
   const { token } = useAppSelector((state) => state.auth);
@@ -180,11 +186,11 @@ const CustomerList: React.FC = () => {
       title: '意願評分',
       dataIndex: 'purchase_intent_score',
       key: 'score',
-      render: (score: number) => (
-        <div style={{ textAlign: 'center' }}>
+      render: (score: number, record: Customer) => (
+        <div style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => handleScoreClick(record)}>
           <Rate disabled value={score / 2} style={{ fontSize: '16px' }} />
-          <div style={{ marginTop: '4px', fontSize: '12px' }}>
-            {score.toFixed(1)}分
+          <div style={{ marginTop: '4px', fontSize: '12px', color: '#1890ff' }}>
+            {score.toFixed(1)}分 <StarOutlined />
           </div>
         </div>
       ),
@@ -295,17 +301,57 @@ const CustomerList: React.FC = () => {
     setIsModalVisible(true);
   };
 
+  // 點擊評分
+  const handleScoreClick = (customer: Customer) => {
+    setScoringCustomer(customer);
+    scoreForm.setFieldsValue({
+      score: customer.purchase_intent_score,
+      reason: ''
+    });
+    setScoreModalVisible(true);
+  };
+
+  // 更新意願評分
+  const handleScoreUpdate = async (values: { score: number; reason?: string }) => {
+    if (!scoringCustomer) return;
+
+    try {
+      const response = await fetch(`/api/customers/${scoringCustomer._id}/intent-score`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(values)
+      });
+
+      if (response.ok) {
+        message.success('意願評分更新成功');
+        setScoreModalVisible(false);
+        setScoringCustomer(null);
+        scoreForm.resetFields();
+        loadCustomers(pagination.current); // 重新載入數據
+      } else {
+        const errorData = await response.json();
+        message.error(errorData.error?.message || '更新評分失敗');
+      }
+    } catch (error) {
+      console.error('更新評分錯誤:', error);
+      message.error('網路錯誤，請稍後再試');
+    }
+  };
+
   // 聯繫客戶
   const handleContact = (customer: Customer) => {
     // 更新最後聯繫時間
-    message.info(`聯繫客戶: ${customer.name}`);
+    message.info(`聯繫客戶: ${customer.first_name} ${customer.last_name}`);
   };
 
   // 刪除客戶
   const handleDelete = (customer: Customer) => {
     Modal.confirm({
       title: '確認刪除',
-      content: `確定要刪除客戶 ${customer.name} 嗎？`,
+      content: `確定要刪除客戶 ${customer.first_name} ${customer.last_name} 嗎？`,
       okText: '確認',
       cancelText: '取消',
       onOk: async () => {
@@ -453,6 +499,58 @@ const CustomerList: React.FC = () => {
           }}
           loading={loading}
         />
+      </Modal>
+
+      {/* 意願評分更新模態框 */}
+      <Modal
+        title="更新客戶意願評分"
+        open={scoreModalVisible}
+        onCancel={() => {
+          setScoreModalVisible(false);
+          setScoringCustomer(null);
+          scoreForm.resetFields();
+        }}
+        onOk={() => scoreForm.submit()}
+        okText="更新評分"
+        cancelText="取消"
+      >
+        {scoringCustomer && (
+          <div style={{ marginBottom: '16px' }}>
+            <p><strong>客戶:</strong> {scoringCustomer.first_name} {scoringCustomer.last_name}</p>
+            <p><strong>目前評分:</strong> {scoringCustomer.purchase_intent_score}分</p>
+          </div>
+        )}
+        <Form
+          form={scoreForm}
+          layout="vertical"
+          onFinish={handleScoreUpdate}
+        >
+          <Form.Item
+            label="意願評分 (0-10分)"
+            name="score"
+            rules={[
+              { required: true, message: '請輸入評分' },
+              { type: 'number', min: 0, max: 10, message: '評分必須在0-10之間' }
+            ]}
+          >
+            <Input.Number 
+              min={0} 
+              max={10} 
+              step={0.1}
+              style={{ width: '100%' }}
+              placeholder="請輸入0-10之間的評分"
+            />
+          </Form.Item>
+          <Form.Item
+            label="評分原因 (選填)"
+            name="reason"
+          >
+            <Input.TextArea 
+              rows={3}
+              placeholder="請簡述調整評分的原因..."
+            />
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

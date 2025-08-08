@@ -101,13 +101,24 @@ class SecurityService {
     }
   }
 
-  // 解除封鎖 IP
-  async unblockIP(ip: string): Promise<void> {
+  // 解除封鎖 IP (POST 方法，支援原因說明)
+  async unblockIP(ip: string, reason?: string): Promise<void> {
     try {
-      await axios.post(`${this.apiUrl}/unblock-ip`, { ip });
+      await axios.post(`${this.apiUrl}/unblock-ip`, { ip, reason });
     } catch (error) {
       console.error('解除封鎖 IP 失敗:', error);
       throw new Error('解除封鎖 IP 失敗');
+    }
+  }
+
+  // 解除封鎖 IP (DELETE 方法)
+  async deleteBlockedIP(ip: string, reason?: string): Promise<void> {
+    try {
+      const params = reason ? { reason } : {};
+      await axios.delete(`${this.apiUrl}/unblock-ip/${encodeURIComponent(ip)}`, { params });
+    } catch (error) {
+      console.error('刪除封鎖 IP 失敗:', error);
+      throw new Error('刪除封鎖 IP 失敗');
     }
   }
 
@@ -220,7 +231,9 @@ class SecurityService {
       'USER_AGENT_BLOCKED': '用戶代理被封鎖',
       'REQUEST_TOO_LARGE': '請求數據過大',
       'MANUAL_BLOCK': '手動封鎖',
-      'AUTO_BLOCK': '自動封鎖'
+      'AUTO_BLOCK': '自動封鎖',
+      'MANUAL_UNBLOCK': '手動解除封鎖',
+      'DELETE_UNBLOCK': '管理員刪除封鎖'
     };
     
     // 處理包含前綴的原因

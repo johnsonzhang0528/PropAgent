@@ -60,6 +60,7 @@
   },
   "navigation": {
     "dashboard": "仪表板",
+    "tasks": "任务管理",
     "customers": "客户管理",
     "properties": "房产管理",
     "analytics": "分析报告",

@@ -33,6 +33,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       path: '/'
     },
     {
+      key: '/tasks',
+      icon: '📋',
+      label: t('navigation.tasks', '任務管理'),
+      path: '/tasks'
+    },
+    {
       key: '/customers',
       icon: '👥',
       label: t('navigation.customers', '客戶管理'),

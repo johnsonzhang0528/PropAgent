@@ -87,15 +87,64 @@ const SecurityPage: React.FC = () => {
     }
   };
 
-  // 解除封鎖 IP
-  const handleUnblockIP = async (ip: string) => {
-    try {
-      await securityService.unblockIP(ip);
-      message.success(`IP ${ip} 已解除封鎖`);
-      loadSecurityData();
-    } catch (error) {
-      message.error('解除封鎖失敗');
-    }
+  // 解除封鎖 IP (增強版，包含原因輸入)
+  const handleUnblockIP = (ip: string) => {
+    Modal.confirm({
+      title: '確認解除封鎖',
+      content: (
+        <div>
+          <p>確定要解除封鎖 IP <strong style={{ color: '#f5222d' }}>{ip}</strong> 嗎？</p>
+          <p style={{ color: '#8c8c8c', fontSize: '12px' }}>
+            解除封鎖後，此 IP 將能夠正常存取系統。
+          </p>
+        </div>
+      ),
+      okText: '確定解除',
+      cancelText: '取消',
+      okType: 'primary',
+      onOk: async () => {
+        try {
+          await securityService.unblockIP(ip, '管理員手動解除');
+          message.success(`IP ${ip} 已解除封鎖`);
+          loadSecurityData();
+        } catch (error: any) {
+          const errorMsg = error.response?.data?.message || '解除封鎖失敗';
+          message.error(errorMsg);
+        }
+      }
+    });
+  };
+
+  // 刪除封鎖 IP（更嚴格的確認）
+  const handleDeleteBlockedIP = (ip: string) => {
+    Modal.confirm({
+      title: '永久刪除封鎖',
+      content: (
+        <div>
+          <Alert
+            message="警告"
+            description={`您即將永久刪除對 IP ${ip} 的封鎖記錄。此操作無法撤銷。`}
+            type="warning"
+            showIcon
+            style={{ marginBottom: '16px' }}
+          />
+          <p>請確認您有充分的理由執行此操作。</p>
+        </div>
+      ),
+      okText: '確定刪除',
+      cancelText: '取消',
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          await securityService.deleteBlockedIP(ip, '管理員永久刪除');
+          message.success(`已永久刪除對 IP ${ip} 的封鎖`);
+          loadSecurityData();
+        } catch (error: any) {
+          const errorMsg = error.response?.data?.message || '刪除封鎖失敗';
+          message.error(errorMsg);
+        }
+      }
+    });
   };
 
   // 清除所有封鎖的 IP
@@ -136,17 +185,30 @@ const SecurityPage: React.FC = () => {
     {
       title: '操作',
       key: 'actions',
-      render: (ip: string) => (
-        <Popconfirm
-          title="確定要解除封鎖這個 IP 嗎？"
-          onConfirm={() => handleUnblockIP(ip)}
-          okText="確定"
-          cancelText="取消"
-        >
-          <Button type="link" size="small" danger>
-            解除封鎖
-          </Button>
-        </Popconfirm>
+      render: (_: any, record: { ip: string }) => (
+        <Space size="small">
+          <Tooltip title="解除封鎖此 IP，允許其正常存取">
+            <Button 
+              type="link" 
+              size="small" 
+              onClick={() => handleUnblockIP(record.ip)}
+              style={{ color: '#52c41a' }}
+            >
+              解除封鎖
+            </Button>
+          </Tooltip>
+          <Divider type="vertical" />
+          <Tooltip title="永久刪除此 IP 的封鎖記錄">
+            <Button 
+              type="link" 
+              size="small" 
+              danger
+              onClick={() => handleDeleteBlockedIP(record.ip)}
+            >
+              永久刪除
+            </Button>
+          </Tooltip>
+        </Space>
       )
     }
   ];

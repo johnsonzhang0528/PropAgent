@@ -60,6 +60,7 @@
   },
   "navigation": {
     "dashboard": "Dashboard",
+    "tasks": "Task Management",
     "customers": "Customer Management",
     "properties": "Property Management",
     "analytics": "Analytics",
