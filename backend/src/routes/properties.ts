@@ -2,12 +2,14 @@ import express from 'express';
 import { Property } from '../models/Property';
 import { Customer } from '../models/Customer';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { AppError, catchAsync } from '../middleware/errorHandler';
+import logger from '../utils/logger';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
 // 獲取物件列表
-router.get('/', authMiddleware, async (req: any, res) => {
-  try {
+router.get('/', authMiddleware, catchAsync(async (req: any, res) => {
     const {
       page = 1,
       limit = 20,
@@ -55,25 +57,30 @@ router.get('/', authMiddleware, async (req: any, res) => {
       if (max_area) query.area.$lte = parseFloat(max_area as string);
     }
 
-    // 排序
-    const sortOptions: any = {};
-    sortOptions[sort_by as string] = sort_order === 'desc' ? -1 : 1;
 
-    // 分頁
-    const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    // 分頁驗證和設置
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string) || 20));
     const skip = (pageNum - 1) * limitNum;
 
-    // 查詢物件
-    const properties = await Property.find(query)
-      .populate('agent_id', 'first_name last_name email phone')
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(limitNum)
-      .lean();
+    // 驗證排序欄位
+    const allowedSortFields = ['created_at', 'updated_at', 'price', 'area', 'title'];
+    const sortField = allowedSortFields.includes(sort_by as string) ? sort_by as string : 'created_at';
+    const sortDirection = sort_order === 'asc' ? 1 : -1;
+    
+    const sortOptions: any = {};
+    sortOptions[sortField] = sortDirection;
 
-    // 總數
-    const total = await Property.countDocuments(query);
+    // 並行查詢優化
+    const [properties, total] = await Promise.all([
+      Property.find(query)
+        .populate('agent_id', 'first_name last_name email phone')
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Property.countDocuments(query)
+    ]);
 
     res.json({
       success: true,
@@ -87,47 +94,34 @@ router.get('/', authMiddleware, async (req: any, res) => {
         }
       }
     });
-  } catch (error) {
-    console.error('獲取物件列表錯誤:', error);
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: '服務器錯誤' }
-    });
-  }
-});
+  logger.logBusiness('獲取房產列表', { query: req.query, userId: req.user.id });
+}));
 
 // 獲取單個物件詳細信息
-router.get('/:id', authMiddleware, async (req: any, res) => {
-  try {
+router.get('/:id', authMiddleware, catchAsync(async (req: any, res) => {
     const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new AppError('無效的房產ID格式', 400);
+    }
 
     const property = await Property.findById(id)
       .populate('agent_id', 'first_name last_name email phone')
       .populate('company_id', 'name');
 
     if (!property) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'PROPERTY_NOT_FOUND', message: '物件不存在' }
-      });
+      throw new AppError('房產不存在', 404);
     }
 
     res.json({
       success: true,
       data: { property }
     });
-  } catch (error) {
-    console.error('獲取物件詳情錯誤:', error);
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: '服務器錯誤' }
-    });
-  }
-});
+  logger.logBusiness('獲取房產詳情', { propertyId: id, userId: req.user.id });
+}));
 
 // 創建新物件
-router.post('/', authMiddleware, async (req: any, res) => {
-  try {
+router.post('/', authMiddleware, catchAsync(async (req: any, res) => {
     const {
       property_type,
       listing_type,
@@ -157,6 +151,21 @@ router.post('/', authMiddleware, async (req: any, res) => {
       virtual_tour_url,
       listing_expires_at
     } = req.body;
+
+    // 驗證必填欄位
+    if (!property_type || !listing_type || !title || !address || !district || !city || !price || !area) {
+      throw new AppError('缺少必填欄位：房產類型、出售/出租類型、標題、地址、區域、城市、價格、面積', 400);
+    }
+
+    // 驗證價格和面積
+    if (price <= 0 || area <= 0) {
+      throw new AppError('價格和面積必須大於0', 400);
+    }
+
+    // 確保用戶有 company_id
+    if (!req.user.company_id) {
+      throw new AppError('用戶未關聯公司，無法創建房產', 400);
+    }
 
     // 創建物件
     const property = new Property({
@@ -201,37 +210,36 @@ router.post('/', authMiddleware, async (req: any, res) => {
       success: true,
       data: { property: populatedProperty }
     });
-  } catch (error) {
-    console.error('創建物件錯誤:', error);
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: '服務器錯誤' }
-    });
-  }
-});
+  logger.logBusiness('創建新房產', { title, property_type, price, userId: req.user.id });
+}));
 
 // 更新物件信息
-router.put('/:id', authMiddleware, async (req: any, res) => {
-  try {
+router.put('/:id', authMiddleware, catchAsync(async (req: any, res) => {
     const { id } = req.params;
     const updateData = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new AppError('無效的房產ID格式', 400);
+    }
 
     // 查找物件
     const property = await Property.findById(id);
     if (!property) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'PROPERTY_NOT_FOUND', message: '物件不存在' }
-      });
+      throw new AppError('房產不存在', 404);
     }
 
     // 檢查權限
     if (req.user.role !== 'admin' && req.user.role !== 'manager' && 
         property.agent_id?.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: { code: 'FORBIDDEN', message: '沒有權限修改此物件' }
-      });
+      throw new AppError('沒有權限修改此房產', 403);
+    }
+
+    // 驗證更新數據
+    if (updateData.price !== undefined && updateData.price <= 0) {
+      throw new AppError('價格必須大於0', 400);
+    }
+    if (updateData.area !== undefined && updateData.area <= 0) {
+      throw new AppError('面積必須大於0', 400);
     }
 
     // 不允許修改的字段
@@ -251,36 +259,27 @@ router.put('/:id', authMiddleware, async (req: any, res) => {
       success: true,
       data: { property: updatedProperty }
     });
-  } catch (error) {
-    console.error('更新物件錯誤:', error);
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: '服務器錯誤' }
-    });
-  }
-});
+  logger.logBusiness('更新房產信息', { propertyId: id, changes: Object.keys(updateData), userId: req.user.id });
+}));
 
 // 刪除物件
-router.delete('/:id', authMiddleware, async (req: any, res) => {
-  try {
+router.delete('/:id', authMiddleware, catchAsync(async (req: any, res) => {
     const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new AppError('無效的房產ID格式', 400);
+    }
 
     // 查找物件
     const property = await Property.findById(id);
     if (!property) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'PROPERTY_NOT_FOUND', message: '物件不存在' }
-      });
+      throw new AppError('房產不存在', 404);
     }
 
     // 檢查權限
     if (req.user.role !== 'admin' && req.user.role !== 'manager' && 
         property.agent_id?.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: { code: 'FORBIDDEN', message: '沒有權限刪除此物件' }
-      });
+      throw new AppError('沒有權限刪除此房產', 403);
     }
 
     // 軟刪除：將狀態設為 withdrawn
@@ -291,28 +290,22 @@ router.delete('/:id', authMiddleware, async (req: any, res) => {
       success: true,
       data: { message: '物件已刪除' }
     });
-  } catch (error) {
-    console.error('刪除物件錯誤:', error);
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: '服務器錯誤' }
-    });
-  }
-});
+  logger.logBusiness('刪除房產', { propertyId: id, title: property.title, userId: req.user.id });
+}));
 
 // 智能客戶配對
-router.get('/:id/matches', authMiddleware, async (req: any, res) => {
-  try {
+router.get('/:id/matches', authMiddleware, catchAsync(async (req: any, res) => {
     const { id } = req.params;
     const { limit = 10 } = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new AppError('無效的房產ID格式', 400);
+    }
 
     // 查找物件
     const property = await Property.findById(id);
     if (!property) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'PROPERTY_NOT_FOUND', message: '物件不存在' }
-      });
+      throw new AppError('房產不存在', 404);
     }
 
     // 構建客戶匹配查詢條件
@@ -385,18 +378,11 @@ router.get('/:id/matches', authMiddleware, async (req: any, res) => {
         total_matches: customerMatches.length
       }
     });
-  } catch (error) {
-    console.error('客戶配對錯誤:', error);
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: '服務器錯誤' }
-    });
-  }
-});
+  logger.logBusiness('智能客戶配對', { propertyId: id, matchCount: customerMatches.length, userId: req.user.id });
+}));
 
 // 物件統計數據
-router.get('/stats/overview', authMiddleware, async (req: any, res) => {
-  try {
+router.get('/stats/overview', authMiddleware, catchAsync(async (req: any, res) => {
     const { agent_id } = req.query;
     
     // 構建查詢條件
@@ -442,13 +428,7 @@ router.get('/stats/overview', authMiddleware, async (req: any, res) => {
         success_rate: totalCount > 0 ? ((soldCount + rentedCount) / totalCount * 100).toFixed(2) : 0
       }
     });
-  } catch (error) {
-    console.error('獲取物件統計錯誤:', error);
-    res.status(500).json({
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: '服務器錯誤' }
-    });
-  }
-});
+  logger.logBusiness('獲取房產統計', { agentId: agent_id, userId: req.user.id });
+}));
 
 export default router;

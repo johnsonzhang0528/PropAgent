@@ -20,6 +20,7 @@ import PropertyMapPage from './pages/PropertyMapPage';
 import BackupPage from './pages/backup/BackupPage';
 import SecurityPage from './pages/security/SecurityPage';
 import TestPage from './pages/test/TestPage';
+import TasksPage from './pages/tasks/TasksPage';
 import DebugAnalytics from './components/debug/DebugAnalytics';
 import './styles/global.css';
 
@@ -69,6 +70,7 @@ function AppContent() {
                   <MainLayout>
                     <Routes>
                       <Route path="/dashboard" element={<DashboardPage />} />
+                      <Route path="/tasks" element={<TasksPage />} />
                       <Route path="/customers" element={<CustomerPage />} />
                       <Route path="/properties" element={<PropertyPage />} />
                       <Route path="/analytics" element={<AnalyticsPage />} />

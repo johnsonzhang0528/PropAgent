@@ -272,7 +272,32 @@ const PropertyMapPage: React.FC = () => {
               >
                 在地圖上查看
               </Button>
-              <Button style={{ flex: 1 }}>
+              <Button 
+                style={{ flex: 1 }}
+                onClick={() => {
+                  // 開啟聯絡窗口或跳轉聯絡頁面
+                  const phone = '0987-654-321';
+                  const email = 'contact@propagent.pro';
+                  const subject = `詢問房產: ${selectedProperty.title}`;
+                  const body = `您好，我對以下房產有興趣：\n\n房產名稱: ${selectedProperty.title}\n地址: ${selectedProperty.location.address}\n價格: NT$ ${formatPrice(selectedProperty.price)}\n\n請提供更多詳細資訊，謝謝。`;
+                  
+                  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                  
+                  // 顯示聯絡選項
+                  const contactOptions = [
+                    { label: '發送郵件', action: () => window.open(mailtoLink) },
+                    { label: '撥打電話', action: () => window.open(`tel:${phone}`) },
+                    { label: '複製聯絡資訊', action: () => {
+                      navigator.clipboard.writeText(`電話: ${phone}\n郵箱: ${email}`);
+                      message.success('聯絡資訊已複製到剪貼板');
+                    }}
+                  ];
+                  
+                  // 這裡可以改成彈出選項菜單
+                  window.open(mailtoLink);
+                  message.info(`聯絡電話: ${phone}`);
+                }}
+              >
                 聯絡我們
               </Button>
             </Space>

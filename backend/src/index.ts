@@ -8,6 +8,7 @@ import { initializeSocket, NotificationService } from './socket';
 import { globalErrorHandler } from './middleware/errorHandler';
 import requestLogger from './middleware/requestLogger';
 import logger from './utils/logger';
+import { ipBlockMiddleware } from './routes/security';
 
 // Routes
 import authRoutes from './routes/auth';
@@ -96,6 +97,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // 請求日誌中間件
 app.use(requestLogger);
+
+// IP 阻擋中間件 - 必須在路由之前
+app.use(ipBlockMiddleware);
 
 // 健康檢查端點
 app.get('/health', async (req, res) => {

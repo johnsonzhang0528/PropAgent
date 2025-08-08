@@ -26,6 +26,7 @@ import {
   FilterOutlined
 } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import CustomerForm from './CustomerForm';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -34,7 +35,6 @@ interface Customer {
   _id: string;
   first_name: string;
   last_name: string;
-  name: string;
   phone: string;
   email?: string;
   status: 'active' | 'inactive' | 'completed' | 'lost';
@@ -122,8 +122,14 @@ const CustomerList: React.FC = () => {
 
   // 元件載入時載入資料
   useEffect(() => {
+    loadCustomers(1); // 搜尋時重置到第一頁
+    setPagination(prev => ({ ...prev, current: 1 }));
+  }, [filters.status]); // 只監聽狀態篩選變化
+
+  // 首次載入
+  useEffect(() => {
     loadCustomers();
-  }, [filters]);
+  }, []);
 
   // 狀態標籤顏色
   const getStatusColor = (status: string) => {
@@ -156,7 +162,7 @@ const CustomerList: React.FC = () => {
         <Space>
           <Avatar icon={<UserOutlined />} />
           <div>
-            <div style={{ fontWeight: 'bold' }}>{record.name}</div>
+            <div style={{ fontWeight: 'bold' }}>{`${record.first_name} ${record.last_name}`}</div>
             <div style={{ fontSize: '12px', color: '#666' }}>
               <PhoneOutlined /> {record.phone}
             </div>
@@ -335,6 +341,13 @@ const CustomerList: React.FC = () => {
     loadCustomers(page);
   };
 
+  // 處理表單提交
+  const handleFormSubmit = (customer: Customer) => {
+    setIsModalVisible(false);
+    setEditingCustomer(null);
+    loadCustomers(pagination.current); // 重新載入當前頁
+  };
+
   return (
     <div style={{ padding: '24px' }}>
       <Card>
@@ -343,7 +356,10 @@ const CustomerList: React.FC = () => {
           <Button 
             type="primary" 
             icon={<PlusOutlined />}
-            onClick={() => setIsModalVisible(true)}
+            onClick={() => {
+              setEditingCustomer(null);
+              setIsModalVisible(true);
+            }}
           >
             新增客戶
           </Button>
@@ -411,10 +427,15 @@ const CustomerList: React.FC = () => {
         footer={null}
         width={600}
       >
-        {/* 客戶表單元件將在這裡實現 */}
-        <div style={{ textAlign: 'center', padding: '40px' }}>
-          <p>客戶表單元件開發中...</p>
-        </div>
+        <CustomerForm
+          customer={editingCustomer}
+          onSubmit={handleFormSubmit}
+          onCancel={() => {
+            setIsModalVisible(false);
+            setEditingCustomer(null);
+          }}
+          loading={loading}
+        />
       </Modal>
     </div>
   );

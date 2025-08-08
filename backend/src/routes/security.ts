@@ -154,7 +154,7 @@ export const securityMonitor = new SecurityMonitor();
 
 // IP 封鎖中間件
 export const ipBlockMiddleware = (req: Request, res: Response, next: express.NextFunction) => {
-  const clientIP = req.ip;
+  const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'unknown';
   
   if (securityMonitor.isIPBlocked(clientIP)) {
     securityMonitor.addSuspiciousActivity(clientIP, 'BLOCKED_IP_ACCESS_ATTEMPT', req.get('User-Agent'));

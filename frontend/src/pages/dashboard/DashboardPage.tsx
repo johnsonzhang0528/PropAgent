@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Row, Col, Card, Statistic, Typography, Space, List, Progress, Avatar, Button, Tag } from 'antd';
 import { 
   UserOutlined, 
@@ -21,6 +22,8 @@ import {
 const { Title, Text } = Typography;
 
 const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [showTodayTasks, setShowTodayTasks] = useState(false);
   const recentActivities = [
     { 
       icon: <PhoneOutlined style={{ color: '#1890ff' }} />, 
@@ -137,13 +140,14 @@ const DashboardPage: React.FC = () => {
                   type="primary" 
                   ghost 
                   size="large"
+                  onClick={() => setShowTodayTasks(!showTodayTasks)}
                   style={{ 
                     borderRadius: '8px',
                     borderColor: 'rgba(255,255,255,0.6)',
                     color: 'white'
                   }}
                 >
-                  查看今日任务 <RightOutlined />
+                  {showTodayTasks ? '隱藏今日任務' : '查看今日任務'} <RightOutlined />
                 </Button>
               </div>
             </Col>
@@ -152,6 +156,40 @@ const DashboardPage: React.FC = () => {
             </Col>
           </Row>
         </div>
+
+        {/* 今日任務區域 */}
+        {showTodayTasks && (
+          <Card 
+            title="今日任務" 
+            style={{ 
+              borderRadius: '16px', 
+              border: 'none',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+              background: 'linear-gradient(135deg, #f6ffed 0%, #f0f9ff 100%)'
+            }}
+          >
+            <Row gutter={[16, 16]}>
+              {todoItems.filter(item => item.time.includes('今天')).map((task, index) => (
+                <Col key={index} xs={24} md={12} lg={8}>
+                  <div style={{
+                    padding: '16px',
+                    background: 'white',
+                    borderRadius: '12px',
+                    border: `2px solid ${getPriorityColor(task.priority)}33`,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}>
+                    <div style={{ marginRight: '12px' }}>{task.icon}</div>
+                    <div>
+                      <Text strong style={{ display: 'block', fontSize: '14px' }}>{task.text}</Text>
+                      <Text style={{ color: '#666', fontSize: '12px' }}>{task.time}</Text>
+                    </div>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+          </Card>
+        )}
 
         {/* 統計卡片 */}
         <Row gutter={[24, 24]}>
@@ -359,7 +397,13 @@ const DashboardPage: React.FC = () => {
                     <CalendarOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
                     <span style={{ fontSize: '18px', fontWeight: 600 }}>待辦事項</span>
                   </div>
-                  <Button type="link" size="small">查看全部</Button>
+                  <Button 
+                    type="link" 
+                    size="small" 
+                    onClick={() => navigate('/tasks')}
+                  >
+                    查看全部
+                  </Button>
                 </div>
               }
               style={{ 
