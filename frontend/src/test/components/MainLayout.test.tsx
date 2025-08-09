@@ -43,9 +43,9 @@ describe('MainLayout', () => {
     );
     
     // Check main layout components
-    expect(expect(screen.getByText('PropAgent Pro'))toBeTruthy()).toBeTruthy();
-    expect(expect(screen.getByText('房地產智能客戶管理系統'))toBeTruthy()).toBeTruthy();
-    expect(expect(screen.getByTestId('test-content'))toBeTruthy()).toBeTruthy();
+    expect(screen.getByText('PropAgent Pro')).toBeInTheDocument();
+    expect(screen.getByText('房地產智能客戶管理系統')).toBeInTheDocument();
+    expect(screen.getByTestId('test-content')).toBeInTheDocument();
   });
 
   it('renders all navigation menu items', () => {
@@ -55,10 +55,10 @@ describe('MainLayout', () => {
       </MainLayout>
     );
     
-    expect(expect(screen.getByText('儀表板'))toBeTruthy()).toBeTruthy();
-    expect(expect(screen.getByText('客戶管理'))toBeTruthy()).toBeTruthy();
-    expect(expect(screen.getByText('房產管理'))toBeTruthy()).toBeTruthy();
-    expect(expect(screen.getByText('分析報告'))toBeTruthy()).toBeTruthy();
+    expect(screen.getByText('儀表板')).toBeInTheDocument();
+    expect(screen.getByText('客戶管理')).toBeInTheDocument();
+    expect(screen.getByText('房產管理')).toBeInTheDocument();
+    expect(screen.getByText('分析報告')).toBeInTheDocument();
   });
 
   it('displays user information in header', () => {
@@ -68,8 +68,8 @@ describe('MainLayout', () => {
       </MainLayout>
     );
     
-    expect(expect(screen.getByText('測試用戶'))toBeTruthy()).toBeTruthy();
-    expect(expect(screen.getByRole('img', { name: 'user' }))toBeTruthy()).toBeTruthy();
+    expect(screen.getByText('測試用戶')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'user' })).toBeInTheDocument();
   });
 
   it('handles menu navigation correctly', async () => {
@@ -102,8 +102,8 @@ describe('MainLayout', () => {
     await user.click(screen.getByRole('img', { name: 'user' }));
     
     await waitFor(() => {
-      expect(expect(screen.getByText('個人設置'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('登出'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('個人設置')).toBeInTheDocument();
+      expect(screen.getByText('登出')).toBeInTheDocument();
     });
   });
 
@@ -119,7 +119,7 @@ describe('MainLayout', () => {
     await user.click(screen.getByRole('img', { name: 'user' }));
     
     await waitFor(() => {
-      expect(expect(screen.getByText('登出'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('登出').toBeInTheDocument();
     });
     
     // Click logout
@@ -153,9 +153,9 @@ describe('MainLayout', () => {
     );
     
     // Check for proper ARIA labels and roles
-    expect(expect(screen.getByRole('navigation'))toBeTruthy()).toBeTruthy();
-    expect(expect(screen.getByRole('banner'))toBeTruthy()).toBeTruthy();
-    expect(expect(screen.getByRole('main'))toBeTruthy()).toBeTruthy();
+    expect(screen.getByRole('navigation').toBeInTheDocument();
+    expect(screen.getByRole('banner').toBeInTheDocument();
+    expect(screen.getByRole('main').toBeInTheDocument();
   });
 
   it('renders without user when user is null', () => {
@@ -173,6 +173,6 @@ describe('MainLayout', () => {
       </MainLayout>
     );
     
-    expect(expect(screen.getByText('用戶'))toBeTruthy()).toBeTruthy();
+    expect(screen.getByText('用戶').toBeInTheDocument();
   });
 });

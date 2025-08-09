@@ -411,10 +411,35 @@ const CustomerList: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Card>
-        <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0 }}>客戶管理</h2>
+    <div className="page-container" style={{ 
+      padding: '24px',
+      maxWidth: '100%',
+      overflow: 'hidden',
+      boxSizing: 'border-box'
+    }}>
+      <Card style={{
+        maxWidth: '100%',
+        overflow: 'hidden',
+        boxSizing: 'border-box'
+      }}>
+        <div className="header-row" style={{ 
+          marginBottom: '16px', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+          maxWidth: '100%',
+          boxSizing: 'border-box'
+        }}>
+          <h2 style={{ 
+            margin: 0,
+            flex: '1 1 auto',
+            minWidth: '0',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}>客戶管理</h2>
           <Button 
             type="primary" 
             icon={<PlusOutlined />}
@@ -422,49 +447,117 @@ const CustomerList: React.FC = () => {
               setEditingCustomer(null);
               setIsModalVisible(true);
             }}
+            style={{
+              flex: '0 0 auto',
+              whiteSpace: 'nowrap'
+            }}
           >
             新增客戶
           </Button>
         </div>
 
-        {/* 搜尋和篩選區域 */}
-        <div style={{ marginBottom: '16px' }}>
-          <Space wrap>
-            <Search
-              placeholder="搜尋客戶姓名、電話或郵箱"
-              style={{ width: 300 }}
-              value={filters.search}
-              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-              onSearch={handleSearch}
-              allowClear
-            />
-            <Select
-              style={{ width: 120 }}
-              value={filters.status}
-              onChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
-            >
-              <Option value="all">全部狀態</Option>
-              <Option value="active">活躍</Option>
-              <Option value="inactive">非活躍</Option>
-              <Option value="completed">已成交</Option>
-              <Option value="lost">已流失</Option>
-            </Select>
-            <Button icon={<FilterOutlined />}>進階篩選</Button>
-          </Space>
+        {/* 搜尋和篩選區域 - 修復響應式佈局 */}
+        <div className="search-filters-container" style={{ marginBottom: '16px' }}>
+          <div className="search-row" style={{ 
+            display: 'flex', 
+            gap: '12px', 
+            alignItems: 'stretch',
+            flexWrap: 'wrap',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box'
+          }}>
+            <div className="search-input-container" style={{ 
+              flex: '1 1 300px',
+              minWidth: '250px',
+              maxWidth: '100%',
+              boxSizing: 'border-box'
+            }}>
+              <Search
+                placeholder="搜尋客戶姓名、電話或郵箱"
+                style={{ 
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box'
+                }}
+                value={filters.search}
+                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                onSearch={handleSearch}
+                allowClear
+              />
+            </div>
+            <div className="filter-container" style={{ 
+              flex: '0 0 auto',
+              minWidth: '120px',
+              width: '120px',
+              boxSizing: 'border-box'
+            }}>
+              <Select
+                style={{ 
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box'
+                }}
+                value={filters.status}
+                onChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+              >
+                <Option value="all">全部狀態</Option>
+                <Option value="active">活躍</Option>
+                <Option value="inactive">非活躍</Option>
+                <Option value="completed">已成交</Option>
+                <Option value="lost">已流失</Option>
+              </Select>
+            </div>
+            <div style={{ flex: '0 0 auto' }}>
+              <Button 
+                icon={<FilterOutlined />}
+                style={{
+                  whiteSpace: 'nowrap',
+                  boxSizing: 'border-box'
+                }}
+              >
+                進階篩選
+              </Button>
+            </div>
+          </div>
         </div>
 
-        {/* 客戶列表表格 */}
-        <Table
-          columns={columns}
-          dataSource={customers}
-          rowKey="_id"
-          loading={loading}
-          pagination={false}
-          scroll={{ x: 1000 }}
-        />
+        {/* 客戶列表表格 - 修復響應式溢出 */}
+        <div className="table-container" style={{ 
+          maxWidth: '100%',
+          overflow: 'hidden',
+          borderRadius: '16px',
+          border: '1px solid var(--border-primary)',
+          backgroundColor: 'var(--bg-primary)'
+        }}>
+          <div style={{ 
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch'
+          }}>
+            <Table
+              columns={columns}
+              dataSource={customers}
+              rowKey="_id"
+              loading={loading}
+              pagination={false}
+              scroll={{ x: 800 }}
+              style={{
+                minWidth: '800px'
+              }}
+            />
+          </div>
+        </div>
 
-        {/* 分頁控制 */}
-        <div style={{ marginTop: '16px', textAlign: 'right' }}>
+        {/* 分頁控制 - 修復響應式佈局 */}
+        <div style={{ 
+          marginTop: '16px', 
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          maxWidth: '100%',
+          overflow: 'hidden',
+          boxSizing: 'border-box'
+        }}>
           <Pagination
             current={pagination.current}
             pageSize={pagination.pageSize}
@@ -475,6 +568,11 @@ const CustomerList: React.FC = () => {
               `顯示 ${range[0]}-${range[1]} 項，共 ${total} 項`
             }
             onChange={handlePageChange}
+            style={{
+              maxWidth: '100%',
+              overflow: 'hidden'
+            }}
+            responsive
           />
         </div>
       </Card>

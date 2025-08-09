@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文檔管理功能測試</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            color: #1890ff;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 3px solid #52c41a;
+            background: #f6ffed;
+        }
+        .test-item.failed {
+            border-left-color: #ff4d4f;
+            background: #fff2f0;
+        }
+        .test-steps {
+            background: #e6f7ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status {
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .status.fixed {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        .status.improved {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>文檔管理功能修復報告</h1>
+        <p><strong>修復時間:</strong> <span id="current-time"></span></p>
+        
+        <div class="test-section">
+            <div class="test-title">🔍 搜尋功能修復</div>
+            <div class="test-item">
+                <span class="status fixed">已修復</span>
+                <strong>問題:</strong> 搜尋框輸入後未自動觸發搜尋
+            </div>
+            <div class="test-item">
+                <span class="status fixed">已修復</span>
+                <strong>解決:</strong> 添加 onPressEnter 和 onBlur 事件處理
+            </div>
+            <div class="test-item">
+                <span class="status improved">改良</span>
+                <strong>優化:</strong> 添加防抖動機制，避免過度請求
+            </div>
+            <div class="test-steps">
+                <strong>測試步驟:</strong>
+                <ol>
+                    <li>在搜尋框中輸入文件名稱</li>
+                    <li>按 Enter 鍵或點擊其他區域</li>
+                    <li>確認列表自動過濾結果</li>
+                    <li>清空搜尋框確認顯示全部文件</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🗂️ 分類篩選修復</div>
+            <div class="test-item">
+                <span class="status fixed">已修復</span>
+                <strong>問題:</strong> 分類下拉選單選擇後未自動篩選
+            </div>
+            <div class="test-item">
+                <span class="status fixed">已修復</span>
+                <strong>解決:</strong> 修復 handleFilter 函數觸發機制
+            </div>
+            <div class="test-steps">
+                <strong>測試步驟:</strong>
+                <ol>
+                    <li>點擊分類篩選下拉選單</li>
+                    <li>選擇不同分類 (房產相關、客戶相關等)</li>
+                    <li>確認列表自動按分類過濾</li>
+                    <li>選擇"清空"確認顯示全部分類</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📤 檔案上傳修復</div>
+            <div class="test-item">
+                <span class="status improved">增強</span>
+                <strong>問題:</strong> 上傳按鈕點擊後無反應或錯誤處理不足
+            </div>
+            <div class="test-item">
+                <span class="status fixed">已修復</span>
+                <strong>解決:</strong> 增強錯誤處理和進度顯示
+            </div>
+            <div class="test-item">
+                <span class="status improved">新增</span>
+                <strong>功能:</strong> 支援拖拽上傳，改善用戶體驗
+            </div>
+            <div class="test-steps">
+                <strong>測試步驟:</strong>
+                <ol>
+                    <li>點擊"選擇文件"按鈕選擇文件</li>
+                    <li>或直接拖拽文件到上傳區域</li>
+                    <li>點擊"開始上傳"按鈕</li>
+                    <li>觀察上傳進度條和狀態顯示</li>
+                    <li>確認上傳完成後文件出現在列表中</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔧 API 通信改善</div>
+            <div class="test-item">
+                <span class="status improved">改良</span>
+                <strong>問題:</strong> API 請求失敗時缺乏詳細錯誤信息
+            </div>
+            <div class="test-item">
+                <span class="status fixed">已修復</span>
+                <strong>解決:</strong> 增強錯誤日誌和用戶提示
+            </div>
+            <div class="test-item">
+                <span class="status improved">優化</span>
+                <strong>功能:</strong> 添加請求/響應詳細日誌便於除錯
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📋 測試檢查清單</div>
+            <div style="background: #fff7e6; padding: 15px; border-radius: 4px;">
+                <h4>前端測試 (http://localhost:5174)</h4>
+                <label><input type="checkbox"> 文檔列表正常載入</label><br>
+                <label><input type="checkbox"> 搜尋功能正常工作</label><br>
+                <label><input type="checkbox"> 分類篩選正常工作</label><br>
+                <label><input type="checkbox"> 檔案選擇功能正常</label><br>
+                <label><input type="checkbox"> 拖拽上傳功能正常</label><br>
+                <label><input type="checkbox"> 上傳進度顯示正常</label><br>
+                <label><input type="checkbox"> 錯誤處理提示清晰</label><br>
+            </div>
+            <div style="background: #f6ffed; padding: 15px; border-radius: 4px; margin-top: 10px;">
+                <h4>後端測試 (http://localhost:3000)</h4>
+                <label><input type="checkbox"> 文檔 API 回應正常</label><br>
+                <label><input type="checkbox"> 上傳 API 處理文件</label><br>
+                <label><input type="checkbox"> 搜尋 API 返回正確結果</label><br>
+                <label><input type="checkbox"> 檔案存儲功能正常</label><br>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">⚠️ 已知問題與建議</div>
+            <div style="background: #fff2f0; padding: 15px; border-radius: 4px;">
+                <h4>需要注意的事項:</h4>
+                <ul>
+                    <li><strong>後端服務:</strong> 確保後端伺服器 (port 3000) 正常運行</li>
+                    <li><strong>MongoDB:</strong> 確保資料庫連接正常</li>
+                    <li><strong>權限:</strong> 確保用戶已登入並有適當權限</li>
+                    <li><strong>檔案大小:</strong> 注意檔案大小限制 (圖片10MB，文檔50MB等)</li>
+                    <li><strong>網路連接:</strong> 上傳大文件時需要穩定網路連接</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 顯示當前時間
+        document.getElementById('current-time').textContent = new Date().toLocaleString('zh-TW');
+        
+        // 添加測試結果記錄功能
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const completed = document.querySelectorAll('input[type="checkbox"]:checked').length;
+                const total = checkboxes.length;
+                console.log(`測試進度: ${completed}/${total} (${Math.round(completed/total*100)}%)`);
+            });
+        });
+    </script>
+</body>
+</html>

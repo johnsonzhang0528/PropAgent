@@ -95,6 +95,10 @@ UserSchema.virtual('name').get(function() {
   return `${this.first_name} ${this.last_name}`;
 });
 
+// 設置 JSON 輸出包含虛擬字段
+UserSchema.set('toJSON', { virtuals: true });
+UserSchema.set('toObject', { virtuals: true });
+
 // 索引 (移除重複的 email 和 phone 索引，因為已在 schema 定義中設置 unique: true)
 // UserSchema.index({ email: 1 }); // 已通過 unique: true 自動建立
 // UserSchema.index({ phone: 1 }); // 已通過 unique: true 自動建立

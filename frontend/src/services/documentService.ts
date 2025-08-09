@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 // 創建 axios 實例
 const documentApi = axios.create({
-  baseURL: `${API_BASE_URL}/documents`,
+  baseURL: `${API_BASE_URL}/api/documents`,
   timeout: 30000, // 30秒超時（文件上傳需要更長時間）
 });
 
@@ -171,12 +171,13 @@ export const documentService = {
 
   // 上傳文件（增強版）
   async uploadFiles(files: FileList | File[], options: UploadOptions = {}): Promise<UploadResponse> {
+    console.log('開始文件上傳，文件數量:', files.length);
+    
     // 預檢查文件
     const validation = this.validateFiles(files);
     
     if (validation.invalid.length > 0) {
       console.warn('部分文件未通過驗證:', validation.invalid);
-      // 可以選擇拋出錯誤或只上傳有效文件
     }
     
     if (validation.valid.length === 0) {
@@ -186,12 +187,16 @@ export const documentService = {
     const formData = new FormData();
     
     // 添加有效文件
-    validation.valid.forEach(file => {
+    validation.valid.forEach((file, index) => {
+      console.log(`添加文件 ${index + 1}:`, file.name, file.size);
       formData.append('files', file);
     });
     
     // 添加選項
-    if (options.category) formData.append('category', options.category);
+    if (options.category) {
+      formData.append('category', options.category);
+      console.log('設置分類:', options.category);
+    }
     if (options.description) formData.append('description', options.description);
     if (options.tags) formData.append('tags', options.tags);
     if (options.relatedType) formData.append('relatedType', options.relatedType);
@@ -205,6 +210,7 @@ export const documentService = {
       onUploadProgress: (progressEvent: any) => {
         if (options.onProgress && progressEvent.total) {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log('上傳進度:', progress + '%');
           options.onProgress(progress);
         }
       },
@@ -212,7 +218,10 @@ export const documentService = {
     };
     
     try {
+      console.log('發送上傳請求到:', documentApi.defaults.baseURL + '/upload');
       const response = await documentApi.post('/upload', formData, config);
+      console.log('上傳響應狀態:', response.status);
+      console.log('上傳響應數據:', response.data);
       
       // 合併預檢查失敗的文件到結果中
       if (validation.invalid.length > 0) {
@@ -228,10 +237,22 @@ export const documentService = {
       
       return response.data;
     } catch (error: any) {
+      console.error('上傳請求失敗:', error);
+      
       if (error.code === 'ECONNABORTED') {
         throw new Error('上傳超時，請檢查網絡連接或減少文件大小');
       }
-      throw error;
+      
+      if (error.response) {
+        console.error('伺服器響應錯誤:', error.response.status, error.response.data);
+        throw new Error(`伺服器錯誤: ${error.response.data?.message || error.response.statusText}`);
+      } else if (error.request) {
+        console.error('請求發送失敗:', error.request);
+        throw new Error('無法連接到伺服器，請檢查網絡連接');
+      } else {
+        console.error('請求設置錯誤:', error.message);
+        throw new Error('請求設置錯誤: ' + error.message);
+      }
     }
   },
 
@@ -247,8 +268,29 @@ export const documentService = {
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
   } = {}): Promise<DocumentListResponse> {
-    const response = await documentApi.get('/', { params });
-    return response.data;
+    console.log('獲取文檔列表，參數:', params);
+    try {
+      const response = await documentApi.get('/', { params });
+      console.log('文檔列表響應:', response.data);
+      
+      // 為每個文檔添加額外的顯示屬性
+      if (response.data.documents) {
+        response.data.documents = response.data.documents.map((doc: any) => ({
+          ...doc,
+          sizeFormatted: this.formatFileSize(doc.size),
+          icon: this.getFileIcon(doc.mimetype, doc.originalName)
+        }));
+      }
+      
+      return response.data;
+    } catch (error: any) {
+      console.error('獲取文檔列表失敗:', error);
+      if (error.response) {
+        throw new Error(`獲取文檔列表失敗: ${error.response.data?.message || error.response.statusText}`);
+      } else {
+        throw new Error('獲取文檔列表失敗: 網絡連接錯誤');
+      }
+    }
   },
 
   // 獲取單個文檔信息

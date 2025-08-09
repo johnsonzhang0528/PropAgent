@@ -33,12 +33,12 @@ describe('Responsive Layout', () => {
       render(<App />, { route: '/dashboard' });
       
       // Main layout should be visible
-      expect(expect(screen.getByText('PropAgent Pro'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('房地產智能客戶管理系統'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('PropAgent Pro').toBeInTheDocument();
+      expect(screen.getByText('房地產智能客戶管理系統').toBeInTheDocument();
       
       // Sidebar should be visible
-      expect(expect(screen.getByText('儀表板'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('客戶管理'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('儀表板').toBeInTheDocument();
+      expect(screen.getByText('客戶管理').toBeInTheDocument();
       
       // Statistics cards should be in 4 columns
       const statisticCards = document.querySelectorAll('.ant-col-md-6');
@@ -66,8 +66,8 @@ describe('Responsive Layout', () => {
       render(<App />, { route: '/dashboard' });
       
       // Main elements should still be visible
-      expect(expect(screen.getByText('PropAgent Pro'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('房地產智能客戶管理系統'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('PropAgent Pro').toBeInTheDocument();
+      expect(screen.getByText('房地產智能客戶管理系統').toBeInTheDocument();
       
       // Statistics should adapt to tablet layout (sm=12, so 2 per row)
       const statisticCards = document.querySelectorAll('.ant-col-sm-12');
@@ -78,10 +78,10 @@ describe('Responsive Layout', () => {
       render(<App />, { route: '/dashboard' });
       
       // All navigation items should be accessible
-      expect(expect(screen.getByText('儀表板'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('客戶管理'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('房產管理'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('分析報告'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('儀表板').toBeInTheDocument();
+      expect(screen.getByText('客戶管理').toBeInTheDocument();
+      expect(screen.getByText('房產管理').toBeInTheDocument();
+      expect(screen.getByText('分析報告').toBeInTheDocument();
     });
   });
 
@@ -102,28 +102,28 @@ describe('Responsive Layout', () => {
       render(<App />, { route: '/dashboard' });
       
       // Header elements should be visible
-      expect(expect(screen.getByText('房地產智能客戶管理系統'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('測試用戶'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('房地產智能客戶管理系統').toBeInTheDocument();
+      expect(screen.getByText('測試用戶').toBeInTheDocument();
     });
 
     it('sidebar remains functional on mobile', () => {
       render(<App />, { route: '/dashboard' });
       
       // Navigation should still be accessible
-      expect(expect(screen.getByText('儀表板'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('客戶管理'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('房產管理'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('分析報告'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('儀表板').toBeInTheDocument();
+      expect(screen.getByText('客戶管理').toBeInTheDocument();
+      expect(screen.getByText('房產管理').toBeInTheDocument();
+      expect(screen.getByText('分析報告').toBeInTheDocument();
     });
 
     it('content remains readable on mobile', () => {
       render(<App />, { route: '/dashboard' });
       
       // Text content should be present and readable
-      expect(expect(screen.getByText('總客戶數'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('156'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('最近活動'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('待辦事項'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('總客戶數').toBeInTheDocument();
+      expect(screen.getByText('156').toBeInTheDocument();
+      expect(screen.getByText('最近活動').toBeInTheDocument();
+      expect(screen.getByText('待辦事項').toBeInTheDocument();
     });
   });
 
@@ -152,13 +152,13 @@ describe('Responsive Layout', () => {
     it('preserves authentication across viewports', () => {
       setDesktopViewport();
       render(<App />, { route: '/dashboard' });
-      expect(expect(screen.getByText('測試用戶'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('測試用戶').toBeInTheDocument();
       
       setMobileViewport();
-      expect(expect(screen.getByText('測試用戶'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('測試用戶').toBeInTheDocument();
       
       setTabletViewport();
-      expect(expect(screen.getByText('測試用戶'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('測試用戶').toBeInTheDocument();
     });
   });
 
@@ -168,9 +168,9 @@ describe('Responsive Layout', () => {
       render(<App />, { route: '/dashboard' });
       
       // Check that Antd grid classes are applied correctly
-      expect(expect(document.querySelector('.ant-col-xs-24'))toBeTruthy()).toBeTruthy();
-      expect(expect(document.querySelector('.ant-col-sm-12'))toBeTruthy()).toBeTruthy();
-      expect(expect(document.querySelector('.ant-col-md-6'))toBeTruthy()).toBeTruthy();
+      expect(document.querySelector('.ant-col-xs-24').toBeInTheDocument();
+      expect(document.querySelector('.ant-col-sm-12').toBeInTheDocument();
+      expect(document.querySelector('.ant-col-md-6').toBeInTheDocument();
     });
 
     it('maintains proper spacing across viewports', () => {

@@ -245,9 +245,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
       const filesToUpload = fileList.filter(file => file.status !== 'removed');
       
+      console.log('開始上傳文件:', filesToUpload.map(f => f.name));
+      
       const response = await documentService.uploadFiles(filesToUpload, {
         ...uploadOptions,
         onProgress: (progress) => {
+          console.log('上傳進度:', progress);
           setUploadProgress(progress);
           // 更新文件進度
           setFileList(prev => prev.map(file => ({
@@ -256,6 +259,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
           })));
         }
       });
+
+      console.log('上傳響應:', response);
 
       // 更新文件狀態
       setFileList(prev => prev.map(file => {
@@ -286,6 +291,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
       
       if (response.failed_count > 0) {
         message.error(`${response.failed_count} 個文件上傳失敗`);
+        // 顯示詳細錯誤信息
+        response.failed.forEach(fail => {
+          console.error(`文件 ${fail.filename} 上傳失敗:`, fail.error);
+        });
       }
 
       // 調用回調
@@ -301,7 +310,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
     } catch (error) {
       console.error('上傳失敗:', error);
       const errorMessage = error instanceof Error ? error.message : '上傳失敗';
-      message.error(errorMessage);
+      message.error(`上傳失敗: ${errorMessage}`);
       
       // 更新文件狀態為錯誤
       setFileList(prev => prev.map(file => ({
@@ -420,7 +429,34 @@ const FileUpload: React.FC<FileUploadProps> = ({
         />
 
         {/* 上傳區域 */}
-        <div style={{ textAlign: 'center', padding: '20px', border: '2px dashed #d9d9d9', borderRadius: '6px' }}>
+        <div 
+          style={{ 
+            textAlign: 'center', 
+            padding: '20px', 
+            border: '2px dashed #d9d9d9', 
+            borderRadius: '6px',
+            cursor: 'pointer',
+            transition: 'border-color 0.3s'
+          }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = '#1890ff';
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = '#d9d9d9';
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = '#d9d9d9';
+            const droppedFiles = e.dataTransfer.files;
+            if (droppedFiles) {
+              const event = { target: { files: droppedFiles } } as React.ChangeEvent<HTMLInputElement>;
+              handleFileSelect(event);
+            }
+          }}
+          onClick={() => fileInputRef.current?.click()}
+        >
           <input
             ref={fileInputRef}
             type="file"
@@ -435,7 +471,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
               <Button
                 type="primary"
                 icon={<UploadOutlined />}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
                 disabled={uploading}
                 size="large"
               >

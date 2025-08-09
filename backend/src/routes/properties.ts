@@ -13,6 +13,7 @@ router.get('/', authMiddleware, catchAsync(async (req: any, res) => {
     const {
       page = 1,
       limit = 20,
+      search,
       property_type,
       listing_type,
       min_price,
@@ -21,20 +22,33 @@ router.get('/', authMiddleware, catchAsync(async (req: any, res) => {
       max_area,
       district,
       bedrooms,
-      status = 'available',
+      status,
       agent_id,
       sort_by = 'created_at',
       sort_order = 'desc'
     } = req.query;
 
     // 構建查詢條件
-    const query: any = { status };
+    const query: any = {};
+    
+    // 只有指定狀態時才添加到查詢條件
+    if (status) {
+      query.status = status;
+    }
 
     // 權限控制
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
       query.agent_id = req.user.id;
     } else if (agent_id) {
       query.agent_id = agent_id;
+    }
+
+    // 搜尋條件 (標題或地址)
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { address: { $regex: search, $options: 'i' } }
+      ];
     }
 
     // 篩選條件

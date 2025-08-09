@@ -12,6 +12,45 @@ import {
 import { locationService, type Coordinates } from '../../services/locationService';
 import 'leaflet/dist/leaflet.css';
 
+// 地圖自定義樣式
+const mapStyles = `
+  .property-popup .leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 0;
+  }
+  
+  .property-popup .leaflet-popup-content {
+    margin: 0;
+    padding: 12px;
+    max-width: 300px;
+  }
+  
+  .property-popup .leaflet-popup-tip {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .leaflet-popup-close-button {
+    font-size: 18px !important;
+    padding: 4px 8px !important;
+    color: #666 !important;
+  }
+  
+  .leaflet-popup-close-button:hover {
+    color: #333 !important;
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .property-marker {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .leaflet-marker-icon {
+    border: none !important;
+    background: transparent !important;
+  }
+`;
+
 const { Text, Title } = Typography;
 
 // 修復 Leaflet 默認圖標問題
@@ -132,10 +171,11 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
     const color = getStatusColor(property.status);
     const size = isSelected ? 40 : 30;
     const borderWidth = isSelected ? 3 : 2;
+    const uniqueId = `marker-${property._id}`;
 
     return divIcon({
       html: `
-        <div class="property-marker" style="
+        <div id="${uniqueId}" class="property-marker" style="
           background: ${color};
           width: ${size}px;
           height: ${size}px;
@@ -147,25 +187,34 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
           box-shadow: 0 2px 8px rgba(0,0,0,0.3);
           cursor: pointer;
           transform: ${isSelected ? 'scale(1.2)' : 'scale(1)'};
-          transition: all 0.2s ease;
+          transition: all 0.3s ease;
+          z-index: ${isSelected ? 1000 : 100};
+          position: relative;
         ">
           <div style="
             color: white;
             font-size: ${size * 0.4}px;
             font-weight: bold;
+            pointer-events: none;
           ">
             🏠
           </div>
         </div>
         <style>
-          .property-marker:hover {
-            transform: scale(1.1) !important;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
-            z-index: 1000;
+          #${uniqueId}:hover {
+            transform: scale(1.15) !important;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4) !important;
+            z-index: 999 !important;
+          }
+          #${uniqueId}.selected {
+            transform: scale(1.2) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+            border-width: 4px !important;
+            z-index: 1001 !important;
           }
         </style>
       `,
-      className: '',
+      className: isSelected ? 'selected' : '',
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2]
     });
@@ -243,6 +292,9 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 
   return (
     <div style={{ position: 'relative' }}>
+      {/* 注入自定義樣式 */}
+      <style>{mapStyles}</style>
+      
       {/* 地圖控制按鈕 */}
       <div style={{
         position: 'absolute',
@@ -363,43 +415,88 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                 click: () => onPropertyClick?.(property)
               }}
             >
-              <Popup maxWidth={300}>
-                <div style={{ minWidth: '250px' }}>
+              <Popup 
+                maxWidth={320} 
+                minWidth={280}
+                closeButton={true}
+                autoClose={false}
+                closeOnEscapeKey={true}
+                className="property-popup"
+              >
+                <div style={{ minWidth: '260px', padding: '8px 4px' }}>
                   <Space direction="vertical" style={{ width: '100%' }} size="small">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <Title level={5} style={{ margin: 0, flex: 1 }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'flex-start',
+                      marginBottom: '8px'
+                    }}>
+                      <Title level={5} style={{ margin: 0, flex: 1, fontSize: '16px' }}>
                         {property.title}
                       </Title>
                       {getStatusTag(property.status)}
                     </div>
                     
                     <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <EnvironmentOutlined style={{ color: '#1890ff' }} />
-                        <Text type="secondary">{property.location.address}</Text>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <EnvironmentOutlined style={{ color: '#1890ff', marginTop: '2px' }} />
+                        <Text type="secondary" style={{ fontSize: '13px', lineHeight: '1.4' }}>
+                          {property.location.address}
+                        </Text>
                       </div>
                       
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <DollarOutlined style={{ color: '#52c41a' }} />
-                        <Text strong style={{ color: '#52c41a', fontSize: '16px' }}>
+                        <Text strong style={{ color: '#52c41a', fontSize: '18px' }}>
                           NT$ {formatPrice(property.price)}
                         </Text>
                       </div>
                       
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Text type="secondary">類型: {property.type}</Text>
-                        <Text type="secondary">面積: {property.area} 坪</Text>
+                      <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: '12px',
+                        padding: '8px 0',
+                        borderTop: '1px solid #f0f0f0',
+                        borderBottom: '1px solid #f0f0f0'
+                      }}>
+                        <div>
+                          <Text type="secondary" style={{ fontSize: '12px', display: 'block' }}>類型</Text>
+                          <Text style={{ fontSize: '14px', fontWeight: 500 }}>{property.type}</Text>
+                        </div>
+                        <div>
+                          <Text type="secondary" style={{ fontSize: '12px', display: 'block' }}>面積</Text>
+                          <Text style={{ fontSize: '14px', fontWeight: 500 }}>{property.area} 坪</Text>
+                        </div>
                       </div>
                     </Space>
 
-                    <Button 
-                      type="primary" 
-                      size="small" 
-                      style={{ width: '100%' }}
-                      onClick={() => onPropertyClick?.(property)}
-                    >
-                      查看詳情
-                    </Button>
+                    <Space style={{ width: '100%', marginTop: '8px' }}>
+                      <Button 
+                        type="primary" 
+                        size="small" 
+                        style={{ flex: 1 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onPropertyClick?.(property);
+                        }}
+                      >
+                        查看詳情
+                      </Button>
+                      <Button 
+                        size="small" 
+                        style={{ flex: 1 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // 定位到房產位置
+                          if (mapRef.current) {
+                            mapRef.current.setView([lat, lng], 16);
+                          }
+                        }}
+                      >
+                        定位
+                      </Button>
+                    </Space>
                   </Space>
                 </div>
               </Popup>

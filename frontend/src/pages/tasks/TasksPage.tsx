@@ -161,10 +161,12 @@ const TasksPage: React.FC = () => {
           description: values.description,
           priority: values.priority,
           category: values.category,
-          dueDate: values.dueDate?.toISOString(),
+          dueDate: values.dueDate ? new Date(values.dueDate).toISOString() : undefined,
           notes: values.notes
         })
       });
+
+      const result = await response.json();
 
       if (response.ok) {
         message.success('任務創建成功');
@@ -173,11 +175,12 @@ const TasksPage: React.FC = () => {
         setIsModalVisible(false);
         form.resetFields();
       } else {
-        message.error('任務創建失敗');
+        console.error('創建任務失敗:', result);
+        message.error(result.message || result.error?.message || '任務創建失敗');
       }
     } catch (error) {
       console.error('創建任務錯誤:', error);
-      message.error('任務創建失敗');
+      message.error('網絡錯誤，任務創建失敗');
     }
   };
 
@@ -197,10 +200,12 @@ const TasksPage: React.FC = () => {
           priority: values.priority,
           category: values.category,
           status: values.status,
-          dueDate: values.dueDate?.toISOString(),
+          dueDate: values.dueDate ? new Date(values.dueDate).toISOString() : undefined,
           notes: values.notes
         })
       });
+
+      const result = await response.json();
 
       if (response.ok) {
         message.success('任務更新成功');
@@ -210,7 +215,8 @@ const TasksPage: React.FC = () => {
         setEditingTask(null);
         form.resetFields();
       } else {
-        message.error('任務更新失敗');
+        console.error('更新任務失敗:', result);
+        message.error(result.message || result.error?.message || '任務更新失敗');
       }
     } catch (error) {
       console.error('更新任務錯誤:', error);

@@ -153,6 +153,10 @@ const DocumentList: React.FC<DocumentListProps> = ({
   const handleSearch = (value: string) => {
     setSearchText(value);
     setPagination(prev => ({ ...prev, current: 1 }));
+    // 觸發重新載入
+    setTimeout(() => {
+      loadDocuments();
+    }, 300); // 防抖動
   };
 
   // 處理篩選
@@ -163,6 +167,10 @@ const DocumentList: React.FC<DocumentListProps> = ({
       setTagFilter(value);
     }
     setPagination(prev => ({ ...prev, current: 1 }));
+    // 觸發重新載入
+    setTimeout(() => {
+      loadDocuments();
+    }, 100);
   };
 
   // 處理排序
@@ -170,6 +178,10 @@ const DocumentList: React.FC<DocumentListProps> = ({
     setSortBy(field);
     setSortOrder(order);
     setPagination(prev => ({ ...prev, current: 1 }));
+    // 觸發重新載入
+    setTimeout(() => {
+      loadDocuments();
+    }, 100);
   };
 
   // 處理分頁
@@ -486,8 +498,11 @@ const DocumentList: React.FC<DocumentListProps> = ({
                 placeholder="搜索文檔名稱或描述"
                 prefix={<SearchOutlined />}
                 value={searchText}
-                onChange={(e) => handleSearch(e.target.value)}
+                onChange={(e) => setSearchText(e.target.value)}
+                onPressEnter={(e) => handleSearch((e.target as HTMLInputElement).value)}
+                onBlur={(e) => handleSearch(e.target.value)}
                 allowClear
+                onClear={() => handleSearch('')}
               />
             </Col>
             <Col xs={12} sm={4}>

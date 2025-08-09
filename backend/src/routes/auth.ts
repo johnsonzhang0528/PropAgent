@@ -33,22 +33,24 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
-    // 生成JWT token
-    const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || 'default-secret',
-      { expiresIn: '7d' }
-    );
+    // 生成JWT tokens
+    const { accessToken, refreshToken } = generateTokens(user);
 
     res.status(201).json({
-      message: '註冊成功',
-      token,
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      }
+      success: true,
+      data: {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        expires_in: 15 * 60, // 15 minutes
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          company_id: user.company_id
+        }
+      },
+      message: '註冊成功'
     });
   } catch (error) {
     console.error('註冊錯誤:', error);
@@ -132,12 +134,10 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // 更新最後登錄時間
-    user.last_login_at = new Date();
-    await user.save();
-
     // 生成JWT tokens
+    console.log('準備生成token，用戶:', user._id, user.email);
     const { accessToken, refreshToken } = generateTokens(user);
+    console.log('Token生成成功');
 
     res.json({
       success: true,
@@ -248,9 +248,9 @@ router.post('/login-sms', async (req, res) => {
       });
     }
 
-    // 更新最後登錄時間
-    user.last_login_at = new Date();
-    await user.save();
+    // 暫時跳過更新登錄時間以避免保存錯誤
+    // user.last_login_at = new Date();
+    // await user.save();
 
     // 生成JWT tokens
     const { accessToken, refreshToken } = generateTokens(user);

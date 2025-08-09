@@ -15,7 +15,12 @@ export default {
       tsconfig: {
         jsx: 'react-jsx',
         esModuleInterop: true,
-        allowSyntheticDefaultImports: true
+        allowSyntheticDefaultImports: true,
+        module: 'ESNext',
+        target: 'ES2022',
+        strict: false,
+        lib: ['ES2022', 'DOM', 'DOM.Iterable'],
+        moduleResolution: 'bundler'
       }
     }]
   },

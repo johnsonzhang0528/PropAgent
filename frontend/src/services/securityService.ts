@@ -111,16 +111,6 @@ class SecurityService {
     }
   }
 
-  // 解除封鎖 IP (DELETE 方法)
-  async deleteBlockedIP(ip: string, reason?: string): Promise<void> {
-    try {
-      const params = reason ? { reason } : {};
-      await axios.delete(`${this.apiUrl}/unblock-ip/${encodeURIComponent(ip)}`, { params });
-    } catch (error) {
-      console.error('刪除封鎖 IP 失敗:', error);
-      throw new Error('刪除封鎖 IP 失敗');
-    }
-  }
 
   // 獲取封鎖的 IP 列表
   async getBlockedIPs(): Promise<{ blockedIPs: string[]; count: number }> {

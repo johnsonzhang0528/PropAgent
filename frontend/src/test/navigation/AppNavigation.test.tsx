@@ -30,9 +30,9 @@ describe('App Navigation', () => {
     render(<App />, { route: '/dashboard' });
     
     await waitFor(() => {
-      expect(expect(screen.getByRole('heading', { name: '儀表板' }))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('總客戶數'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('可售房產'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByRole('heading', { name: '儀表板' }).toBeInTheDocument();
+      expect(screen.getByText('總客戶數').toBeInTheDocument();
+      expect(screen.getByText('可售房產').toBeInTheDocument();
     });
   });
 
@@ -120,21 +120,21 @@ describe('App Navigation', () => {
     render(<App />, { route: '/dashboard' });
     
     // User should be visible in all pages
-    expect(expect(screen.getByText('測試用戶'))toBeTruthy()).toBeTruthy();
+    expect(screen.getByText('測試用戶').toBeInTheDocument();
     
     await user.click(screen.getByText('客戶管理'));
     await waitFor(() => {
-      expect(expect(screen.getByText('測試用戶'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('測試用戶').toBeInTheDocument();
     });
     
     await user.click(screen.getByText('房產管理'));
     await waitFor(() => {
-      expect(expect(screen.getByText('測試用戶'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('測試用戶').toBeInTheDocument();
     });
     
     await user.click(screen.getByText('分析報告'));
     await waitFor(() => {
-      expect(expect(screen.getByText('測試用戶'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('測試用戶').toBeInTheDocument();
     });
   });
 
@@ -170,15 +170,15 @@ describe('App Navigation', () => {
       render(<App />, { route: page });
       
       // Check that main layout elements are present
-      expect(expect(screen.getByText('PropAgent Pro'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('房地產智能客戶管理系統'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('測試用戶'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('PropAgent Pro').toBeInTheDocument();
+      expect(screen.getByText('房地產智能客戶管理系統').toBeInTheDocument();
+      expect(screen.getByText('測試用戶').toBeInTheDocument();
       
       // Check that all menu items are present
-      expect(expect(screen.getByText('儀表板'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('客戶管理'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('房產管理'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('分析報告'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('儀表板').toBeInTheDocument();
+      expect(screen.getByText('客戶管理').toBeInTheDocument();
+      expect(screen.getByText('房產管理').toBeInTheDocument();
+      expect(screen.getByText('分析報告').toBeInTheDocument();
     }
   });
 });

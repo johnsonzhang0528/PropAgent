@@ -279,11 +279,11 @@ router.post('/unblock-ip', adminLimiter, (req, res) => {
   }
 });
 
-// 解除封鎖 IP (DELETE)
+// 解除封鎖 IP (DELETE) - 備用端點
 router.delete('/unblock-ip/:ip', adminLimiter, (req, res) => {
   try {
     const { ip } = req.params;
-    const { reason = '管理員刪除' } = req.query;
+    const { reason = '管理員解除' } = req.query;
     
     if (!ip) {
       return res.status(400).json({
@@ -301,9 +301,9 @@ router.delete('/unblock-ip/:ip', adminLimiter, (req, res) => {
     }
 
     securityMonitor.unblockIP(ip);
-    securityMonitor.addSuspiciousActivity(ip, `DELETE_UNBLOCK: ${reason}`);
+    securityMonitor.addSuspiciousActivity(ip, `UNBLOCK: ${reason}`);
     
-    console.log(`🗑️  刪除封鎖 IP: ${ip} - 原因: ${reason}`);
+    console.log(`✅ 解除封鎖 IP: ${ip} - 原因: ${reason}`);
     
     res.json({
       success: true,
@@ -314,7 +314,7 @@ router.delete('/unblock-ip/:ip', adminLimiter, (req, res) => {
     res.status(500).json({
       success: false,
       message: '解除封鎖 IP 失敗',
-      error: 'DELETE_UNBLOCK_IP_ERROR'
+      error: 'UNBLOCK_IP_ERROR'
     });
   }
 });

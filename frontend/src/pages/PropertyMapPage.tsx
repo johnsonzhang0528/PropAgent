@@ -108,6 +108,15 @@ const PropertyMapPage: React.FC = () => {
   const handlePropertyClick = useCallback((property: typeof mockProperties[0]) => {
     setSelectedProperty(property);
     setShowPropertyDrawer(true);
+    
+    // 更新地圖中心位置以高亮選中的房產
+    const propertyCenter = {
+      lat: property.location.coordinates[1],
+      lng: property.location.coordinates[0]
+    };
+    setMapCenter(propertyCenter);
+    
+    message.info(`已選中: ${property.title}`);
   }, []);
 
   // 處理地圖點擊
@@ -193,7 +202,7 @@ const PropertyMapPage: React.FC = () => {
                     properties={properties}
                     center={mapCenter}
                     zoom={13}
-                    height="70vh"
+                    height={window.innerWidth <= 768 ? "50vh" : "70vh"}
                     showRadius={!!searchCenter}
                     radiusCenter={searchCenter || undefined}
                     radiusKm={searchRadius}
@@ -263,11 +272,21 @@ const PropertyMapPage: React.FC = () => {
                 type="primary" 
                 style={{ flex: 1 }}
                 onClick={() => {
-                  setMapCenter({
-                    lat: selectedProperty.location.coordinates[1],
-                    lng: selectedProperty.location.coordinates[0]
-                  });
-                  message.success('已定位到房產位置');
+                  if (selectedProperty) {
+                    const newCenter = {
+                      lat: selectedProperty.location.coordinates[1],
+                      lng: selectedProperty.location.coordinates[0]
+                    };
+                    setMapCenter(newCenter);
+                    setSearchCenter(newCenter);
+                    
+                    // 關閉侧邊欄以顯示地圖
+                    if (window.innerWidth <= 768) {
+                      setShowPropertyDrawer(false);
+                    }
+                    
+                    message.success(`已定位到: ${selectedProperty.title}`);
+                  }
                 }}
               >
                 在地圖上查看

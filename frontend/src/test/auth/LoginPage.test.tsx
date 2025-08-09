@@ -146,17 +146,17 @@ describe('LoginPage', () => {
     // Mock delayed response
     global.fetch = jest.fn(() => 
       new Promise(resolve => 
-        setTimeout(() => resolve({
-          ok: true,
-          json: () => Promise.resolve({
+        setTimeout(() => resolve(new Response(
+          JSON.stringify({
             success: true,
             data: {
               user: { id: '1', name: '測試用戶', email: 'test@example.com', role: 'admin' },
               access_token: 'token',
               refresh_token: 'refresh'
             }
-          })
-        }), 100)
+          }),
+          { status: 200 }
+        )), 100)
       )
     );
     

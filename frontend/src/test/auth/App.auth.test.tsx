@@ -21,8 +21,8 @@ describe('App Authentication Flow', () => {
     render(<App />, { route: '/dashboard' });
     
     expect(window.location.pathname).toBe('/login');
-    expect(expect(screen.getByText('PropAgent Pro'))toBeTruthy()).toBeTruthy();
-    expect(expect(screen.getByPlaceholderText('郵箱地址'))toBeTruthy()).toBeTruthy();
+    expect(screen.getByText('PropAgent Pro').toBeInTheDocument();
+    expect(screen.getByPlaceholderText('郵箱地址').toBeInTheDocument();
   });
 
   it('shows dashboard for authenticated users visiting login page', () => {
@@ -60,12 +60,12 @@ describe('App Authentication Flow', () => {
     render(<App />, { route: '/dashboard' });
     
     await waitFor(() => {
-      expect(expect(screen.getByText('PropAgent Pro'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('房地產智能客戶管理系統'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('儀表板'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('客戶管理'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('房產管理'))toBeTruthy()).toBeTruthy();
-      expect(expect(screen.getByText('分析報告'))toBeTruthy()).toBeTruthy();
+      expect(screen.getByText('PropAgent Pro').toBeInTheDocument();
+      expect(screen.getByText('房地產智能客戶管理系統').toBeInTheDocument();
+      expect(screen.getByText('儀表板').toBeInTheDocument();
+      expect(screen.getByText('客戶管理').toBeInTheDocument();
+      expect(screen.getByText('房產管理').toBeInTheDocument();
+      expect(screen.getByText('分析報告').toBeInTheDocument();
     });
   });
 

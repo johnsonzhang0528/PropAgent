@@ -23,7 +23,7 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (credentials: { email: string; password: string; remember?: boolean }, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('http://localhost:3000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,11 +33,15 @@ export const loginUser = createAsyncThunk(
 
       if (!response.ok) {
         const error = await response.json();
-        return rejectWithValue(error.message || '登錄失敗');
+        return rejectWithValue(error.error?.message || error.message || '登錄失敗');
       }
 
       const data = await response.json();
-      return data;
+      if (data.success) {
+        return data.data;
+      } else {
+        return rejectWithValue(data.error?.message || '登錄失敗');
+      }
     } catch (error) {
       return rejectWithValue('網絡錯誤，請稍後再試');
     }
@@ -48,7 +52,7 @@ export const sendSmsCode = createAsyncThunk(
   'auth/sendSmsCode',
   async ({ phone }: { phone: string }, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/auth/send-sms', {
+      const response = await fetch('http://localhost:3000/api/auth/send-sms', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,11 +62,15 @@ export const sendSmsCode = createAsyncThunk(
 
       if (!response.ok) {
         const error = await response.json();
-        return rejectWithValue(error.message || '發送驗證碼失敗');
+        return rejectWithValue(error.error?.message || error.message || '發送驗證碼失敗');
       }
 
       const data = await response.json();
-      return data;
+      if (data.success) {
+        return data.data;
+      } else {
+        return rejectWithValue(data.error?.message || '發送驗證碼失敗');
+      }
     } catch (error) {
       return rejectWithValue('網絡錯誤，請稍後再試');
     }
@@ -73,7 +81,7 @@ export const loginWithSms = createAsyncThunk(
   'auth/loginWithSms',
   async (credentials: { phone: string; smsCode: string }, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/auth/login-sms', {
+      const response = await fetch('http://localhost:3000/api/auth/login-sms', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,11 +91,15 @@ export const loginWithSms = createAsyncThunk(
 
       if (!response.ok) {
         const error = await response.json();
-        return rejectWithValue(error.message || '手機驗證登錄失敗');
+        return rejectWithValue(error.error?.message || error.message || '手機驗證登錄失敗');
       }
 
       const data = await response.json();
-      return data;
+      if (data.success) {
+        return data.data;
+      } else {
+        return rejectWithValue(data.error?.message || '手機驗證登錄失敗');
+      }
     } catch (error) {
       return rejectWithValue('網絡錯誤，請稍後再試');
     }
@@ -160,7 +172,9 @@ const authSlice = createSlice({
         state.error = null;
         localStorage.setItem('access_token', action.payload.access_token);
         localStorage.setItem('user', JSON.stringify(action.payload.user));
-        localStorage.setItem('refresh_token', action.payload.refresh_token);
+        if (action.payload.refresh_token) {
+          localStorage.setItem('refresh_token', action.payload.refresh_token);
+        }
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -185,7 +199,10 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.error = null;
         localStorage.setItem('access_token', action.payload.access_token);
-        localStorage.setItem('refresh_token', action.payload.refresh_token);
+        localStorage.setItem('user', JSON.stringify(action.payload.user));
+        if (action.payload.refresh_token) {
+          localStorage.setItem('refresh_token', action.payload.refresh_token);
+        }
       })
       .addCase(loginWithSms.rejected, (state, action) => {
         state.loading = false;

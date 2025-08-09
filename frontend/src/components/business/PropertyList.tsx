@@ -114,7 +114,12 @@ const PropertyList: React.FC = () => {
 
   // 搜索處理
   const handleSearch = (values: any) => {
-    const newParams = { ...searchParams, ...values, page: 1 };
+    // 清理空值
+    const cleanValues = Object.fromEntries(
+      Object.entries(values).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+    );
+    
+    const newParams = { ...searchParams, ...cleanValues, page: 1 };
     setSearchParams(newParams);
     loadProperties(newParams);
   };
