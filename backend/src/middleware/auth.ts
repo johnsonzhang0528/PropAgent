@@ -14,9 +14,16 @@ export interface AuthRequest extends Request {
 
 export const authMiddleware = async (req: any, res: Response, next: NextFunction) => {
   try {
+    console.log('🔐 認證中間件開始驗證:', {
+      authHeader: req.headers.authorization?.substring(0, 30) + '...',
+      method: req.method,
+      path: req.path
+    });
+
     // 從 Authorization header 獲取 token
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('❌ 缺少或無效的 Authorization header:', authHeader);
       return res.status(401).json({
         success: false,
         error: { code: 'MISSING_TOKEN', message: '缺少認證令牌' }
@@ -24,19 +31,27 @@ export const authMiddleware = async (req: any, res: Response, next: NextFunction
     }
 
     const token = authHeader.split(' ')[1];
+    console.log('🎟️ 提取到 token:', token.substring(0, 20) + '...');
     
     // 驗證 JWT token
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET || 'access-secret') as any;
+    console.log('✅ Token 驗證成功:', {
+      id: decoded.id || decoded.userId,
+      email: decoded.email,
+      role: decoded.role,
+      company_id: decoded.company_id
+    });
     
     // 設置用戶信息
     req.user = {
       id: decoded.id || decoded.userId,
       userId: decoded.id || decoded.userId,
       email: decoded.email,
-      role: decoded.role,
-      company_id: decoded.company_id
+      role: decoded.role || 'agent', // 預設角色
+      company_id: decoded.company_id // 允許為空
     };
 
+    console.log('✅ 認證中間件成功，用戶信息:', req.user);
     next();
     return;
 

@@ -14,6 +14,7 @@ import {
   DeleteOutlined
 } from '@ant-design/icons';
 import { useAppSelector } from '../../store/hooks';
+import { taskService, TaskData } from '../../services/taskService';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -58,44 +59,41 @@ const TasksPage: React.FC = () => {
 
   // API 請求函數
   const fetchTasks = async () => {
+    if (!token) {
+      console.warn('⚠️ 無 token，跳過任務獲取');
+      return;
+    }
+
     try {
       setLoading(true);
-      const response = await fetch('/api/tasks', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const result = await taskService.getTasks(token, {
+        search: searchText || undefined,
+        status: filter === 'all' ? undefined : filter
       });
       
-      if (response.ok) {
-        const result = await response.json();
-        setTasks(result.data.tasks || []);
-      } else {
-        message.error('獲取任務列表失敗');
-      }
+      setTasks(result.data.tasks || []);
+      console.log('✅ 成功獲取任務列表，數量:', result.data.tasks?.length || 0);
     } catch (error) {
-      console.error('獲取任務錯誤:', error);
-      message.error('獲取任務列表失敗');
+      console.error('❌ 獲取任務錯誤:', error);
+      message.error(`獲取任務列表失敗: ${error instanceof Error ? error.message : '未知錯誤'}`);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchStats = async () => {
+    if (!token) {
+      console.warn('⚠️ 無 token，跳過統計獲取');
+      return;
+    }
+
     try {
-      const response = await fetch('/api/tasks/stats/summary', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        setStats(result.data);
-      }
+      const result = await taskService.getTaskStats(token);
+      setStats(result.data);
+      console.log('✅ 成功獲取任務統計:', result.data);
     } catch (error) {
-      console.error('獲取統計錯誤:', error);
+      console.error('❌ 獲取統計錯誤:', error);
+      // 統計錯誤不顯示錯誤消息，只記錄日誌
     }
   };
 
@@ -149,125 +147,125 @@ const TasksPage: React.FC = () => {
 
   // CRUD 操作函數
   const handleCreateTask = async (values: any) => {
+    console.log('🚀 TasksPage.handleCreateTask 開始:', values);
+    console.log('📋 認證狀態:', { 
+      hasToken: !!token, 
+      tokenLength: token?.length, 
+      userEmail: user?.email,
+      userId: user?.id
+    });
+    
+    if (!token) {
+      message.error('用戶未登錄，請重新登錄');
+      return;
+    }
+
     try {
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: values.title,
-          description: values.description,
-          priority: values.priority,
-          category: values.category,
-          dueDate: values.dueDate ? new Date(values.dueDate).toISOString() : undefined,
-          notes: values.notes
-        })
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        message.success('任務創建成功');
-        fetchTasks();
-        fetchStats();
-        setIsModalVisible(false);
-        form.resetFields();
-      } else {
-        console.error('創建任務失敗:', result);
-        message.error(result.message || result.error?.message || '任務創建失敗');
-      }
+      const taskData: TaskData = {
+        title: values.title?.trim(),
+        description: values.description?.trim(),
+        priority: values.priority || 'medium',
+        category: values.category,
+        dueDate: values.dueDate ? values.dueDate.toISOString() : undefined,
+        notes: values.notes?.trim()
+      };
+      
+      console.log('📤 準備創建任務:', taskData);
+      
+      const result = await taskService.createTask(token, taskData);
+      
+      console.log('✅ 任務創建成功:', result.data.task);
+      message.success(`任務「${result.data.task.title}」創建成功！`);
+      
+      // 重新獲取數據
+      await Promise.all([fetchTasks(), fetchStats()]);
+      
+      // 關閉模態框並重置表單
+      setIsModalVisible(false);
+      form.resetFields();
+      
     } catch (error) {
-      console.error('創建任務錯誤:', error);
-      message.error('網絡錯誤，任務創建失敗');
+      console.error('❌ TasksPage.handleCreateTask 錯誤:', error);
+      const errorMessage = error instanceof Error ? error.message : '任務創建失敗';
+      message.error(`創建失敗: ${errorMessage}`);
     }
   };
 
   const handleUpdateTask = async (values: any) => {
-    if (!editingTask) return;
+    if (!editingTask || !token) return;
+    
+    console.log('🔄 開始更新任務:', editingTask._id, values);
     
     try {
-      const response = await fetch(`/api/tasks/${editingTask._id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: values.title,
-          description: values.description,
-          priority: values.priority,
-          category: values.category,
-          status: values.status,
-          dueDate: values.dueDate ? new Date(values.dueDate).toISOString() : undefined,
-          notes: values.notes
-        })
-      });
+      const updateData: Partial<TaskData> = {
+        title: values.title?.trim(),
+        description: values.description?.trim(),
+        priority: values.priority,
+        category: values.category,
+        status: values.status,
+        dueDate: values.dueDate ? values.dueDate.toISOString() : undefined,
+        notes: values.notes?.trim()
+      };
 
-      const result = await response.json();
-
-      if (response.ok) {
-        message.success('任務更新成功');
-        fetchTasks();
-        fetchStats();
-        setIsModalVisible(false);
-        setEditingTask(null);
-        form.resetFields();
-      } else {
-        console.error('更新任務失敗:', result);
-        message.error(result.message || result.error?.message || '任務更新失敗');
-      }
+      const result = await taskService.updateTask(token, editingTask._id, updateData);
+      
+      console.log('✅ 任務更新成功:', result.data.task);
+      message.success(`任務「${result.data.task.title}」更新成功！`);
+      
+      // 重新獲取數據
+      await Promise.all([fetchTasks(), fetchStats()]);
+      
+      // 關閉模態框並重置狀態
+      setIsModalVisible(false);
+      setEditingTask(null);
+      form.resetFields();
+      
     } catch (error) {
-      console.error('更新任務錯誤:', error);
-      message.error('任務更新失敗');
+      console.error('❌ 更新任務錯誤:', error);
+      const errorMessage = error instanceof Error ? error.message : '任務更新失敗';
+      message.error(`更新失敗: ${errorMessage}`);
     }
   };
 
   const handleDeleteTask = async (taskId: string) => {
+    if (!token) return;
+    
+    console.log('🗑️ 開始刪除任務:', taskId);
+    
     try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        message.success('任務刪除成功');
-        fetchTasks();
-        fetchStats();
-      } else {
-        message.error('任務刪除失敗');
-      }
+      await taskService.deleteTask(token, taskId);
+      
+      console.log('✅ 任務刪除成功');
+      message.success('任務刪除成功！');
+      
+      // 重新獲取數據
+      await Promise.all([fetchTasks(), fetchStats()]);
+      
     } catch (error) {
-      console.error('刪除任務錯誤:', error);
-      message.error('任務刪除失敗');
+      console.error('❌ 刪除任務錯誤:', error);
+      const errorMessage = error instanceof Error ? error.message : '任務刪除失敗';
+      message.error(`刪除失敗: ${errorMessage}`);
     }
   };
 
   const handleStatusUpdate = async (taskId: string, newStatus: string) => {
+    if (!token) return;
+    
+    console.log('📊 開始更新任務狀態:', taskId, newStatus);
+    
     try {
-      const response = await fetch(`/api/tasks/${taskId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      if (response.ok) {
-        message.success('任務狀態更新成功');
-        fetchTasks();
-        fetchStats();
-      } else {
-        message.error('任務狀態更新失敗');
-      }
+      await taskService.updateTaskStatus(token, taskId, newStatus);
+      
+      console.log('✅ 任務狀態更新成功');
+      message.success(`任務狀態已更新為「${getStatusText(newStatus)}」！`);
+      
+      // 重新獲取數據
+      await Promise.all([fetchTasks(), fetchStats()]);
+      
     } catch (error) {
-      console.error('更新狀態錯誤:', error);
-      message.error('任務狀態更新失敗');
+      console.error('❌ 更新狀態錯誤:', error);
+      const errorMessage = error instanceof Error ? error.message : '任務狀態更新失敗';
+      message.error(`狀態更新失敗: ${errorMessage}`);
     }
   };
 

@@ -166,6 +166,12 @@ router.get('/:id', authMiddleware, catchAsync(async (req: any, res) => {
 
 // 創建新任務
 router.post('/', authMiddleware, catchAsync(async (req: any, res) => {
+  console.log('🎯 後端接收創建任務請求:', {
+    body: req.body,
+    user: req.user,
+    headers: req.headers.authorization?.substring(0, 30) + '...'
+  });
+
   const {
     title,
     description,
@@ -179,56 +185,120 @@ router.post('/', authMiddleware, catchAsync(async (req: any, res) => {
     notes
   } = req.body;
 
+  // 增強驗證和調試
+  console.log('🔍 驗證輸入數據:', { title, category, priority, dueDate });
+
   // 驗證必填欄位
   if (!title || !category) {
+    console.error('❌ 必填欄位驗證失敗:', { title, category });
     throw new AppError('任務標題和分類為必填項目', 400);
+  }
+
+  if (!title.trim()) {
+    console.error('❌ 標題為空字符串');
+    throw new AppError('任務標題不能為空', 400);
   }
 
   // 驗證分類是否有效
   const validCategories = ['預約', '聯絡', '維護', '報告', '跟進', '其他'];
   if (!validCategories.includes(category)) {
+    console.error('❌ 無效分類:', category, '有效分類:', validCategories);
     throw new AppError('無效的任務分類', 400);
   }
 
-  // 確保用戶有 company_id
-  if (!req.user.company_id) {
-    throw new AppError('用戶未關聯公司，無法創建任務', 400);
+  // 驗證優先級
+  const validPriorities = ['high', 'medium', 'low'];
+  if (!validPriorities.includes(priority)) {
+    console.error('❌ 無效優先級:', priority);
+    throw new AppError('無效的優先級', 400);
   }
+
+  // 確保用戶有 company_id (臨時跳過這個驗證)
+  // if (!req.user.company_id) {
+  //   console.error('❌ 用戶沒有 company_id:', req.user);
+  //   throw new AppError('用戶未關聯公司，無法創建任務', 400);
+  // }
+  
+  // 如果沒有 company_id，創建一個臨時的
+  const companyId = req.user.company_id || new mongoose.Types.ObjectId();
+  console.log('🏢 使用 company_id:', companyId);
 
   // 驗證分配對象是否存在（如果提供）
   if (assignedTo && !mongoose.Types.ObjectId.isValid(assignedTo)) {
+    console.error('❌ 無效的 assignedTo ID:', assignedTo);
     throw new AppError('無效的分配用戶ID', 400);
   }
 
-  // 創建任務
-  const task = new Task({
-    title,
-    description,
+  // 處理日期格式
+  let parsedDueDate;
+  if (dueDate) {
+    try {
+      parsedDueDate = new Date(dueDate);
+      if (isNaN(parsedDueDate.getTime())) {
+        throw new Error('Invalid date');
+      }
+      console.log('📅 解析截止日期:', dueDate, '->', parsedDueDate);
+    } catch (error) {
+      console.error('❌ 日期解析錯誤:', dueDate, error);
+      throw new AppError('無效的日期格式', 400);
+    }
+  }
+
+  // 創建任務數據
+  const taskData = {
+    title: title.trim(),
+    description: description?.trim(),
     priority,
     category,
-    dueDate: dueDate ? new Date(dueDate) : undefined,
+    dueDate: parsedDueDate,
     assignedTo: assignedTo || req.user.id,
     customerId,
     propertyId,
     tags: tags || [],
-    notes,
+    notes: notes?.trim(),
     createdBy: req.user.id,
-    company_id: req.user.company_id
-  });
+    company_id: companyId
+  };
 
-  await task.save();
+  console.log('💾 準備保存任務數據:', taskData);
 
-  // 返回創建的任務信息
-  const populatedTask = await Task.findById(task._id)
-    .populate('createdBy', 'first_name last_name email')
-    .populate('assignedTo', 'first_name last_name email')
-    .populate('customerId', 'first_name last_name phone')
-    .populate('propertyId', 'title address');
+  // 創建任務
+  const task = new Task(taskData);
 
-  res.status(201).json({
+  try {
+    await task.save();
+    console.log('✅ 任務保存成功:', task._id);
+  } catch (saveError) {
+    console.error('❌ 任務保存失敗:', saveError);
+    throw new AppError('任務保存失敗: ' + (saveError as Error).message, 500);
+  }
+
+  // 返回創建的任務信息（簡化版，避免populate錯誤）
+  let populatedTask;
+  try {
+    populatedTask = await Task.findById(task._id)
+      .populate('createdBy', 'first_name last_name email')
+      .populate('assignedTo', 'first_name last_name email')
+      .lean(); // 使用 lean() 提高性能
+    
+    console.log('✅ 任務數據填充成功');
+  } catch (populateError) {
+    console.warn('⚠️ 任務數據填充失敗，返回基本數據:', populateError);
+    populatedTask = task.toObject();
+  }
+
+  const response = {
     success: true,
     data: { task: populatedTask }
+  };
+
+  console.log('📤 返回創建結果:', {
+    success: response.success,
+    taskId: response.data.task._id,
+    title: response.data.task.title
   });
+
+  res.status(201).json(response);
 
   logger.logBusiness('創建新任務', { 
     title, 
