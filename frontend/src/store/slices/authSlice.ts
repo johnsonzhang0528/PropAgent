@@ -116,11 +116,20 @@ const getUserFromStorage = (): User | null => {
   }
 };
 
+// 從localStorage恢復token
+const getTokenFromStorage = (): string | null => {
+  try {
+    return localStorage.getItem('access_token');
+  } catch {
+    return null;
+  }
+};
+
 const initialState: AuthState = {
   user: getUserFromStorage(),
-  token: localStorage.getItem('access_token'),
+  token: getTokenFromStorage(),
   refreshToken: localStorage.getItem('refresh_token'),
-  isAuthenticated: !!localStorage.getItem('access_token'),
+  isAuthenticated: !!getTokenFromStorage(),
   loading: false,
   error: null,
 };

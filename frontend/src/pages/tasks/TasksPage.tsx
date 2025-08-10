@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, List, Tag, Button, Space, Typography, Row, Col, Input, Select, DatePicker, Modal, Form, message, Popconfirm } from 'antd';
 import { 
   UserOutlined, 
@@ -42,7 +42,14 @@ interface Task {
 }
 
 const TasksPage: React.FC = () => {
-  const { user, token } = useAppSelector((state) => state.auth);
+  const { user, token: reduxToken } = useAppSelector((state) => state.auth);
+  
+  // 使用useMemo動態獲取最新的token
+  const token = useMemo(() => {
+    const localToken = localStorage.getItem('access_token');
+    console.log('🔍 動態更新token:', { reduxToken: !!reduxToken, localToken: !!localToken });
+    return reduxToken || localToken;
+  }, [reduxToken]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('all');
@@ -59,14 +66,15 @@ const TasksPage: React.FC = () => {
 
   // API 請求函數
   const fetchTasks = async () => {
-    if (!token) {
+    const currentToken = reduxToken || localStorage.getItem('access_token');
+    if (!currentToken) {
       console.warn('⚠️ 無 token，跳過任務獲取');
       return;
     }
 
     try {
       setLoading(true);
-      const result = await taskService.getTasks(token, {
+      const result = await taskService.getTasks(currentToken, {
         search: searchText || undefined,
         status: filter === 'all' ? undefined : filter
       });
@@ -82,13 +90,14 @@ const TasksPage: React.FC = () => {
   };
 
   const fetchStats = async () => {
-    if (!token) {
+    const currentToken = reduxToken || localStorage.getItem('access_token');
+    if (!currentToken) {
       console.warn('⚠️ 無 token，跳過統計獲取');
       return;
     }
 
     try {
-      const result = await taskService.getTaskStats(token);
+      const result = await taskService.getTaskStats(currentToken);
       setStats(result.data);
       console.log('✅ 成功獲取任務統計:', result.data);
     } catch (error) {
@@ -98,9 +107,25 @@ const TasksPage: React.FC = () => {
   };
 
   useEffect(() => {
+    // 組件載入時檢查認證狀態
+    console.log('📋 TasksPage載入時認證檢查:', {
+      reduxToken: !!reduxToken,
+      localStorageToken: !!localStorage.getItem('access_token'),
+      finalToken: !!token,
+      user: user?.email
+    });
+    
     fetchTasks();
     fetchStats();
   }, []);
+
+  // 當認證狀態改變時重新獲取數據
+  useEffect(() => {
+    if (token) {
+      fetchTasks();
+      fetchStats();
+    }
+  }, [token]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -148,14 +173,25 @@ const TasksPage: React.FC = () => {
   // CRUD 操作函數
   const handleCreateTask = async (values: any) => {
     console.log('🚀 TasksPage.handleCreateTask 開始:', values);
-    console.log('📋 認證狀態:', { 
-      hasToken: !!token, 
-      tokenLength: token?.length, 
+    
+    // 實時獲取最新的token
+    const currentReduxToken = reduxToken;
+    const currentLocalToken = localStorage.getItem('access_token');
+    const currentToken = currentReduxToken || currentLocalToken;
+    
+    console.log('📋 認證狀態詳細信息:', { 
+      reduxToken: currentReduxToken,
+      localStorageToken: currentLocalToken,
+      finalToken: currentToken,
+      hasToken: !!currentToken, 
+      tokenLength: currentToken?.length, 
       userEmail: user?.email,
-      userId: user?.id
+      userId: user?.id,
+      reduxHasToken: !!currentReduxToken,
+      localStorageHasToken: !!currentLocalToken
     });
     
-    if (!token) {
+    if (!currentToken) {
       message.error('用戶未登錄，請重新登錄');
       return;
     }
@@ -172,7 +208,7 @@ const TasksPage: React.FC = () => {
       
       console.log('📤 準備創建任務:', taskData);
       
-      const result = await taskService.createTask(token, taskData);
+      const result = await taskService.createTask(currentToken, taskData);
       
       console.log('✅ 任務創建成功:', result.data.task);
       message.success(`任務「${result.data.task.title}」創建成功！`);
@@ -192,7 +228,8 @@ const TasksPage: React.FC = () => {
   };
 
   const handleUpdateTask = async (values: any) => {
-    if (!editingTask || !token) return;
+    const currentToken = reduxToken || localStorage.getItem('access_token');
+    if (!editingTask || !currentToken) return;
     
     console.log('🔄 開始更新任務:', editingTask._id, values);
     
@@ -207,7 +244,7 @@ const TasksPage: React.FC = () => {
         notes: values.notes?.trim()
       };
 
-      const result = await taskService.updateTask(token, editingTask._id, updateData);
+      const result = await taskService.updateTask(currentToken, editingTask._id, updateData);
       
       console.log('✅ 任務更新成功:', result.data.task);
       message.success(`任務「${result.data.task.title}」更新成功！`);
@@ -228,12 +265,13 @@ const TasksPage: React.FC = () => {
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    if (!token) return;
+    const currentToken = reduxToken || localStorage.getItem('access_token');
+    if (!currentToken) return;
     
     console.log('🗑️ 開始刪除任務:', taskId);
     
     try {
-      await taskService.deleteTask(token, taskId);
+      await taskService.deleteTask(currentToken, taskId);
       
       console.log('✅ 任務刪除成功');
       message.success('任務刪除成功！');
@@ -249,12 +287,13 @@ const TasksPage: React.FC = () => {
   };
 
   const handleStatusUpdate = async (taskId: string, newStatus: string) => {
-    if (!token) return;
+    const currentToken = reduxToken || localStorage.getItem('access_token');
+    if (!currentToken) return;
     
     console.log('📊 開始更新任務狀態:', taskId, newStatus);
     
     try {
-      await taskService.updateTaskStatus(token, taskId, newStatus);
+      await taskService.updateTaskStatus(currentToken, taskId, newStatus);
       
       console.log('✅ 任務狀態更新成功');
       message.success(`任務狀態已更新為「${getStatusText(newStatus)}」！`);
