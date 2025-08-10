@@ -21,14 +21,12 @@ import BackupPage from './pages/backup/BackupPage';
 import SecurityPage from './pages/security/SecurityPage';
 import TestPage from './pages/test/TestPage';
 import TasksPage from './pages/tasks/TasksPage';
-import DebugAnalytics from './components/debug/DebugAnalytics';
 import './styles/global.css';
 
 function AppContent() {
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, token } = useAppSelector((state) => state.auth);
   const { i18n } = useTranslation();
   
-  console.log('App rendering - isAuthenticated:', isAuthenticated, 'user:', user);
 
   // 根據當前語言設置 Ant Design locale
   const getAntdLocale = () => {
@@ -57,16 +55,12 @@ function AppContent() {
               } 
             />
             
-            {/* 調試路由 - 僅在開發模式下可用 */}
-            {import.meta.env.DEV && (
-              <Route path="/debug-analytics" element={<DebugAnalytics />} />
-            )}
             
             {/* 主應用路由 */}
             <Route 
               path="/*" 
               element={
-                (isAuthenticated || import.meta.env.DEV) ? (
+                isAuthenticated ? (
                   <MainLayout>
                     <Routes>
                       <Route path="/dashboard" element={<DashboardPage />} />

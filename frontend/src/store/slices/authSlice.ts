@@ -145,10 +145,16 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.loading = false;
       state.error = null;
-      localStorage.setItem('access_token', action.payload.token);
-      localStorage.setItem('user', JSON.stringify(action.payload.user));
-      if (action.payload.refreshToken) {
-        localStorage.setItem('refresh_token', action.payload.refreshToken);
+      
+      // 保存到 localStorage
+      try {
+        localStorage.setItem('access_token', action.payload.token);
+        localStorage.setItem('user', JSON.stringify(action.payload.user));
+        if (action.payload.refreshToken) {
+          localStorage.setItem('refresh_token', action.payload.refreshToken);
+        }
+      } catch (error) {
+        console.error('localStorage 保存失敗:', error);
       }
     },
     logout: (state) => {

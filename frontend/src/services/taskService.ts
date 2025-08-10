@@ -76,8 +76,6 @@ class TaskService {
     category?: string;
     search?: string;
   }): Promise<TasksResponse> {
-    console.log('🔥 TaskService.getTasks 開始', { params });
-    
     try {
       const queryParams = new URLSearchParams();
       if (params) {
@@ -87,17 +85,13 @@ class TaskService {
       }
 
       const url = `${API_BASE_URL}/tasks${queryParams.toString() ? `?${queryParams}` : ''}`;
-      console.log('📤 發送請求到:', url);
 
       const response = await fetch(url, {
         method: 'GET',
         headers: this.getAuthHeaders(token)
       });
-
-      console.log('📊 獲取任務回應狀態:', response.status);
       
       const result = await response.json();
-      console.log('📥 獲取任務回應數據:', result);
 
       if (!response.ok) {
         throw new Error(result.message || result.error?.message || `HTTP ${response.status}`);
@@ -105,16 +99,13 @@ class TaskService {
 
       return result;
     } catch (error) {
-      console.error('❌ TaskService.getTasks 錯誤:', error);
+      console.error('TaskService.getTasks 錯誤:', error);
       throw error;
     }
   }
 
   // 創建新任務
   async createTask(token: string, taskData: TaskData): Promise<SingleTaskResponse> {
-    console.log('🚀 TaskService.createTask 開始', { taskData });
-    console.log('🔑 使用 token:', token?.substring(0, 20) + '...');
-
     if (!token) {
       throw new Error('認證 token 不存在');
     }
@@ -137,8 +128,6 @@ class TaskService {
         }
       });
 
-      console.log('📝 清理後的數據:', cleanData);
-
       if (!cleanData.title) {
         throw new Error('任務標題為必填項');
       }
@@ -147,29 +136,24 @@ class TaskService {
       }
 
       const url = `${API_BASE_URL}/tasks`;
-      console.log('📤 發送創建請求到:', url);
 
       const response = await fetch(url, {
         method: 'POST',
         headers: this.getAuthHeaders(token),
         body: JSON.stringify(cleanData)
       });
-
-      console.log('📊 創建任務回應狀態:', response.status, response.statusText);
       
       let result;
       try {
         result = await response.json();
       } catch (parseError) {
-        console.error('❌ JSON 解析錯誤:', parseError);
+        console.error('JSON 解析錯誤:', parseError);
         throw new Error('服務器回應格式錯誤');
       }
 
-      console.log('📥 創建任務回應數據:', result);
-
       if (!response.ok) {
         const errorMessage = result.message || result.error?.message || `HTTP ${response.status}: ${response.statusText}`;
-        console.error('❌ 創建任務失敗:', {
+        console.error('創建任務失敗:', {
           status: response.status,
           statusText: response.statusText,
           error: errorMessage,
@@ -182,17 +166,15 @@ class TaskService {
         throw new Error(result.error?.message || '任務創建失敗');
       }
 
-      console.log('✅ TaskService.createTask 成功');
       return result;
     } catch (error) {
-      console.error('❌ TaskService.createTask 錯誤:', error);
+      console.error('TaskService.createTask 錯誤:', error);
       throw error;
     }
   }
 
   // 更新任務
   async updateTask(token: string, taskId: string, updateData: Partial<TaskData>): Promise<SingleTaskResponse> {
-    console.log('🔄 TaskService.updateTask 開始', { taskId, updateData });
 
     try {
       const url = `${API_BASE_URL}/tasks/${taskId}`;

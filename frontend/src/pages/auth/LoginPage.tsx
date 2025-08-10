@@ -49,6 +49,7 @@ const LoginPage: React.FC = () => {
             token: result.data.access_token,
             refreshToken: result.data.refresh_token
           }));
+          
           navigate('/');
         } else {
           setError(result.error?.message || t('auth.loginError', '登入失敗'));
