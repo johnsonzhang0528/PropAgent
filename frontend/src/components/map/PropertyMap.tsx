@@ -22,8 +22,11 @@ const mapStyles = `
   
   .property-popup .leaflet-popup-content {
     margin: 0;
-    padding: 12px;
-    max-width: 300px;
+    padding: 16px;
+    max-width: 320px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
   }
   
   .property-popup .leaflet-popup-tip {
@@ -431,7 +434,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                       alignItems: 'flex-start',
                       marginBottom: '8px'
                     }}>
-                      <Title level={5} style={{ margin: 0, flex: 1, fontSize: '16px' }}>
+                      <Title level={5} style={{ margin: 0, flex: 1, fontSize: '16px', fontWeight: 600, color: '#1f1f1f' }}>
                         {property.title}
                       </Title>
                       {getStatusTag(property.status)}

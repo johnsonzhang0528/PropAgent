@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export interface SecurityStats {
@@ -68,19 +66,36 @@ export interface ActivityLogResponse {
 }
 
 class SecurityService {
-  private apiUrl = `${API_BASE_URL}/api/security`;
+  private apiUrl = `/api/security`;
+
+  private getAuthHeader() {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
 
   // 獲取安全統計
   async getSecurityStats(): Promise<SecurityStats> {
     try {
-      const response = await axios.get(`${this.apiUrl}/stats`);
+      const response = await fetch(`${this.apiUrl}/stats`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
       return {
-        ...response.data.data,
+        ...data.data,
         overview: {
-          ...response.data.data.overview,
-          lastReset: new Date(response.data.data.overview.lastReset)
+          ...data.data.overview,
+          lastReset: new Date(data.data.overview.lastReset)
         },
-        recentActivity: response.data.data.recentActivity.map((activity: any) => ({
+        recentActivity: data.data.recentActivity.map((activity: any) => ({
           ...activity,
           timestamp: new Date(activity.timestamp)
         }))
@@ -94,7 +109,18 @@ class SecurityService {
   // 封鎖 IP
   async blockIP(ip: string, reason: string = '手動封鎖'): Promise<void> {
     try {
-      await axios.post(`${this.apiUrl}/block-ip`, { ip, reason });
+      const response = await fetch(`${this.apiUrl}/block-ip`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        },
+        body: JSON.stringify({ ip, reason })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error) {
       console.error('封鎖 IP 失敗:', error);
       throw new Error('封鎖 IP 失敗');
@@ -104,7 +130,18 @@ class SecurityService {
   // 解除封鎖 IP (POST 方法，支援原因說明)
   async unblockIP(ip: string, reason?: string): Promise<void> {
     try {
-      await axios.post(`${this.apiUrl}/unblock-ip`, { ip, reason });
+      const response = await fetch(`${this.apiUrl}/unblock-ip`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        },
+        body: JSON.stringify({ ip, reason })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error) {
       console.error('解除封鎖 IP 失敗:', error);
       throw new Error('解除封鎖 IP 失敗');
@@ -115,8 +152,20 @@ class SecurityService {
   // 獲取封鎖的 IP 列表
   async getBlockedIPs(): Promise<{ blockedIPs: string[]; count: number }> {
     try {
-      const response = await axios.get(`${this.apiUrl}/blocked-ips`);
-      return response.data.data;
+      const response = await fetch(`${this.apiUrl}/blocked-ips`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.data;
     } catch (error) {
       console.error('獲取封鎖 IP 列表失敗:', error);
       throw new Error('獲取封鎖 IP 列表失敗');
@@ -126,8 +175,20 @@ class SecurityService {
   // 清除所有封鎖的 IP
   async clearBlockedIPs(): Promise<{ clearedCount: number }> {
     try {
-      const response = await axios.post(`${this.apiUrl}/clear-blocked-ips`);
-      return response.data.data;
+      const response = await fetch(`${this.apiUrl}/clear-blocked-ips`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.data;
     } catch (error) {
       console.error('清除封鎖 IP 失敗:', error);
       throw new Error('清除封鎖 IP 失敗');
@@ -137,7 +198,17 @@ class SecurityService {
   // 重置安全統計
   async resetStats(): Promise<void> {
     try {
-      await axios.post(`${this.apiUrl}/reset-stats`);
+      const response = await fetch(`${this.apiUrl}/reset-stats`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error) {
       console.error('重置統計失敗:', error);
       throw new Error('重置統計失敗');
@@ -152,10 +223,30 @@ class SecurityService {
     reason?: string;
   } = {}): Promise<ActivityLogResponse> {
     try {
-      const response = await axios.get(`${this.apiUrl}/activity-log`, { params });
+      const queryString = new URLSearchParams(
+        Object.entries(params)
+          .filter(([_, value]) => value !== undefined && value !== null)
+          .map(([key, value]) => [key, String(value)])
+      ).toString();
+      
+      const url = queryString ? `${this.apiUrl}/activity-log?${queryString}` : `${this.apiUrl}/activity-log`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
       return {
-        ...response.data.data,
-        activities: response.data.data.activities.map((activity: any) => ({
+        ...data.data,
+        activities: data.data.activities.map((activity: any) => ({
           ...activity,
           timestamp: new Date(activity.timestamp)
         }))
@@ -175,8 +266,20 @@ class SecurityService {
     timestamp: string;
   }> {
     try {
-      const response = await axios.get(`${this.apiUrl}/health`);
-      return response.data.data;
+      const response = await fetch(`${this.apiUrl}/health`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.data;
     } catch (error) {
       console.error('安全健康檢查失敗:', error);
       throw new Error('安全健康檢查失敗');
@@ -186,8 +289,20 @@ class SecurityService {
   // 獲取威脅情報
   async getThreatIntelligence(): Promise<ThreatIntelligence> {
     try {
-      const response = await axios.get(`${this.apiUrl}/threat-intelligence`);
-      return response.data.data;
+      const response = await fetch(`${this.apiUrl}/threat-intelligence`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.data;
     } catch (error) {
       console.error('獲取威脅情報失敗:', error);
       throw new Error('獲取威脅情報失敗');

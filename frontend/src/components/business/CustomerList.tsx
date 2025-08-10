@@ -229,6 +229,7 @@ const CustomerList: React.FC = () => {
         </Space>
       ),
       width: 150,
+      responsive: ['md'],
     },
     {
       title: '最後聯繫',
@@ -540,10 +541,11 @@ const CustomerList: React.FC = () => {
               rowKey="_id"
               loading={loading}
               pagination={false}
-              scroll={{ x: 800 }}
+              scroll={{ x: 'max-content' }}
               style={{
-                minWidth: '800px'
+                minWidth: '100%'
               }}
+              size="small"
             />
           </div>
         </div>

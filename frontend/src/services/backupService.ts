@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export interface BackupItem {
@@ -24,13 +22,31 @@ export interface BackupResult {
 }
 
 class BackupService {
-  private apiUrl = `${API_BASE_URL}/api/backup`;
+  private apiUrl = `/api/backup`;
+
+  private getAuthHeader() {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
 
   // 創建備份
   async createBackup(type: 'database' | 'files' | 'full' = 'full'): Promise<BackupResult> {
     try {
-      const response = await axios.post(`${this.apiUrl}/create`, { type });
-      return response.data.data;
+      const response = await fetch(`${this.apiUrl}/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        },
+        body: JSON.stringify({ type })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.data;
     } catch (error) {
       console.error('創建備份失敗:', error);
       throw new Error('創建備份失敗');
@@ -40,8 +56,20 @@ class BackupService {
   // 獲取備份列表
   async getBackupList(): Promise<BackupItem[]> {
     try {
-      const response = await axios.get(`${this.apiUrl}/list`);
-      return response.data.data.map((item: any) => ({
+      const response = await fetch(`${this.apiUrl}/list`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.data.map((item: any) => ({
         ...item,
         created: new Date(item.created)
       }));
@@ -54,12 +82,21 @@ class BackupService {
   // 下載備份文件
   async downloadBackup(filename: string): Promise<void> {
     try {
-      const response = await axios.get(`${this.apiUrl}/download/${filename}`, {
-        responseType: 'blob'
+      const response = await fetch(`${this.apiUrl}/download/${filename}`, {
+        method: 'GET',
+        headers: {
+          ...this.getAuthHeader()
+        }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const blob = await response.blob();
 
       // 創建下載鏈接
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', filename);
@@ -76,7 +113,18 @@ class BackupService {
   // 恢復數據庫
   async restoreDatabase(backupPath: string): Promise<void> {
     try {
-      await axios.post(`${this.apiUrl}/restore`, { backupPath });
+      const response = await fetch(`${this.apiUrl}/restore`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        },
+        body: JSON.stringify({ backupPath })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error) {
       console.error('恢復數據庫失敗:', error);
       throw new Error('恢復數據庫失敗');
@@ -86,11 +134,21 @@ class BackupService {
   // 導出數據
   async exportData(format: 'json' | 'csv', collection?: string): Promise<string> {
     try {
-      const response = await axios.post(`${this.apiUrl}/export`, {
-        format,
-        collection
+      const response = await fetch(`${this.apiUrl}/export`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        },
+        body: JSON.stringify({ format, collection })
       });
-      return response.data.data.path;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.data.path;
     } catch (error) {
       console.error('導出數據失敗:', error);
       throw new Error('導出數據失敗');
@@ -100,7 +158,17 @@ class BackupService {
   // 刪除備份
   async deleteBackup(filename: string): Promise<void> {
     try {
-      await axios.delete(`${this.apiUrl}/${filename}`);
+      const response = await fetch(`${this.apiUrl}/${filename}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error) {
       console.error('刪除備份失敗:', error);
       throw new Error('刪除備份失敗');
@@ -110,7 +178,17 @@ class BackupService {
   // 清理過期備份
   async cleanupOldBackups(): Promise<void> {
     try {
-      await axios.post(`${this.apiUrl}/cleanup`);
+      const response = await fetch(`${this.apiUrl}/cleanup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error) {
       console.error('清理過期備份失敗:', error);
       throw new Error('清理過期備份失敗');
@@ -120,8 +198,20 @@ class BackupService {
   // 獲取備份配置
   async getBackupConfig(): Promise<BackupConfig> {
     try {
-      const response = await axios.get(`${this.apiUrl}/config`);
-      return response.data.data;
+      const response = await fetch(`${this.apiUrl}/config`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.data;
     } catch (error) {
       console.error('獲取備份配置失敗:', error);
       throw new Error('獲取備份配置失敗');
