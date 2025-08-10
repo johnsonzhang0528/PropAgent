@@ -84,27 +84,26 @@ class TaskService {
         });
       }
 
-      const url = `${API_BASE_URL}/tasks${queryParams.toString() ? `?${queryParams}` : ''}`;
+      const url = `/api/tasks${queryParams.toString() ? `?${queryParams}` : ''}`;
 
       const response = await fetch(url, {
         method: 'GET',
         headers: this.getAuthHeaders(token)
       });
-      
-      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || result.error?.message || `HTTP ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+      
+      const result = await response.json();
       return result;
     } catch (error) {
-      console.error('TaskService.getTasks 錯誤:', error);
+      console.error('獲取任務列表失敗:', error);
       throw error;
     }
   }
 
-  // 創建新任務
+  // 創建任務
   async createTask(token: string, taskData: TaskData): Promise<SingleTaskResponse> {
     if (!token) {
       throw new Error('認證 token 不存在');
@@ -114,167 +113,129 @@ class TaskService {
       // 數據清理和驗證
       const cleanData = {
         title: taskData.title?.trim(),
-        description: taskData.description?.trim() || undefined,
-        priority: taskData.priority || 'medium',
-        category: taskData.category?.trim(),
-        dueDate: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : undefined,
-        notes: taskData.notes?.trim() || undefined
+        description: taskData.description?.trim(),
+        priority: taskData.priority,
+        category: taskData.category,
+        status: taskData.status || 'pending',
+        dueDate: taskData.dueDate,
+        assignedTo: taskData.assignedTo,
+        customerId: taskData.customerId,
+        propertyId: taskData.propertyId,
+        tags: taskData.tags || [],
+        notes: taskData.notes?.trim()
       };
 
-      // 移除空值
+      // 移除undefined值
       Object.keys(cleanData).forEach(key => {
         if (cleanData[key as keyof typeof cleanData] === undefined) {
           delete cleanData[key as keyof typeof cleanData];
         }
       });
 
-      if (!cleanData.title) {
-        throw new Error('任務標題為必填項');
-      }
-      if (!cleanData.category) {
-        throw new Error('任務分類為必填項');
-      }
-
-      const url = `${API_BASE_URL}/tasks`;
-
-      const response = await fetch(url, {
+      const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: this.getAuthHeaders(token),
         body: JSON.stringify(cleanData)
       });
       
-      let result;
-      try {
-        result = await response.json();
-      } catch (parseError) {
-        console.error('JSON 解析錯誤:', parseError);
-        throw new Error('服務器回應格式錯誤');
-      }
-
       if (!response.ok) {
-        const errorMessage = result.message || result.error?.message || `HTTP ${response.status}: ${response.statusText}`;
-        console.error('創建任務失敗:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorMessage,
-          result
-        });
-        throw new Error(errorMessage);
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
       }
-
-      if (!result.success) {
-        throw new Error(result.error?.message || '任務創建失敗');
-      }
-
+      
+      const result = await response.json();
       return result;
     } catch (error) {
-      console.error('TaskService.createTask 錯誤:', error);
+      console.error('創建任務失敗:', error);
       throw error;
     }
   }
 
   // 更新任務
   async updateTask(token: string, taskId: string, updateData: Partial<TaskData>): Promise<SingleTaskResponse> {
-
     try {
-      const url = `${API_BASE_URL}/tasks/${taskId}`;
+      const url = `/api/tasks/${taskId}`;
+
       const response = await fetch(url, {
         method: 'PUT',
         headers: this.getAuthHeaders(token),
         body: JSON.stringify(updateData)
       });
 
-      const result = await response.json();
-      console.log('📥 更新任務回應:', result);
-
       if (!response.ok) {
-        throw new Error(result.message || result.error?.message || `HTTP ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+      
+      const result = await response.json();
       return result;
     } catch (error) {
-      console.error('❌ TaskService.updateTask 錯誤:', error);
+      console.error('更新任務失敗:', error);
       throw error;
     }
   }
 
   // 刪除任務
-  async deleteTask(token: string, taskId: string): Promise<any> {
-    console.log('🗑️ TaskService.deleteTask 開始', { taskId });
-
+  async deleteTask(token: string, taskId: string): Promise<void> {
     try {
-      const url = `${API_BASE_URL}/tasks/${taskId}`;
+      const url = `/api/tasks/${taskId}`;
+
       const response = await fetch(url, {
         method: 'DELETE',
         headers: this.getAuthHeaders(token)
       });
 
-      const result = await response.json();
-      console.log('📥 刪除任務回應:', result);
-
       if (!response.ok) {
-        throw new Error(result.message || result.error?.message || `HTTP ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      return result;
     } catch (error) {
-      console.error('❌ TaskService.deleteTask 錯誤:', error);
+      console.error('刪除任務失敗:', error);
       throw error;
     }
   }
 
   // 更新任務狀態
-  async updateTaskStatus(token: string, taskId: string, status: string): Promise<any> {
-    console.log('📊 TaskService.updateTaskStatus 開始', { taskId, status });
-
+  async updateTaskStatus(token: string, taskId: string, status: string): Promise<SingleTaskResponse> {
     try {
-      const url = `${API_BASE_URL}/tasks/${taskId}/status`;
+      const url = `/api/tasks/${taskId}/status`;
+
       const response = await fetch(url, {
         method: 'PATCH',
         headers: this.getAuthHeaders(token),
         body: JSON.stringify({ status })
       });
 
-      const result = await response.json();
-      console.log('📥 更新狀態回應:', result);
-
       if (!response.ok) {
-        throw new Error(result.message || result.error?.message || `HTTP ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+      
+      const result = await response.json();
       return result;
     } catch (error) {
-      console.error('❌ TaskService.updateTaskStatus 錯誤:', error);
+      console.error('更新任務狀態失敗:', error);
       throw error;
     }
   }
 
   // 獲取任務統計
   async getTaskStats(token: string): Promise<{ success: boolean; data: TaskStats }> {
-    console.log('📈 TaskService.getTaskStats 開始');
-
     try {
-      const url = `${API_BASE_URL}/tasks/stats/summary`;
-      const response = await fetch(url, {
+      const response = await fetch('/api/tasks/stats', {
         method: 'GET',
         headers: this.getAuthHeaders(token)
       });
 
-      const result = await response.json();
-      console.log('📥 統計數據回應:', result);
-
       if (!response.ok) {
-        throw new Error(result.message || result.error?.message || `HTTP ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+      
+      const result = await response.json();
       return result;
     } catch (error) {
-      console.error('❌ TaskService.getTaskStats 錯誤:', error);
+      console.error('獲取任務統計失敗:', error);
       throw error;
     }
   }
 }
 
-// 創建並導出服務實例
 export const taskService = new TaskService();
 export default taskService;
