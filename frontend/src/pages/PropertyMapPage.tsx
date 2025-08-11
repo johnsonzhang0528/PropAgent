@@ -158,20 +158,57 @@ const PropertyMapPage: React.FC = () => {
     }
   }, [location.search, properties]);
 
-  // 處理房產點擊
-  const handlePropertyClick = useCallback((property: typeof mockProperties[0]) => {
-    console.log('🏠 Property clicked:', property.title); // 調試日誌
+  // 處理房產點擊 - 包含地圖標記點擊和右側列表點擊
+  const handlePropertyClick = useCallback((property: typeof mockProperties[0], fromMapClick: boolean = false) => {
+    console.log('🏠 Property clicked:', property.title, 'from map:', fromMapClick); // 調試日誌
+    
+    // 如果是同一個房產，不需要重複處理
+    if (selectedProperty?._id === property._id && !fromMapClick) {
+      return;
+    }
+    
+    // 更新選中的房產
     setSelectedProperty(property);
     setShowPropertyDrawer(true);
     
-    // 更新地圖中心位置以高亮選中的房產
+    // 更新地圖中心位置（使用平滑動畫）
     const propertyCenter = {
       lat: property.location.coordinates[1],
       lng: property.location.coordinates[0]
     };
     setMapCenter(propertyCenter);
+    setSearchCenter(propertyCenter);
     
-    message.info(`已選中: ${property.title}`);
+    // 顯示成功訊息
+    message.success(`已定位到: ${property.title}`);
+  }, [selectedProperty]);
+  
+  // 處理右側面板中「在地圖上查看」按鈕點擊
+  const handleViewOnMap = useCallback((property: typeof mockProperties[0]) => {
+    console.log('🗺️ View on map clicked for:', property.title);
+    
+    // 先清除之前選中的房產狀態（通過設置為null再設置新值來觸發重新渲染）
+    setSelectedProperty(null);
+    
+    // 使用 setTimeout 確保狀態清除後再設置新值
+    setTimeout(() => {
+      setSelectedProperty(property);
+      
+      // 更新地圖中心位置
+      const propertyCenter = {
+        lat: property.location.coordinates[1],
+        lng: property.location.coordinates[0]
+      };
+      setMapCenter(propertyCenter);
+      setSearchCenter(propertyCenter);
+      
+      // 在移動設備上關閉側邊欄以顯示地圖
+      if (window.innerWidth <= 768) {
+        setShowPropertyDrawer(false);
+      }
+      
+      message.success(`已切換到: ${property.title}`);
+    }, 100);
   }, []);
 
   // 處理地圖點擊
@@ -261,7 +298,7 @@ const PropertyMapPage: React.FC = () => {
                     showRadius={!!searchCenter}
                     radiusCenter={searchCenter || undefined}
                     radiusKm={searchRadius}
-                    onPropertyClick={handlePropertyClick}
+                    onPropertyClick={(property) => handlePropertyClick(property, true)}
                     onMapClick={handleMapClick}
                     selectedPropertyId={selectedProperty?._id}
                     showCurrentLocation={true}
@@ -328,19 +365,7 @@ const PropertyMapPage: React.FC = () => {
                 style={{ flex: 1 }}
                 onClick={() => {
                   if (selectedProperty) {
-                    const newCenter = {
-                      lat: selectedProperty.location.coordinates[1],
-                      lng: selectedProperty.location.coordinates[0]
-                    };
-                    setMapCenter(newCenter);
-                    setSearchCenter(newCenter);
-                    
-                    // 關閉侧邊欄以顯示地圖
-                    if (window.innerWidth <= 768) {
-                      setShowPropertyDrawer(false);
-                    }
-                    
-                    message.success(`已定位到: ${selectedProperty.title}`);
+                    handleViewOnMap(selectedProperty);
                   }
                 }}
               >
@@ -397,7 +422,10 @@ const PropertyMapPage: React.FC = () => {
                 key={property._id}
                 size="small"
                 bodyStyle={{ padding: '12px' }}
-                onClick={() => setSelectedProperty(property)}
+                onClick={() => {
+                  console.log('🏠 Property list item clicked:', property.title);
+                  handleViewOnMap(property);
+                }}
                 style={{ 
                   cursor: 'pointer',
                   border: selectedProperty?._id === property._id ? '2px solid #1890ff' : '1px solid #d9d9d9'

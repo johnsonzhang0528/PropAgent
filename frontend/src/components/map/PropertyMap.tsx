@@ -215,6 +215,8 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const mapRef = useRef<any>(null);
+  const [mapInstance, setMapInstance] = useState<any>(null);
+  const prevCenterRef = useRef<Coordinates>(center);
 
   // 檢測移動設備
   useEffect(() => {
@@ -225,6 +227,28 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+  
+  // 處理地圖中心變化，使用平滑動畫
+  useEffect(() => {
+    if (mapInstance && (center.lat !== prevCenterRef.current.lat || center.lng !== prevCenterRef.current.lng)) {
+      console.log('🗺️ Map center changing from', prevCenterRef.current, 'to', center);
+      
+      // 使用 flyTo 實現平滑移動
+      mapInstance.flyTo([center.lat, center.lng], mapInstance.getZoom() || 15, {
+        animate: true,
+        duration: 1.5, // 1.5秒動畫
+        easeLinearity: 0.25
+      });
+      
+      prevCenterRef.current = center;
+    }
+  }, [center, mapInstance]);
+  
+  // 設定地圖實例引用
+  const handleMapReady = (map: any) => {
+    setMapInstance(map);
+    mapRef.current = map;
+  };
 
   // 獲取當前位置
   useEffect(() => {
@@ -436,11 +460,15 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
       </div>
 
       <MapContainer
-        ref={mapRef}
+        ref={handleMapReady}
         center={[center.lat, center.lng]}
         zoom={zoom}
         style={mapStyle}
         scrollWheelZoom={true}
+        whenReady={(e) => {
+          console.log('🗺️ Map ready');
+          handleMapReady(e.target);
+        }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -479,7 +507,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
           </Marker>
         )}
 
-        {/* 房產標記 */}
+        {/* 房產標記 - 只有選中的房產顯示彈窗 */}
         {properties.map((property) => {
           const isSelected = selectedPropertyId === property._id;
           const [lat, lng] = [property.location.coordinates[1], property.location.coordinates[0]];
@@ -497,15 +525,18 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                 }
               }}
             >
-              <Popup 
-                maxWidth={320} 
-                minWidth={280}
-                closeButton={true}
-                autoClose={false}
-                closeOnEscapeKey={true}
-                className="property-popup"
-                autoPan={true}
-              >
+              {/* 只有選中的房產才顯示彈窗 */}
+              {isSelected && (
+                <Popup 
+                  maxWidth={320} 
+                  minWidth={280}
+                  closeButton={true}
+                  autoClose={false}
+                  closeOnEscapeKey={true}
+                  className="property-popup"
+                  autoPan={true}
+                  key={`popup-${property._id}`} // 強制重新渲染
+                >
                 <div style={{ minWidth: '260px', padding: '8px 4px' }}>
                   <Space direction="vertical" style={{ width: '100%' }} size="small">
                     <div style={{ 
@@ -625,7 +656,8 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                     </Space>
                   </Space>
                 </div>
-              </Popup>
+                </Popup>
+              )}
             </Marker>
           );
         })}
