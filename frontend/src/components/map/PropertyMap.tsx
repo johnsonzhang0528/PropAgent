@@ -273,7 +273,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
             color: white;
             font-size: ${size * 0.4}px;
             font-weight: bold;
-            pointer-events: none;
+            pointer-events: auto;
           ">
             🏠
           </div>
@@ -490,7 +490,11 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
               position={[lat, lng]}
               icon={createPropertyIcon(property, isSelected)}
               eventHandlers={{
-                click: () => onPropertyClick?.(property)
+                click: (e) => {
+                  console.log('📍 Marker clicked for property:', property.title);
+                  e.originalEvent.stopPropagation();
+                  onPropertyClick?.(property);
+                }
               }}
             >
               <Popup 
@@ -500,6 +504,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                 autoClose={false}
                 closeOnEscapeKey={true}
                 className="property-popup"
+                autoPan={true}
               >
                 <div style={{ minWidth: '260px', padding: '8px 4px' }}>
                   <Space direction="vertical" style={{ width: '100%' }} size="small">
@@ -598,6 +603,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                         style={{ flex: 1 }}
                         onClick={(e) => {
                           e.stopPropagation();
+                          e.preventDefault();
                           onPropertyClick?.(property);
                         }}
                       >

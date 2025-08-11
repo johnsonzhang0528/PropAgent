@@ -106,6 +106,7 @@ const PropertyMapPage: React.FC = () => {
 
   // 處理房產點擊
   const handlePropertyClick = useCallback((property: typeof mockProperties[0]) => {
+    console.log('🏠 Property clicked:', property.title); // 調試日誌
     setSelectedProperty(property);
     setShowPropertyDrawer(true);
     
