@@ -8,6 +8,53 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
+// 地圖專用API端點 - 不需認證，回傳地圖標記所需的最小化資料集
+router.get('/map', catchAsync(async (req: any, res) => {
+  const { bounds, zoom } = req.query;
+  
+  let query: any = { 
+    status: 'available', 
+    coordinates: { $exists: true, $ne: null }
+  };
+  
+  // 地圖邊界篩選（可選）
+  if (bounds) {
+    try {
+      const { north, south, east, west } = JSON.parse(bounds as string);
+      if (typeof north === 'number' && typeof south === 'number' && 
+          typeof east === 'number' && typeof west === 'number') {
+        query['coordinates.latitude'] = { $gte: south, $lte: north };
+        query['coordinates.longitude'] = { $gte: west, $lte: east };
+      }
+    } catch (error) {
+      logger.error('地圖邊界參數解析錯誤', error);
+      // 如果bounds參數格式錯誤，忽略該參數，繼續查詢
+    }
+  }
+  
+  // 根據縮放級別調整限制筆數
+  let limit = 500;
+  if (zoom) {
+    const zoomLevel = parseInt(zoom as string);
+    if (zoomLevel < 10) limit = 100;
+    else if (zoomLevel < 13) limit = 300;
+    else limit = 500;
+  }
+
+  const properties = await Property.find(query)
+    .select('title address district price coordinates property_type listing_type')
+    .limit(limit)
+    .lean();
+
+  res.json({
+    success: true,
+    data: { 
+      markers: properties,
+      total: properties.length
+    }
+  });
+}));
+
 // 獲取物件列表
 router.get('/', authMiddleware, catchAsync(async (req: any, res) => {
     const {

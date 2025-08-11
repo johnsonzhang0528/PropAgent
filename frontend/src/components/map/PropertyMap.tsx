@@ -15,33 +15,62 @@ import 'leaflet/dist/leaflet.css';
 // 地圖自定義樣式
 const mapStyles = `
   .property-popup .leaflet-popup-content-wrapper {
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.2);
     padding: 0;
+    background-color: rgba(255, 255, 255, 0.98);
+    border: 3px solid rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    max-width: 360px;
+    min-width: 300px;
   }
   
   .property-popup .leaflet-popup-content {
     margin: 0;
-    padding: 16px;
-    max-width: 320px;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #333;
+    padding: 24px;
+    max-width: 340px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #111827;
+    background-color: rgba(255, 255, 255, 0.98);
+    font-weight: 500;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    letter-spacing: 0.02em;
   }
   
   .property-popup .leaflet-popup-tip {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    background-color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.9);
   }
   
   .leaflet-popup-close-button {
-    font-size: 18px !important;
-    padding: 4px 8px !important;
-    color: #666 !important;
+    font-size: 20px !important;
+    padding: 8px 10px !important;
+    color: #6b7280 !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 50% !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    top: 8px !important;
+    right: 8px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    transition: all 0.2s ease !important;
   }
   
   .leaflet-popup-close-button:hover {
-    color: #333 !important;
-    background-color: rgba(0, 0, 0, 0.1) !important;
+    color: #1f2937 !important;
+    background-color: #f3f4f6 !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
   }
   
   .property-marker {
@@ -51,6 +80,52 @@ const mapStyles = `
   .leaflet-marker-icon {
     border: none !important;
     background: transparent !important;
+  }
+  
+  /* 移動設備優化 */
+  @media (max-width: 768px) {
+    .property-popup .leaflet-popup-content-wrapper {
+      max-width: 320px;
+      min-width: 260px;
+      border-width: 2px;
+    }
+    
+    .property-popup .leaflet-popup-content {
+      padding: 20px;
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 300px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .property-popup .leaflet-popup-content-wrapper {
+      max-width: 280px;
+      min-width: 240px;
+    }
+    
+    .property-popup .leaflet-popup-content {
+      padding: 16px;
+      font-size: 15px;
+      max-width: 260px;
+    }
+  }
+  
+  /* 高對比度模式支援 */
+  @media (prefers-contrast: high) {
+    .property-popup .leaflet-popup-content-wrapper {
+      background-color: #ffffff !important;
+      border-color: #000000 !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    
+    .property-popup .leaflet-popup-content {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      text-shadow: none !important;
+      font-weight: 600 !important;
+    }
   }
 `;
 
@@ -432,25 +507,45 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                       display: 'flex', 
                       justifyContent: 'space-between', 
                       alignItems: 'flex-start',
-                      marginBottom: '8px'
+                      marginBottom: '12px'
                     }}>
-                      <Title level={5} style={{ margin: 0, flex: 1, fontSize: '16px', fontWeight: 600, color: '#1f1f1f' }}>
+                      <Title level={5} style={{ 
+                        margin: 0, 
+                        flex: 1, 
+                        fontSize: '18px', 
+                        fontWeight: 700, 
+                        color: '#111827',
+                        textShadow: '0 1px 3px rgba(255, 255, 255, 0.9)',
+                        letterSpacing: '0.01em'
+                      }}>
                         {property.title}
                       </Title>
                       {getStatusTag(property.status)}
                     </div>
                     
                     <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                        <EnvironmentOutlined style={{ color: '#1890ff', marginTop: '2px' }} />
-                        <Text type="secondary" style={{ fontSize: '13px', lineHeight: '1.4' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                        <EnvironmentOutlined style={{ color: '#1890ff', marginTop: '3px', fontSize: '16px' }} />
+                        <Text style={{ 
+                          fontSize: '14px', 
+                          lineHeight: '1.5',
+                          color: '#374151',
+                          fontWeight: 500,
+                          textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                        }}>
                           {property.location.address}
                         </Text>
                       </div>
                       
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <DollarOutlined style={{ color: '#52c41a' }} />
-                        <Text strong style={{ color: '#52c41a', fontSize: '18px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <DollarOutlined style={{ color: '#059669', fontSize: '18px' }} />
+                        <Text strong style={{ 
+                          color: '#059669', 
+                          fontSize: '20px', 
+                          fontWeight: 700,
+                          textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)',
+                          letterSpacing: '0.02em'
+                        }}>
                           NT$ {formatPrice(property.price)}
                         </Text>
                       </div>
@@ -458,18 +553,40 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                       <div style={{ 
                         display: 'grid', 
                         gridTemplateColumns: '1fr 1fr',
-                        gap: '12px',
-                        padding: '8px 0',
-                        borderTop: '1px solid #f0f0f0',
-                        borderBottom: '1px solid #f0f0f0'
+                        gap: '16px',
+                        padding: '12px 0',
+                        borderTop: '1px solid rgba(209, 213, 219, 0.6)',
+                        borderBottom: '1px solid rgba(209, 213, 219, 0.6)'
                       }}>
                         <div>
-                          <Text type="secondary" style={{ fontSize: '12px', display: 'block' }}>類型</Text>
-                          <Text style={{ fontSize: '14px', fontWeight: 500 }}>{property.type}</Text>
+                          <Text style={{ 
+                            fontSize: '13px', 
+                            display: 'block',
+                            color: '#6B7280',
+                            fontWeight: 500,
+                            textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                          }}>類型</Text>
+                          <Text style={{ 
+                            fontSize: '15px', 
+                            fontWeight: 600,
+                            color: '#111827',
+                            textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                          }}>{property.type}</Text>
                         </div>
                         <div>
-                          <Text type="secondary" style={{ fontSize: '12px', display: 'block' }}>面積</Text>
-                          <Text style={{ fontSize: '14px', fontWeight: 500 }}>{property.area} 坪</Text>
+                          <Text style={{ 
+                            fontSize: '13px', 
+                            display: 'block',
+                            color: '#6B7280',
+                            fontWeight: 500,
+                            textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                          }}>面積</Text>
+                          <Text style={{ 
+                            fontSize: '15px', 
+                            fontWeight: 600,
+                            color: '#111827',
+                            textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                          }}>{property.area} 坪</Text>
                         </div>
                       </div>
                     </Space>
