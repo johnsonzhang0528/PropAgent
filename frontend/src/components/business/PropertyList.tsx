@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   Card,
@@ -63,6 +64,7 @@ const { TextArea } = Input;
 // PropertySearchParams 和其他類型從 propertyService 導入
 
 const PropertyList: React.FC = () => {
+  const navigate = useNavigate();
   // 狀態管理
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -357,8 +359,7 @@ const PropertyList: React.FC = () => {
               size="small"
               icon={<EyeOutlined />}
               onClick={() => {
-                setCurrentProperty(record);
-                setShowDetailModal(true);
+                navigate(`/property/${record._id}`);
               }}
             />
           </Tooltip>

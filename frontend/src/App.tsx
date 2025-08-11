@@ -14,6 +14,7 @@ import LoginPage from './pages/auth/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import CustomerPage from './pages/customer/CustomerPage';
 import PropertyPage from './pages/property/PropertyPage';
+import PropertyDetailPage from './pages/property/PropertyDetailPage';
 import AnalyticsPage from './pages/analytics/AnalyticsPage';
 import DocumentPage from './pages/document/DocumentPage';
 import PropertyMapPage from './pages/PropertyMapPage';
@@ -67,6 +68,7 @@ function AppContent() {
                       <Route path="/tasks" element={<TasksPage />} />
                       <Route path="/customers" element={<CustomerPage />} />
                       <Route path="/properties" element={<PropertyPage />} />
+                      <Route path="/property/:id" element={<PropertyDetailPage />} />
                       <Route path="/analytics" element={<AnalyticsPage />} />
                       <Route path="/documents" element={<DocumentPage />} />
                       <Route path="/map" element={<PropertyMapPage />} />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Row, Col, Card, Space, Button, Typography, Spin, message, Drawer } from 'antd';
 import { FilterOutlined, MenuOutlined } from '@ant-design/icons';
 import PropertyMap from '../components/map/PropertyMap';
@@ -61,6 +62,10 @@ const mockProperties = [
       district: '士林區'
     },
     price: 25000000,
+    coordinates: {
+      latitude: 25.0876,
+      longitude: 121.5258
+    },
     type: '透天厝',
     area: 80,
     status: 'reserved' as const,
@@ -74,6 +79,10 @@ const mockProperties = [
       address: '台北市內湖區瑞光路188號',
       district: '內湖區'
     },
+    coordinates: {
+      latitude: 25.0694,
+      longitude: 121.5944
+    },
     price: 18200000,
     type: '大樓',
     area: 55,
@@ -83,6 +92,8 @@ const mockProperties = [
 ];
 
 const PropertyMapPage: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [properties] = useState(mockProperties);
   const [loading, setLoading] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<typeof mockProperties[0] | null>(null);
@@ -103,6 +114,49 @@ const PropertyMapPage: React.FC = () => {
   const handleRadiusChange = useCallback((radius: number) => {
     setSearchRadius(radius);
   }, []);
+
+  // 處理URL參數和自動定位
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const propertyId = searchParams.get('property');
+    const lat = searchParams.get('lat');
+    const lng = searchParams.get('lng');
+
+    // 如果有房產ID，自動選中該房產
+    if (propertyId) {
+      const targetProperty = properties.find(p => p._id === propertyId);
+      if (targetProperty) {
+        console.log('🎯 Auto-selecting property from URL:', targetProperty.title);
+        setSelectedProperty(targetProperty);
+        setShowPropertyDrawer(true);
+        
+        // 更新地圖中心位置
+        const propertyCenter = {
+          lat: targetProperty.location.coordinates[1],
+          lng: targetProperty.location.coordinates[0]
+        };
+        setMapCenter(propertyCenter);
+        setSearchCenter(propertyCenter);
+        
+        message.success(`已定位到房產: ${targetProperty.title}`);
+        
+        // 清理URL參數（可選）
+        window.history.replaceState({}, document.title, location.pathname);
+      }
+    } else if (lat && lng) {
+      // 如果只有座標，直接定位到該座標
+      const coords = {
+        lat: parseFloat(lat),
+        lng: parseFloat(lng)
+      };
+      setMapCenter(coords);
+      setSearchCenter(coords);
+      message.info('已定位到指定位置');
+      
+      // 清理URL參數
+      window.history.replaceState({}, document.title, location.pathname);
+    }
+  }, [location.search, properties]);
 
   // 處理房產點擊
   const handlePropertyClick = useCallback((property: typeof mockProperties[0]) => {
