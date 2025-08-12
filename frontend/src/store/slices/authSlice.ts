@@ -128,7 +128,7 @@ const getTokenFromStorage = (): string | null => {
 // 開發模式下的默認 token 和用戶（生產環境中應該移除）
 const getDefaultTestAuth = () => {
   if (process.env.NODE_ENV === 'development') {
-    const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTcwOTJhY2UwMzlhYzE0ZmVlYjMyOSIsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInJvbGUiOiJhZ2VudCIsImNvbXBhbnlfaWQiOiI2ODhmMjBlOGEwYTRiYmU4OTc2MzQ4MzMiLCJpYXQiOjE3NTQ5NzkzNzEsImV4cCI6MTc1NDk4MDI3MX0.KhlUexnoVfaFCL3Jwof01sL5dWpi3lJFBMWJ-Z2awwQ';
+    const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTcwOTJhY2UwMzlhYzE0ZmVlYjMyOSIsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInJvbGUiOiJhZ2VudCIsImNvbXBhbnlfaWQiOiI2ODhmMjBlOGEwYTRiYmU4OTc2MzQ4MzMiLCJpYXQiOjE3NTQ5ODM1NTQsImV4cCI6MTc1NDk4NDQ1NH0.wTilKo-_vxckJN8m7oO2hp0ArqXCnlS4JLZx2Hr8pDo';
     const testUser = {
       id: '6897092ace039ac14feeb329',
       name: '測試 用戶',

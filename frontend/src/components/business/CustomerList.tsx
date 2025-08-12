@@ -4,6 +4,7 @@ import {
   Card, 
   Button, 
   Input, 
+  InputNumber,
   Select, 
   Tag, 
   Space, 
@@ -24,7 +25,8 @@ import {
   PlusOutlined,
   SearchOutlined,
   FilterOutlined,
-  StarOutlined
+  StarOutlined,
+  EyeOutlined
 } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import CustomerForm from './CustomerForm';
@@ -78,6 +80,10 @@ const CustomerList: React.FC = () => {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  
+  // 查看客戶詳情模態框狀態
+  const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null);
   
   // 意願評分模態框狀態
   const [scoreModalVisible, setScoreModalVisible] = useState(false);
@@ -268,6 +274,13 @@ const CustomerList: React.FC = () => {
       key: 'actions',
       render: (record: Customer) => (
         <Space>
+          <Tooltip title="查看詳情">
+            <Button 
+              type="text" 
+              icon={<EyeOutlined />} 
+              onClick={() => handleView(record)}
+            />
+          </Tooltip>
           <Tooltip title="編輯客戶">
             <Button 
               type="text" 
@@ -292,9 +305,15 @@ const CustomerList: React.FC = () => {
           </Tooltip>
         </Space>
       ),
-      width: 120,
+      width: 150,
     },
   ];
+
+  // 查看客戶詳情
+  const handleView = (customer: Customer) => {
+    setViewingCustomer(customer);
+    setViewModalVisible(true);
+  };
 
   // 編輯客戶
   const handleEdit = (customer: Customer) => {
@@ -579,6 +598,50 @@ const CustomerList: React.FC = () => {
         </div>
       </Card>
 
+      {/* 查看客戶詳情模態框 */}
+      <Modal
+        title="客戶詳細資料"
+        open={viewModalVisible}
+        onCancel={() => {
+          setViewModalVisible(false);
+          setViewingCustomer(null);
+        }}
+        footer={[
+          <Button key="close" onClick={() => {
+            setViewModalVisible(false);
+            setViewingCustomer(null);
+          }}>
+            關閉
+          </Button>
+        ]}
+        width={600}
+      >
+        {viewingCustomer && (
+          <div style={{ padding: '16px 0' }}>
+            <Card title="基本資訊" size="small" style={{ marginBottom: 16 }}>
+              <p><strong>姓名:</strong> {viewingCustomer.first_name} {viewingCustomer.last_name}</p>
+              <p><strong>手機號碼:</strong> {viewingCustomer.phone}</p>
+              {viewingCustomer.email && <p><strong>電子郵箱:</strong> {viewingCustomer.email}</p>}
+              <p><strong>狀態:</strong> <Tag color={getStatusColor(viewingCustomer.status)}>{getStatusText(viewingCustomer.status)}</Tag></p>
+              <p><strong>意願評分:</strong> {viewingCustomer.purchase_intent_score}分</p>
+              {viewingCustomer.tags && viewingCustomer.tags.length > 0 && (
+                <p><strong>標籤:</strong> {viewingCustomer.tags.map((tag, index) => 
+                  <Tag key={index} color="blue" style={{ marginRight: 8 }}>{tag}</Tag>
+                )}</p>
+              )}
+              <p><strong>創建時間:</strong> {new Date(viewingCustomer.created_at).toLocaleString('zh-TW')}</p>
+              {viewingCustomer.last_contact_at && (
+                <p><strong>最後聯繫時間:</strong> {new Date(viewingCustomer.last_contact_at).toLocaleString('zh-TW')}</p>
+              )}
+            </Card>
+            <Card title="負責業務員" size="small">
+              <p><strong>姓名:</strong> {viewingCustomer.agent_id.first_name} {viewingCustomer.agent_id.last_name}</p>
+              <p><strong>郵箱:</strong> {viewingCustomer.agent_id.email}</p>
+            </Card>
+          </div>
+        )}
+      </Modal>
+
       {/* 編輯客戶模態框 */}
       <Modal
         title={editingCustomer ? '編輯客戶' : '新增客戶'}
@@ -633,7 +696,7 @@ const CustomerList: React.FC = () => {
               { type: 'number', min: 0, max: 10, message: '評分必須在0-10之間' }
             ]}
           >
-            <Input.Number 
+            <InputNumber 
               min={0} 
               max={10} 
               step={0.1}
