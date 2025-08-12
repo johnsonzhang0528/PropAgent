@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/160</span>
+                <span class='fraction'>0/150</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/57</span>
+                <span class='fraction'>0/53</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/35</span>
+                <span class='fraction'>0/34</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/141</span>
+                <span class='fraction'>0/140</span>
             </div>
         
             
@@ -371,7 +371,7 @@
 <a name='L306'></a><a href='#L306'>306</a>
 <a name='L307'></a><a href='#L307'>307</a>
 <a name='L308'></a><a href='#L308'>308</a>
-<a name='L309'></a><a href='#L309'>309</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L309'></a><a href='#L309'>309</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -679,10 +679,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { useState, useEffect } from 'react';</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useState, useEffect } from 'react';
 &nbsp;
 // 移動端檢測 Hook
-export const <span class="cstat-no" title="statement not covered" >useMobile = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>) =</span>&gt; {</span>
+export const useMobile = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
   const [isMobile, setIsMobile] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
   const [isTablet, setIsTablet] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
   const [screenSize, setScreenSize] = <span class="cstat-no" title="statement not covered" >useState({</span>
@@ -725,7 +725,7 @@ export const <span class="cstat-no" title="statement not covered" >useMobile = <
 };
 &nbsp;
 // 觸控設備檢測 Hook
-export const <span class="cstat-no" title="statement not covered" >useTouchDevice = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>) =</span>&gt; {</span>
+export const useTouchDevice = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
   const [isTouchDevice, setIsTouchDevice] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
@@ -749,7 +749,7 @@ export const <span class="cstat-no" title="statement not covered" >useTouchDevic
 };
 &nbsp;
 // 網路狀態檢測 Hook
-export const <span class="cstat-no" title="statement not covered" >useNetworkStatus = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>) =</span>&gt; {</span>
+export const useNetworkStatus = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
   const [isOnline, setIsOnline] = <span class="cstat-no" title="statement not covered" >useState(navigator.onLine);</span>
   const [connectionType, setConnectionType] = <span class="cstat-no" title="statement not covered" >useState&lt;string&gt;('unknown');</span>
 &nbsp;
@@ -794,7 +794,7 @@ export const <span class="cstat-no" title="statement not covered" >useNetworkSta
 };
 &nbsp;
 // 設備方向檢測 Hook
-export const <span class="cstat-no" title="statement not covered" >useOrientation = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>) =</span>&gt; {</span>
+export const useOrientation = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
   const [orientation, setOrientation] = <span class="cstat-no" title="statement not covered" >useState&lt;'portrait' | 'landscape'&gt;('portrait');</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
@@ -820,7 +820,7 @@ export const <span class="cstat-no" title="statement not covered" >useOrientatio
 };
 &nbsp;
 // 虛擬鍵盤檢測 Hook (iOS Safari 等)
-export const <span class="cstat-no" title="statement not covered" >useVirtualKeyboard = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>) =</span>&gt; {</span>
+export const useVirtualKeyboard = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
   const [isVirtualKeyboardOpen, setIsVirtualKeyboardOpen] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
   const [initialViewportHeight, setInitialViewportHeight] = <span class="cstat-no" title="statement not covered" >useState(window.innerHeight);</span>
 &nbsp;
@@ -857,7 +857,7 @@ export const <span class="cstat-no" title="statement not covered" >useVirtualKey
 };
 &nbsp;
 // 設備性能檢測 Hook
-export const <span class="cstat-no" title="statement not covered" >useDevicePerformance = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>) =</span>&gt; {</span>
+export const useDevicePerformance = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
   const [devicePerformance, setDevicePerformance] = <span class="cstat-no" title="statement not covered" >useState&lt;'high' | 'medium' | 'low'&gt;('medium');</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
@@ -910,7 +910,7 @@ export const <span class="cstat-no" title="statement not covered" >useDevicePerf
 };
 &nbsp;
 // 電池狀態檢測 Hook
-export const <span class="cstat-no" title="statement not covered" >useBatteryStatus = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>) =</span>&gt; {</span>
+export const useBatteryStatus = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
   const [batteryInfo, setBatteryInfo] = <span class="cstat-no" title="statement not covered" >useState({</span>
     level: 1,
     charging: true,
@@ -919,7 +919,7 @@ export const <span class="cstat-no" title="statement not covered" >useBatterySta
   });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
-    const getBatteryInfo = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =</span>&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+    const getBatteryInfo = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if ('getBattery' in navigator) {</span>
 <span class="cstat-no" title="statement not covered" >        try {</span>
           const battery = <span class="cstat-no" title="statement not covered" >await (navigator as any).getBattery();</span>
@@ -963,7 +963,7 @@ export const <span class="cstat-no" title="statement not covered" >useBatterySta
 };
 &nbsp;
 // 綜合移動端 Hook
-export const <span class="cstat-no" title="statement not covered" >useMobileOptimization = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>) =</span>&gt; {</span>
+export const useMobileOptimization = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
   const mobile = <span class="cstat-no" title="statement not covered" >useMobile();</span>
   const touch = <span class="cstat-no" title="statement not covered" >useTouchDevice();</span>
   const network = <span class="cstat-no" title="statement not covered" >useNetworkStatus();</span>
@@ -994,7 +994,7 @@ export const <span class="cstat-no" title="statement not covered" >useMobileOpti
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-07T16:46:30.465Z
+                at 2025-08-11T19:57:36.099Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

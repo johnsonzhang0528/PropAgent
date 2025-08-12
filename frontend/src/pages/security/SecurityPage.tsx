@@ -89,6 +89,7 @@ const SecurityPage: React.FC = () => {
 
   // 解除封鎖 IP
   const handleUnblockIP = (ip: string) => {
+    console.log('點擊解除封鎖 IP:', ip);
     Modal.confirm({
       title: '確認解除封鎖',
       content: (

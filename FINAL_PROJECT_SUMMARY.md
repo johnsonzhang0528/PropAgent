@@ -256,4 +256,4 @@ PropAgent Pro 已成功完成開發和部署準備，這是一個功能完整、
 
 ---
 
-*Generated with [Claude Code](https://claude.ai/code) - 2025-01-07*
+*Generated with [GitHub Copilot](https://claude.ai/code) - 2025-01-07*

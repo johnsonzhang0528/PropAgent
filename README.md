@@ -28,4 +28,4 @@ cd frontend && npm install && npm run dev
 - Backend: Node.js + Express + MongoDB
 - Database: MongoDB with comprehensive migration system
 
-Generated with Claude Code
+Generated with GitHub Copilot

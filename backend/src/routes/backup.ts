@@ -422,10 +422,48 @@ class BackupService {
     if (filename.endsWith('.csv')) return 'csv';
     return 'unknown';
   }
+
+  // 獲取備份配置
+  getConfig(): BackupConfig {
+    return this.config;
+  }
 }
 
 // 創建備份服務實例
 const backupService = new BackupService();
+
+// 根路由 - 返回備份服務狀態和配置
+router.get('/', authMiddleware, (req: any, res) => {
+  try {
+    const backups = backupService.getBackupList();
+    const config = {
+      backupPath: backupService.getConfig().backupPath,
+      retention: backupService.getConfig().retention,
+      compression: backupService.getConfig().compression,
+      includeFiles: backupService.getConfig().includeFiles
+    };
+    
+    res.json({
+      success: true,
+      data: {
+        backups,
+        config,
+        stats: {
+          totalBackups: backups.length,
+          totalSize: backups.reduce((sum, backup) => sum + backup.size, 0),
+          lastBackup: backups.length > 0 ? backups[0].created : null
+        }
+      }
+    });
+  } catch (error: any) {
+    console.error('獲取備份信息失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取備份信息失敗',
+      error: error.message
+    });
+  }
+});
 
 // 路由 - 加入安全性和權限控制
 

@@ -421,6 +421,7 @@ const CustomerList: React.FC = () => {
 
   // 聯繫客戶
   const handleContact = async (customer: Customer) => {
+    console.log('點擊聯繫按鈕:', customer);
     Modal.confirm({
       title: '聯繫客戶',
       content: (
@@ -469,6 +470,7 @@ const CustomerList: React.FC = () => {
 
   // 刪除客戶
   const handleDelete = (customer: Customer) => {
+    console.log('點擊刪除按鈕:', customer);
     Modal.confirm({
       title: '確認刪除',
       content: `確定要刪除客戶 ${customer.first_name} ${customer.last_name} 嗎？`,

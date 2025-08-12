@@ -1,6 +1,6 @@
 # PropAgent Pro 系統測試報告
 ## 測試日期：2025-08-09
-## 測試人員：QA專家 (Claude Code)
+## 測試人員：QA專家 (GitHub Copilot)
 
 ---
 

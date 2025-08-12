@@ -1,4 +1,4 @@
-import axios from 'axios';
+// 房產服務 - 統一管理所有房產相關的 API 請求
 
 const API_BASE_URL = '/api';
 
@@ -150,12 +150,19 @@ class PropertyService {
         }
       });
 
-      const response = await axios.get(
-        `${API_BASE_URL}/properties?${queryParams}`,
-        { headers: getAuthHeaders() }
-      );
+      const url = `${API_BASE_URL}/properties?${queryParams}`;
 
-      return response.data;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return result;
     } catch (error) {
       console.error('獲取房產列表失敗:', error);
       throw this.handleError(error);
@@ -165,11 +172,20 @@ class PropertyService {
   // 獲取單個房產詳情
   async getProperty(id: string): Promise<PropertyResponse> {
     try {
-      const response = await axios.get(
+      const response = await fetch(
         `${API_BASE_URL}/properties/${id}`,
-        { headers: getAuthHeaders() }
+        {
+          method: 'GET',
+          headers: getAuthHeaders()
+        }
       );
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return result;
     } catch (error) {
       console.error('獲取房產詳情失敗:', error);
       throw this.handleError(error);
@@ -179,12 +195,21 @@ class PropertyService {
   // 創建房產
   async createProperty(propertyData: Partial<Property>): Promise<PropertyResponse> {
     try {
-      const response = await axios.post(
+      const response = await fetch(
         `${API_BASE_URL}/properties`,
-        propertyData,
-        { headers: getAuthHeaders() }
+        {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(propertyData)
+        }
       );
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return result;
     } catch (error) {
       console.error('創建房產失敗:', error);
       throw this.handleError(error);
@@ -194,12 +219,21 @@ class PropertyService {
   // 更新房產
   async updateProperty(id: string, propertyData: Partial<Property>): Promise<PropertyResponse> {
     try {
-      const response = await axios.put(
+      const response = await fetch(
         `${API_BASE_URL}/properties/${id}`,
-        propertyData,
-        { headers: getAuthHeaders() }
+        {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(propertyData)
+        }
       );
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return result;
     } catch (error) {
       console.error('更新房產失敗:', error);
       throw this.handleError(error);
@@ -209,11 +243,20 @@ class PropertyService {
   // 刪除房產
   async deleteProperty(id: string): Promise<{ success: boolean; data: { message: string } }> {
     try {
-      const response = await axios.delete(
+      const response = await fetch(
         `${API_BASE_URL}/properties/${id}`,
-        { headers: getAuthHeaders() }
+        {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        }
       );
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return result;
     } catch (error) {
       console.error('刪除房產失敗:', error);
       throw this.handleError(error);
@@ -224,11 +267,20 @@ class PropertyService {
   async getPropertyStats(agentId?: string): Promise<PropertyStatsResponse> {
     try {
       const params = agentId ? `?agent_id=${agentId}` : '';
-      const response = await axios.get(
+      const response = await fetch(
         `${API_BASE_URL}/properties/stats/overview${params}`,
-        { headers: getAuthHeaders() }
+        {
+          method: 'GET',
+          headers: getAuthHeaders()
+        }
       );
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return result;
     } catch (error) {
       console.error('獲取房產統計失敗:', error);
       throw this.handleError(error);
@@ -238,11 +290,20 @@ class PropertyService {
   // 獲取客戶匹配
   async getCustomerMatches(propertyId: string, limit: number = 10): Promise<CustomerMatchResponse> {
     try {
-      const response = await axios.get(
+      const response = await fetch(
         `${API_BASE_URL}/properties/${propertyId}/matches?limit=${limit}`,
-        { headers: getAuthHeaders() }
+        {
+          method: 'GET',
+          headers: getAuthHeaders()
+        }
       );
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return result;
     } catch (error) {
       console.error('獲取客戶匹配失敗:', error);
       throw this.handleError(error);
@@ -261,18 +322,23 @@ class PropertyService {
         formData.append('propertyId', propertyId);
       }
 
-      const response = await axios.post(
+      const response = await fetch(
         `${API_BASE_URL}/upload/property-images`,
-        formData,
         {
+          method: 'POST',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            'Content-Type': 'multipart/form-data'
-          }
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          },
+          body: formData
         }
       );
       
-      return response.data;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return result;
     } catch (error) {
       console.error('上傳房產圖片失敗:', error);
       throw this.handleError(error);
@@ -338,11 +404,10 @@ class PropertyService {
 
   // 錯誤處理
   private handleError(error: any): Error {
-    if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || error.message;
-      return new Error(message);
+    if (error instanceof Error) {
+      return error;
     }
-    return error instanceof Error ? error : new Error('未知錯誤');
+    return new Error('未知錯誤');
   }
 }
 

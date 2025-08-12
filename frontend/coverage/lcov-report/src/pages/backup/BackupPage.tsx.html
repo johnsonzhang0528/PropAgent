@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/115</span>
+                <span class='fraction'>0/101</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>0/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/38</span>
+                <span class='fraction'>0/30</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/107</span>
+                <span class='fraction'>0/101</span>
             </div>
         
             
@@ -595,8 +595,7 @@
 <a name='L530'></a><a href='#L530'>530</a>
 <a name='L531'></a><a href='#L531'>531</a>
 <a name='L532'></a><a href='#L532'>532</a>
-<a name='L533'></a><a href='#L533'>533</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L533'></a><a href='#L533'>533</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -617,7 +616,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -630,8 +628,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1127,8 +1127,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import React, { useState, useEffect } from 'react';</span>
-<span class="cstat-no" title="statement not covered" >import {</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState, useEffect } from 'react';
+import {
   Layout,
   Card,
   Table,
@@ -1149,7 +1149,7 @@
   Alert,
   Divider
 } from 'antd';
-<span class="cstat-no" title="statement not covered" >import {</span>
+import {
   CloudDownloadOutlined,
   DatabaseOutlined,
   FolderOutlined,
@@ -1162,8 +1162,8 @@
   ImportOutlined,
   ClearOutlined
 } from '@ant-design/icons';
-<span class="cstat-no" title="statement not covered" >import { backupService, type BackupItem, type BackupConfig } from '../../services/backupService';</span>
-<span class="cstat-no" title="statement not covered" >import { useMobile } from '../../hooks/useMobile';</span>
+import { backupService, type BackupItem, type BackupConfig } from '../../services/backupService';
+import { useMobile } from '../../hooks/useMobile';
 &nbsp;
 const { Content } = <span class="cstat-no" title="statement not covered" >Layout;</span>
 const { Title, Text } = <span class="cstat-no" title="statement not covered" >Typography;</span>
@@ -1188,7 +1188,7 @@ const BackupPage: React.FC = <span class="cstat-no" title="statement not covered
 <span class="cstat-no" title="statement not covered" >    loadConfig();</span>
   }, []);
 &nbsp;
-  const loadBackups = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =</span>&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+  const loadBackups = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setLoading(true);</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const data = <span class="cstat-no" title="statement not covered" >await backupService.getBackupList();</span>
@@ -1200,7 +1200,7 @@ const BackupPage: React.FC = <span class="cstat-no" title="statement not covered
     }
   };
 &nbsp;
-  const loadConfig = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =</span>&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+  const loadConfig = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const configData = <span class="cstat-no" title="statement not covered" >await backupService.getBackupConfig();</span>
 <span class="cstat-no" title="statement not covered" >      setConfig(configData);</span>
@@ -1210,7 +1210,7 @@ const BackupPage: React.FC = <span class="cstat-no" title="statement not covered
   };
 &nbsp;
   // 創建備份
-  const handleCreateBackup = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (v</span>alues: { type: string }) =&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+  const handleCreateBackup = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(values: { type: string }) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setCreating(true);</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await backupService.createBackup(values.type as any);</span>
@@ -1226,7 +1226,7 @@ const BackupPage: React.FC = <span class="cstat-no" title="statement not covered
   };
 &nbsp;
   // 導出數據
-  const handleExportData = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (v</span>alues: { format: string; collection?: string }) =&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+  const handleExportData = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(values: { format: string; collection?: string }) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setExporting(true);</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const path = <span class="cstat-no" title="statement not covered" >await backupService.exportData(values.format as any, values.collection);</span>
@@ -1242,7 +1242,7 @@ const BackupPage: React.FC = <span class="cstat-no" title="statement not covered
   };
 &nbsp;
   // 下載備份
-  const handleDownload = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (f</span>ilename: string) =&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+  const handleDownload = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(filename: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await backupService.downloadBackup(filename);</span>
 <span class="cstat-no" title="statement not covered" >      message.success('下載開始');</span>
@@ -1252,7 +1252,7 @@ const BackupPage: React.FC = <span class="cstat-no" title="statement not covered
   };
 &nbsp;
   // 刪除備份
-  const handleDelete = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (f</span>ilename: string) =&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+  const handleDelete = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(filename: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await backupService.deleteBackup(filename);</span>
 <span class="cstat-no" title="statement not covered" >      message.success('備份已刪除');</span>
@@ -1263,7 +1263,7 @@ const BackupPage: React.FC = <span class="cstat-no" title="statement not covered
   };
 &nbsp;
   // 恢復數據庫
-  const handleRestore = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (v</span>alues: { backupPath: string }) =&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+  const handleRestore = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(values: { backupPath: string }) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setRestoring(true);</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await backupService.restoreDatabase(values.backupPath);</span>
@@ -1278,7 +1278,7 @@ const BackupPage: React.FC = <span class="cstat-no" title="statement not covered
   };
 &nbsp;
   // 清理過期備份
-  const handleCleanup = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =</span>&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+  const handleCleanup = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await backupService.cleanupOldBackups();</span>
 <span class="cstat-no" title="statement not covered" >      message.success('過期備份已清理');</span>
@@ -1659,14 +1659,14 @@ const BackupPage: React.FC = <span class="cstat-no" title="statement not covered
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export default BackupPage;</span></pre></td></tr></table></pre>
+export default BackupPage;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-07T16:46:30.465Z
+                at 2025-08-11T19:57:36.099Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

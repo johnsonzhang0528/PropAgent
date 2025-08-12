@@ -224,4 +224,4 @@ v1.2.0 計劃功能:
 
 ---
 
-*Generated with [Claude Code](https://claude.ai/code) - 2025-01-07*
+*Generated with [GitHub Copilot](https://claude.ai/code) - 2025-01-07*

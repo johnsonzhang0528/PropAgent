@@ -222,6 +222,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   // 開始上傳
   const handleUpload = async () => {
+    console.log('點擊開始上傳按鈕');
     if (fileList.length === 0) {
       message.warning('請選擇要上傳的文件');
       return;

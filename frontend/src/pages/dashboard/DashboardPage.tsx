@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Row, Col, Card, Statistic, Typography, Space, List, Progress, Avatar, Button, Tag } from 'antd';
+import { Row, Col, Card, Statistic, Typography, Space, List, Progress, Avatar, Button, Tag, Grid, Spin } from 'antd';
 import { 
   UserOutlined, 
   HomeOutlined, 
@@ -16,14 +16,22 @@ import {
   RightOutlined,
   TeamOutlined,
   ShoppingOutlined,
-  ClockCircleOutlined
+  ClockCircleOutlined,
+  LineChartOutlined,
+  PieChartOutlined
 } from '@ant-design/icons';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
   const [showTodayTasks, setShowTodayTasks] = useState(false);
+  const [chartData, setChartData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const recentActivities = [
     { 
       icon: <PhoneOutlined style={{ color: '#1890ff' }} />, 
@@ -96,8 +104,42 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  // 模擬載入圖表數據
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setChartData({
+        salesTrend: [
+          { month: '1月', sales: 20, customers: 15 },
+          { month: '2月', sales: 35, customers: 28 },
+          { month: '3月', sales: 28, customers: 22 },
+          { month: '4月', sales: 45, customers: 35 },
+          { month: '5月', sales: 52, customers: 42 },
+          { month: '6月', sales: 38, customers: 30 }
+        ],
+        propertyTypes: [
+          { name: '公寓', value: 45, color: '#1890ff' },
+          { name: '別墅', value: 25, color: '#52c41a' },
+          { name: '商業', value: 20, color: '#faad14' },
+          { name: '工業', value: 10, color: '#f5222d' }
+        ],
+        regionSales: [
+          { region: '信義區', sales: 85 },
+          { region: '大安區', sales: 72 },
+          { region: '松山區', sales: 65 },
+          { region: '內湖區', sales: 58 },
+          { region: '南港區', value: 45 }
+        ]
+      });
+      setLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  const COLORS = ['#1890ff', '#52c41a', '#faad14', '#f5222d'];
+
   return (
-    <div style={{ background: '#f5f7fa', minHeight: '100vh', padding: '24px' }}>
+    <div style={{ background: '#f5f7fa', minHeight: '100vh', padding: isMobile ? '16px' : '24px' }}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         
         {/* 歡迎標題區域 */}
@@ -452,8 +494,151 @@ const DashboardPage: React.FC = () => {
           </Col>
         </Row>
 
+        {/* 數據可視化圖表區域 */}
+        <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+          {/* 銷售趨勢圖 */}
+          <Col xs={24} xl={12}>
+            <Card 
+              title={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <LineChartOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
+                  <span style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 600 }}>銷售趨勢分析</span>
+                </div>
+              }
+              style={{ 
+                borderRadius: '16px', 
+                border: 'none',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+              }}
+            >
+              <div style={{ height: isMobile ? 250 : 300 }}>
+                {loading ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <Spin size="large" />
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData?.salesTrend}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="month" 
+                        fontSize={isMobile ? 11 : 12}
+                      />
+                      <YAxis fontSize={isMobile ? 11 : 12} />
+                      <Tooltip />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="sales" 
+                        stroke="#1890ff" 
+                        strokeWidth={2}
+                        name="銷售額"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="customers" 
+                        stroke="#52c41a" 
+                        strokeWidth={2}
+                        name="新客戶"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </Card>
+          </Col>
+
+          {/* 房產類型分布 */}
+          <Col xs={24} xl={12}>
+            <Card 
+              title={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <PieChartOutlined style={{ marginRight: '8px', color: '#52c41a' }} />
+                  <span style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 600 }}>房產類型分布</span>
+                </div>
+              }
+              style={{ 
+                borderRadius: '16px', 
+                border: 'none',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+              }}
+            >
+              <div style={{ height: isMobile ? 250 : 300 }}>
+                {loading ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <Spin size="large" />
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData?.propertyTypes}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => 
+                          `${name} ${(percent * 100).toFixed(0)}%`
+                        }
+                        outerRadius={isMobile ? 60 : 80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {chartData?.propertyTypes.map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend fontSize={isMobile ? 11 : 12} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* 區域銷售排行 */}
+        <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+          <Col span={24}>
+            <Card 
+              title="熱門區域銷售排行"
+              style={{ 
+                borderRadius: '16px', 
+                border: 'none',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+              }}
+            >
+              <div style={{ height: isMobile ? 200 : 250 }}>
+                {loading ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <Spin size="large" />
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData?.regionSales}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="region" 
+                        fontSize={isMobile ? 11 : 12}
+                      />
+                      <YAxis fontSize={isMobile ? 11 : 12} />
+                      <Tooltip />
+                      <Bar 
+                        dataKey="sales" 
+                        fill="#1890ff" 
+                        name="銷售量"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
         {/* 進度條區域 */}
-        <Row gutter={[24, 24]}>
+        <Row gutter={[16, 16]}>
           <Col xs={24} lg={8}>
             <Card 
               title="本月目標完成度"
@@ -462,6 +647,7 @@ const DashboardPage: React.FC = () => {
                 border: 'none',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
               }}
+              bodyStyle={{ textAlign: 'center' }}
             >
               <Progress
                 type="circle"
@@ -471,9 +657,9 @@ const DashboardPage: React.FC = () => {
                   '0%': '#1890ff',
                   '100%': '#096dd9',
                 }}
-                size={120}
+                size={isMobile ? 100 : 120}
               />
-              <div style={{ textAlign: 'center', marginTop: '16px' }}>
+              <div style={{ marginTop: '16px' }}>
                 <Text style={{ fontSize: '14px', color: '#666' }}>目標: 16筆成交</Text>
               </div>
             </Card>
@@ -487,6 +673,7 @@ const DashboardPage: React.FC = () => {
                 border: 'none',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
               }}
+              bodyStyle={{ textAlign: 'center' }}
             >
               <Progress
                 type="circle"
@@ -496,9 +683,9 @@ const DashboardPage: React.FC = () => {
                   '0%': '#52c41a',
                   '100%': '#389e0d',
                 }}
-                size={120}
+                size={isMobile ? 100 : 120}
               />
-              <div style={{ textAlign: 'center', marginTop: '16px' }}>
+              <div style={{ marginTop: '16px' }}>
                 <Text style={{ fontSize: '14px', color: '#666' }}>基於23份評價</Text>
               </div>
             </Card>
@@ -512,6 +699,7 @@ const DashboardPage: React.FC = () => {
                 border: 'none',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
               }}
+              bodyStyle={{ textAlign: 'center' }}
             >
               <Progress
                 type="circle"
@@ -521,9 +709,9 @@ const DashboardPage: React.FC = () => {
                   '0%': '#fa8c16',
                   '100%': '#d46b08',
                 }}
-                size={120}
+                size={isMobile ? 100 : 120}
               />
-              <div style={{ textAlign: 'center', marginTop: '16px' }}>
+              <div style={{ marginTop: '16px' }}>
                 <Text style={{ fontSize: '14px', color: '#666' }}>本週已更新</Text>
               </div>
             </Card>

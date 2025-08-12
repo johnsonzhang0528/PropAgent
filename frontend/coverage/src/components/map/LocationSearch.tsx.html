@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/117</span>
+                <span class='fraction'>0/110</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/56</span>
+                <span class='fraction'>0/40</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/28</span>
+                <span class='fraction'>0/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/114</span>
+                <span class='fraction'>0/109</span>
             </div>
         
             
@@ -462,8 +462,7 @@
 <a name='L397'></a><a href='#L397'>397</a>
 <a name='L398'></a><a href='#L398'>398</a>
 <a name='L399'></a><a href='#L399'>399</a>
-<a name='L400'></a><a href='#L400'>400</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L400'></a><a href='#L400'>400</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -479,7 +478,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -487,7 +485,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -861,8 +861,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import React, { useState, useEffect, useRef } from 'react';</span>
-<span class="cstat-no" title="statement not covered" >import {</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState, useEffect, useRef } from 'react';
+import {
   Input,
   Button,
   Card,
@@ -878,7 +878,7 @@
   message,
   Spin
 } from 'antd';
-<span class="cstat-no" title="statement not covered" >import {</span>
+import {
   SearchOutlined,
   EnvironmentOutlined,
   AimOutlined,
@@ -886,7 +886,7 @@
   StarOutlined,
   StarFilled
 } from '@ant-design/icons';
-<span class="cstat-no" title="statement not covered" >import { locationService, type Coordinates, type SearchResult } from '../../services/locationService';</span>
+import { locationService, type Coordinates, type SearchResult } from '../../services/locationService';
 &nbsp;
 const { Text } = <span class="cstat-no" title="statement not covered" >Typography;</span>
 &nbsp;
@@ -948,7 +948,7 @@ const LocationSearch: React.FC&lt;LocationSearchProps&gt; = <span class="cstat-n
   }, []);
 &nbsp;
   // 搜索地點
-  const searchLocations = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (q</span>uery: string) =&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+  const searchLocations = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(query: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!query.trim()) {</span>
 <span class="cstat-no" title="statement not covered" >      setSearchResults([]);</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
@@ -992,7 +992,7 @@ const LocationSearch: React.FC&lt;LocationSearchProps&gt; = <span class="cstat-n
   };
 &nbsp;
   // 獲取當前位置
-  const getCurrentLocation = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =</span>&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
+  const getCurrentLocation = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setLoading(true);</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const coordinates = <span class="cstat-no" title="statement not covered" >await locationService.getCurrentPosition();</span>
@@ -1260,14 +1260,14 @@ const LocationSearch: React.FC&lt;LocationSearchProps&gt; = <span class="cstat-n
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export default LocationSearch;</span></pre></td></tr></table></pre>
+export default LocationSearch;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-07T16:46:30.513Z
+                at 2025-08-11T19:57:36.144Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

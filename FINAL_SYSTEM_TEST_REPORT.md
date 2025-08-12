@@ -3,7 +3,7 @@
 **測試日期**: 2025-08-07  
 **測試環境**: Production-Ready  
 **系統版本**: v1.0.0  
-**測試工程師**: Claude Code  
+**測試工程師**: GitHub Copilot  
 
 ---
 
@@ -261,4 +261,4 @@
 
 ---
 
-*本報告由 Claude Code 自動化測試系統生成*
+*本報告由 GitHub Copilot 自動化測試系統生成*

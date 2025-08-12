@@ -25,7 +25,7 @@ class BackupService {
   private apiUrl = `/api/backup`;
 
   private getAuthHeader() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
     return token ? { 'Authorization': `Bearer ${token}` } : {};
   }
 

@@ -150,39 +150,29 @@ const DocumentList: React.FC<DocumentListProps> = ({
   }, [loadStats]);
 
   // 處理搜索
-  const handleSearch = (value: string) => {
+  const handleSearch = useCallback((value: string) => {
     setSearchText(value);
     setPagination(prev => ({ ...prev, current: 1 }));
     // 觸發重新載入
-    setTimeout(() => {
-      loadDocuments();
-    }, 300); // 防抖動
-  };
+    loadDocuments();
+  }, [loadDocuments]);
 
   // 處理篩選
-  const handleFilter = (type: 'category' | 'tag', value: string) => {
+  const handleFilter = useCallback((type: 'category' | 'tag', value: string) => {
     if (type === 'category') {
       setCategoryFilter(value);
     } else {
       setTagFilter(value);
     }
     setPagination(prev => ({ ...prev, current: 1 }));
-    // 觸發重新載入
-    setTimeout(() => {
-      loadDocuments();
-    }, 100);
-  };
+  }, []);
 
   // 處理排序
-  const handleSort = (field: string, order: 'asc' | 'desc') => {
+  const handleSort = useCallback((field: string, order: 'asc' | 'desc') => {
     setSortBy(field);
     setSortOrder(order);
     setPagination(prev => ({ ...prev, current: 1 }));
-    // 觸發重新載入
-    setTimeout(() => {
-      loadDocuments();
-    }, 100);
-  };
+  }, []);
 
   // 處理分頁
   const handleTableChange = (page: number, pageSize?: number) => {
@@ -498,9 +488,8 @@ const DocumentList: React.FC<DocumentListProps> = ({
                 placeholder="搜索文檔名稱或描述"
                 prefix={<SearchOutlined />}
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                onChange={(e) => handleSearch(e.target.value)}
                 onPressEnter={(e) => handleSearch((e.target as HTMLInputElement).value)}
-                onBlur={(e) => handleSearch(e.target.value)}
                 allowClear
                 onClear={() => handleSearch('')}
               />

@@ -82,6 +82,7 @@ const BackupPage: React.FC = () => {
 
   // 創建備份
   const handleCreateBackup = async (values: { type: string }) => {
+    console.log('點擊創建備份按鈕:', values);
     setCreating(true);
     try {
       await backupService.createBackup(values.type as any);
@@ -98,6 +99,7 @@ const BackupPage: React.FC = () => {
 
   // 導出數據
   const handleExportData = async (values: { format: string; collection?: string }) => {
+    console.log('點擊導出數據按鈕:', values);
     setExporting(true);
     try {
       const path = await backupService.exportData(values.format as any, values.collection);
@@ -135,6 +137,7 @@ const BackupPage: React.FC = () => {
 
   // 恢復數據庫
   const handleRestore = async (values: { backupPath: string }) => {
+    console.log('點擊恢復數據庫按鈕:', values);
     setRestoring(true);
     try {
       await backupService.restoreDatabase(values.backupPath);
@@ -150,6 +153,7 @@ const BackupPage: React.FC = () => {
 
   // 清理過期備份
   const handleCleanup = async () => {
+    console.log('點擊清理過期備份按鈕');
     try {
       await backupService.cleanupOldBackups();
       message.success('過期備份已清理');

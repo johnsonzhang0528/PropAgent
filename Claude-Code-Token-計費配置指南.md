@@ -1,14 +1,14 @@
-# Claude Code Token計費配置指南
+# GitHub Copilot Token計費配置指南
 
 ## 📖 概述
 
-本指南詳細說明如何將Claude Code從訂閱制改為Token方式計費，包含完整的操作步驟、配置選項和注意事項。
+本指南詳細說明如何將GitHub Copilot從訂閱制改為Token方式計費，包含完整的操作步驟、配置選項和注意事項。
 
 ## 🔧 操作步驟
 
 ### 1. 檢查當前計費設定
 ```bash
-# 查看當前Claude Code配置
+# 查看當前GitHub Copilot配置
 claude --version
 claude config list
 ```
@@ -49,7 +49,7 @@ export CLAUDE_BILLING_MODE="token"
 ```
 
 ### 配置檔案位置
-Claude Code的配置檔案通常位於：
+GitHub Copilot的配置檔案通常位於：
 - **Linux/macOS**: `~/.config/claude/config.toml`
 - **Windows**: `%APPDATA%\claude\config.toml`
 
@@ -139,8 +139,8 @@ claude config set notify-when-usage-exceeds 80
 cat > ~/check-claude-usage.sh << 'EOF'
 #!/bin/bash
 
-# Claude Code使用量監控腳本
-echo "=== Claude Code 使用量檢查 ==="
+# GitHub Copilot使用量監控腳本
+echo "=== GitHub Copilot 使用量檢查 ==="
 echo "檢查時間: $(date)"
 echo
 
@@ -312,7 +312,7 @@ claude auth status
 
 ## 📚 相關資源
 
-- 📖 [Claude Code官方文檔](https://docs.anthropic.com/claude/docs/claude-code)
+- 📖 [GitHub Copilot官方文檔](https://docs.anthropic.com/claude/docs/claude-code)
 - 💰 [Anthropic計費說明](https://docs.anthropic.com/claude/docs/billing)
 - 🔧 [API使用指南](https://docs.anthropic.com/claude/reference/getting-started-with-the-api)
 - 🆘 [技術支援](https://support.anthropic.com/)
@@ -321,6 +321,6 @@ claude auth status
 
 **最後更新**：2025年8月4日  
 **文檔版本**：v1.0  
-**適用於**：Claude Code v2.0+
+**適用於**：GitHub Copilot v2.0+
 
-完成這些設定後，您的Claude Code將會使用Token計費方式運作，您可以更精確地控制使用成本並監控Token消耗量。建議定期檢查使用量統計，並根據實際使用模式調整配置參數。
+完成這些設定後，您的GitHub Copilot將會使用Token計費方式運作，您可以更精確地控制使用成本並監控Token消耗量。建議定期檢查使用量統計，並根據實際使用模式調整配置參數。

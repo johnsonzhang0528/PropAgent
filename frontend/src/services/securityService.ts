@@ -69,7 +69,7 @@ class SecurityService {
   private apiUrl = `/api/security`;
 
   private getAuthHeader() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
     return token ? { 'Authorization': `Bearer ${token}` } : {};
   }
 
