@@ -125,11 +125,35 @@ const getTokenFromStorage = (): string | null => {
   }
 };
 
+// 開發模式下的默認 token 和用戶（生產環境中應該移除）
+const getDefaultTestAuth = () => {
+  if (process.env.NODE_ENV === 'development') {
+    const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OTcwOTJhY2UwMzlhYzE0ZmVlYjMyOSIsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInJvbGUiOiJhZ2VudCIsImNvbXBhbnlfaWQiOiI2ODhmMjBlOGEwYTRiYmU4OTc2MzQ4MzMiLCJpYXQiOjE3NTQ5NzkzNzEsImV4cCI6MTc1NDk4MDI3MX0.KhlUexnoVfaFCL3Jwof01sL5dWpi3lJFBMWJ-Z2awwQ';
+    const testUser = {
+      id: '6897092ace039ac14feeb329',
+      name: '測試 用戶',
+      email: 'test@example.com',
+      role: 'agent',
+      company_id: '688f20e8a0a4bbe897634833'
+    };
+    
+    // 如果沒有保存的 token，使用測試 token
+    if (!getTokenFromStorage()) {
+      localStorage.setItem('access_token', testToken);
+      localStorage.setItem('user', JSON.stringify(testUser));
+      return { token: testToken, user: testUser };
+    }
+  }
+  return { token: getTokenFromStorage(), user: getUserFromStorage() };
+};
+
+const { token: defaultToken, user: defaultUser } = getDefaultTestAuth();
+
 const initialState: AuthState = {
-  user: getUserFromStorage(),
-  token: getTokenFromStorage(),
+  user: defaultUser,
+  token: defaultToken,
   refreshToken: localStorage.getItem('refresh_token'),
-  isAuthenticated: !!getTokenFromStorage(),
+  isAuthenticated: !!defaultToken,
   loading: false,
   error: null,
 };
