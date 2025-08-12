@@ -276,31 +276,51 @@ const CustomerList: React.FC = () => {
         <Space>
           <Tooltip title="查看詳情">
             <Button 
-              type="text" 
+              type="default" 
+              size="small"
               icon={<EyeOutlined />} 
               onClick={() => handleView(record)}
+              style={{ 
+                color: '#1890ff',
+                borderColor: '#1890ff'
+              }}
             />
           </Tooltip>
           <Tooltip title="編輯客戶">
             <Button 
-              type="text" 
+              type="default" 
+              size="small"
               icon={<EditOutlined />} 
               onClick={() => handleEdit(record)}
+              style={{ 
+                color: '#52c41a',
+                borderColor: '#52c41a'
+              }}
             />
           </Tooltip>
           <Tooltip title="聯繫客戶">
             <Button 
-              type="text" 
+              type="default" 
+              size="small"
               icon={<PhoneOutlined />} 
               onClick={() => handleContact(record)}
+              style={{ 
+                color: '#faad14',
+                borderColor: '#faad14'
+              }}
             />
           </Tooltip>
           <Tooltip title="刪除客戶">
             <Button 
-              type="text" 
+              type="default" 
+              size="small"
               danger 
               icon={<DeleteOutlined />} 
               onClick={() => handleDelete(record)}
+              style={{ 
+                color: '#ff4d4f',
+                borderColor: '#ff4d4f'
+              }}
             />
           </Tooltip>
         </Space>
