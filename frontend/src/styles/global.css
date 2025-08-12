@@ -333,8 +333,16 @@ body {
 .ant-btn-primary {
   background-color: var(--primary-blue) !important;
   border-color: var(--primary-blue) !important;
-  color: var(--bg-primary) !important;
+  color: #ffffff !important;
   box-shadow: none !important;
+}
+
+.ant-btn-primary .anticon {
+  color: #ffffff !important;
+}
+
+.ant-btn-primary .anticon svg {
+  fill: #ffffff !important;
 }
 
 .ant-btn-primary:hover {
@@ -342,6 +350,15 @@ body {
   border-color: #1D4ED8 !important;
   transform: translateY(-1px) !important;
   box-shadow: var(--shadow-md) !important;
+  color: #ffffff !important;
+}
+
+.ant-btn-primary:hover .anticon {
+  color: #ffffff !important;
+}
+
+.ant-btn-primary:hover .anticon svg {
+  fill: #ffffff !important;
 }
 
 .ant-btn-default {
@@ -441,6 +458,29 @@ body {
   border: none !important;
   text-transform: uppercase !important;
   letter-spacing: 0.025em !important;
+  color: #ffffff !important;
+}
+
+/* 確保不同顏色的標籤都有正確的文字顏色 */
+.ant-tag.ant-tag-blue {
+  color: #ffffff !important;
+}
+
+.ant-tag.ant-tag-green {
+  color: #ffffff !important;
+}
+
+.ant-tag.ant-tag-red {
+  color: #ffffff !important;
+}
+
+.ant-tag.ant-tag-orange {
+  color: #ffffff !important;
+}
+
+.ant-tag.ant-tag-default {
+  color: var(--text-primary) !important;
+  background-color: rgba(148, 163, 184, 0.15) !important;
 }
 
 /* 響應式設計調整 */
