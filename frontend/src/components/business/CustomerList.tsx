@@ -14,7 +14,9 @@ import {
   Modal,
   Form,
   message,
-  Pagination
+  Pagination,
+  Row,
+  Col
 } from 'antd';
 import { 
   UserOutlined, 
@@ -40,6 +42,17 @@ interface Customer {
   last_name: string;
   phone: string;
   email?: string;
+  line_id?: string;
+  wechat_id?: string;
+  gender?: 'male' | 'female' | 'other';
+  age?: number;
+  occupation?: string;
+  annual_income?: number;
+  marital_status?: 'single' | 'married' | 'divorced' | 'widowed';
+  family_members?: number;
+  source?: string;
+  referral_source?: string;
+  notes?: string;
   status: 'active' | 'inactive' | 'completed' | 'lost';
   tags: string[];
   purchase_intent_score: number;
@@ -223,31 +236,42 @@ const CustomerList: React.FC = () => {
           return <span style={{ color: '#999', fontSize: '12px' }}>-</span>;
         }
         return (
-          <Space wrap size={4}>
-            {tags.slice(0, 2).map((tag, index) => (
+          <Space wrap size={6}>
+            {tags.slice(0, 3).map((tag, index) => (
               <Tag 
                 key={index} 
-                color="blue" 
+                color="processing" 
                 style={{ 
-                  fontSize: '11px',
-                  margin: '2px',
-                  padding: '2px 6px'
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  margin: '1px',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
               >
                 {tag}
               </Tag>
             ))}
-            {tags.length > 2 && (
-              <Tooltip title={tags.slice(2).join(', ')}>
+            {tags.length > 3 && (
+              <Tooltip title={tags.slice(3).join(', ')}>
                 <Tag 
                   color="default" 
                   style={{ 
-                    fontSize: '11px',
-                    margin: '2px',
-                    padding: '2px 6px'
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    margin: '1px',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    background: '#f0f0f0',
+                    color: '#666',
+                    border: '1px solid #d9d9d9'
                   }}
                 >
-                  +{tags.length - 2}
+                  +{tags.length - 3}
                 </Tag>
               </Tooltip>
             )}
@@ -396,9 +420,51 @@ const CustomerList: React.FC = () => {
   };
 
   // 聯繫客戶
-  const handleContact = (customer: Customer) => {
-    // 更新最後聯繫時間
-    message.info(`聯繫客戶: ${customer.first_name} ${customer.last_name}`);
+  const handleContact = async (customer: Customer) => {
+    Modal.confirm({
+      title: '聯繫客戶',
+      content: (
+        <div>
+          <p>選擇聯繫方式：</p>
+          <p><strong>客戶：</strong>{customer.first_name} {customer.last_name}</p>
+          <p><strong>電話：</strong>{customer.phone}</p>
+          {customer.email && <p><strong>郵箱：</strong>{customer.email}</p>}
+        </div>
+      ),
+      okText: '已聯繫',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          const response = await fetch(`/api/customers/${customer._id}/contact`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              contact_type: 'phone',
+              notes: '電話聯繫'
+            })
+          });
+
+          if (response.ok) {
+            message.success(`已記錄對 ${customer.first_name} ${customer.last_name} 的聯繫`);
+            loadCustomers(pagination.current);
+          } else {
+            message.warning('聯繫記錄更新失敗，但您可以繼續聯繫客戶');
+          }
+        } catch (error) {
+          console.error('聯繫記錄錯誤:', error);
+          message.warning('聯繫記錄更新失敗，但您可以繼續聯繫客戶');
+        }
+      },
+      onCancel: () => {
+        // 提供直接撥打電話的選項
+        if (customer.phone) {
+          window.open(`tel:${customer.phone}`);
+        }
+      }
+    });
   };
 
   // 刪除客戶
@@ -648,29 +714,95 @@ const CustomerList: React.FC = () => {
             關閉
           </Button>
         ]}
-        width={600}
+        width={800}
       >
         {viewingCustomer && (
           <div style={{ padding: '16px 0' }}>
-            <Card title="基本資訊" size="small" style={{ marginBottom: 16 }}>
-              <p><strong>姓名:</strong> {viewingCustomer.first_name} {viewingCustomer.last_name}</p>
-              <p><strong>手機號碼:</strong> {viewingCustomer.phone}</p>
-              {viewingCustomer.email && <p><strong>電子郵箱:</strong> {viewingCustomer.email}</p>}
-              <p><strong>狀態:</strong> <Tag color={getStatusColor(viewingCustomer.status)}>{getStatusText(viewingCustomer.status)}</Tag></p>
-              <p><strong>意願評分:</strong> {viewingCustomer.purchase_intent_score}分</p>
-              {viewingCustomer.tags && viewingCustomer.tags.length > 0 && (
-                <p><strong>標籤:</strong> {viewingCustomer.tags.map((tag, index) => 
-                  <Tag key={index} color="blue" style={{ marginRight: 8 }}>{tag}</Tag>
-                )}</p>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Card title="基本資訊" size="small" style={{ marginBottom: 16, height: '100%' }}>
+                  <p><strong>姓名:</strong> {viewingCustomer.first_name} {viewingCustomer.last_name}</p>
+                  <p><strong>手機號碼:</strong> {viewingCustomer.phone}</p>
+                  {viewingCustomer.email && <p><strong>電子郵箱:</strong> {viewingCustomer.email}</p>}
+                  {viewingCustomer.line_id && <p><strong>Line ID:</strong> {viewingCustomer.line_id}</p>}
+                  {viewingCustomer.wechat_id && <p><strong>WeChat ID:</strong> {viewingCustomer.wechat_id}</p>}
+                  <p><strong>狀態:</strong> <Tag color={getStatusColor(viewingCustomer.status)}>{getStatusText(viewingCustomer.status)}</Tag></p>
+                  <p><strong>意願評分:</strong> {viewingCustomer.purchase_intent_score}分</p>
+                </Card>
+              </Col>
+              <Col span={12}>
+                <Card title="個人資訊" size="small" style={{ marginBottom: 16, height: '100%' }}>
+                  {viewingCustomer.gender && (
+                    <p><strong>性別:</strong> {
+                      viewingCustomer.gender === 'male' ? '男性' : 
+                      viewingCustomer.gender === 'female' ? '女性' : '其他'
+                    }</p>
+                  )}
+                  {viewingCustomer.age && <p><strong>年齡:</strong> {viewingCustomer.age}歲</p>}
+                  {viewingCustomer.occupation && <p><strong>職業:</strong> {viewingCustomer.occupation}</p>}
+                  {viewingCustomer.annual_income && (
+                    <p><strong>年收入:</strong> {viewingCustomer.annual_income.toLocaleString()}元</p>
+                  )}
+                  {viewingCustomer.marital_status && (
+                    <p><strong>婚姻狀態:</strong> {
+                      viewingCustomer.marital_status === 'single' ? '單身' :
+                      viewingCustomer.marital_status === 'married' ? '已婚' :
+                      viewingCustomer.marital_status === 'divorced' ? '離婚' : '喪偶'
+                    }</p>
+                  )}
+                  {viewingCustomer.family_members && <p><strong>家庭成員:</strong> {viewingCustomer.family_members}人</p>}
+                </Card>
+              </Col>
+            </Row>
+            
+            <Row gutter={16}>
+              <Col span={12}>
+                <Card title="來源資訊" size="small" style={{ marginBottom: 16 }}>
+                  {viewingCustomer.source && <p><strong>客戶來源:</strong> {viewingCustomer.source}</p>}
+                  {viewingCustomer.referral_source && <p><strong>推薦來源:</strong> {viewingCustomer.referral_source}</p>}
+                  <p><strong>創建時間:</strong> {new Date(viewingCustomer.created_at).toLocaleString('zh-TW')}</p>
+                  {viewingCustomer.last_contact_at && (
+                    <p><strong>最後聯繫時間:</strong> {new Date(viewingCustomer.last_contact_at).toLocaleString('zh-TW')}</p>
+                  )}
+                </Card>
+              </Col>
+              <Col span={12}>
+                <Card title="負責業務員" size="small" style={{ marginBottom: 16 }}>
+                  <p><strong>姓名:</strong> {viewingCustomer.agent_id.first_name} {viewingCustomer.agent_id.last_name}</p>
+                  <p><strong>郵箱:</strong> {viewingCustomer.agent_id.email}</p>
+                </Card>
+              </Col>
+            </Row>
+            
+            <Card title="標籤與備註" size="small">
+              {viewingCustomer.tags && viewingCustomer.tags.length > 0 ? (
+                <div style={{ marginBottom: 16 }}>
+                  <strong>標籤: </strong>
+                  <Space wrap>
+                    {viewingCustomer.tags.map((tag, index) => 
+                      <Tag key={index} color="processing" style={{ marginRight: 8, marginBottom: 4 }}>{tag}</Tag>
+                    )}
+                  </Space>
+                </div>
+              ) : (
+                <p><strong>標籤:</strong> <span style={{ color: '#999' }}>無</span></p>
               )}
-              <p><strong>創建時間:</strong> {new Date(viewingCustomer.created_at).toLocaleString('zh-TW')}</p>
-              {viewingCustomer.last_contact_at && (
-                <p><strong>最後聯繫時間:</strong> {new Date(viewingCustomer.last_contact_at).toLocaleString('zh-TW')}</p>
+              {viewingCustomer.notes ? (
+                <div>
+                  <strong>備註:</strong>
+                  <div style={{ 
+                    marginTop: 8, 
+                    padding: '12px', 
+                    backgroundColor: '#f5f5f5', 
+                    borderRadius: '6px',
+                    whiteSpace: 'pre-wrap'
+                  }}>
+                    {viewingCustomer.notes}
+                  </div>
+                </div>
+              ) : (
+                <p><strong>備註:</strong> <span style={{ color: '#999' }}>無</span></p>
               )}
-            </Card>
-            <Card title="負責業務員" size="small">
-              <p><strong>姓名:</strong> {viewingCustomer.agent_id.first_name} {viewingCustomer.agent_id.last_name}</p>
-              <p><strong>郵箱:</strong> {viewingCustomer.agent_id.email}</p>
             </Card>
           </div>
         )}
