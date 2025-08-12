@@ -278,14 +278,18 @@ const CustomerList: React.FC = () => {
             <Button 
               type="primary"
               size="small"
-              icon={<EyeOutlined />} 
+              icon={<EyeOutlined style={{ color: '#ffffff', fontSize: '14px' }} />} 
               onClick={() => handleView(record)}
               style={{ 
                 minWidth: '32px',
                 height: '32px',
                 padding: '4px 8px',
                 backgroundColor: '#1890ff',
-                borderColor: '#1890ff'
+                borderColor: '#1890ff',
+                color: '#ffffff',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             />
           </Tooltip>
@@ -293,14 +297,18 @@ const CustomerList: React.FC = () => {
             <Button 
               type="primary"
               size="small"
-              icon={<EditOutlined />} 
+              icon={<EditOutlined style={{ color: '#ffffff', fontSize: '14px' }} />} 
               onClick={() => handleEdit(record)}
               style={{ 
                 minWidth: '32px',
                 height: '32px',
                 padding: '4px 8px',
                 backgroundColor: '#52c41a',
-                borderColor: '#52c41a'
+                borderColor: '#52c41a',
+                color: '#ffffff',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             />
           </Tooltip>
@@ -308,14 +316,18 @@ const CustomerList: React.FC = () => {
             <Button 
               type="primary"
               size="small"
-              icon={<PhoneOutlined />} 
+              icon={<PhoneOutlined style={{ color: '#ffffff', fontSize: '14px' }} />} 
               onClick={() => handleContact(record)}
               style={{ 
                 minWidth: '32px',
                 height: '32px',
                 padding: '4px 8px',
                 backgroundColor: '#faad14',
-                borderColor: '#faad14'
+                borderColor: '#faad14',
+                color: '#ffffff',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             />
           </Tooltip>
@@ -323,14 +335,18 @@ const CustomerList: React.FC = () => {
             <Button 
               type="primary"
               size="small"
-              icon={<DeleteOutlined />} 
+              icon={<DeleteOutlined style={{ color: '#ffffff', fontSize: '14px' }} />} 
               onClick={() => handleDelete(record)}
               style={{ 
                 minWidth: '32px',
                 height: '32px',
                 padding: '4px 8px',
                 backgroundColor: '#ff4d4f',
-                borderColor: '#ff4d4f'
+                borderColor: '#ff4d4f',
+                color: '#ffffff',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             />
           </Tooltip>
