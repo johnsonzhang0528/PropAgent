@@ -218,24 +218,43 @@ const CustomerList: React.FC = () => {
       title: '標籤',
       dataIndex: 'tags',
       key: 'tags',
-      render: (tags: string[]) => (
-        <Space wrap>
-          {tags.slice(0, 2).map((tag, index) => (
-            <Tag key={index} color="blue" style={{ fontSize: '11px' }}>
-              {tag}
-            </Tag>
-          ))}
-          {tags.length > 2 && (
-            <Tooltip title={tags.slice(2).join(', ')}>
-              <Tag color="default" style={{ fontSize: '11px' }}>
-                +{tags.length - 2}
+      render: (tags: string[]) => {
+        if (!tags || tags.length === 0) {
+          return <span style={{ color: '#999', fontSize: '12px' }}>-</span>;
+        }
+        return (
+          <Space wrap size={4}>
+            {tags.slice(0, 2).map((tag, index) => (
+              <Tag 
+                key={index} 
+                color="blue" 
+                style={{ 
+                  fontSize: '11px',
+                  margin: '2px',
+                  padding: '2px 6px'
+                }}
+              >
+                {tag}
               </Tag>
-            </Tooltip>
-          )}
-        </Space>
-      ),
+            ))}
+            {tags.length > 2 && (
+              <Tooltip title={tags.slice(2).join(', ')}>
+                <Tag 
+                  color="default" 
+                  style={{ 
+                    fontSize: '11px',
+                    margin: '2px',
+                    padding: '2px 6px'
+                  }}
+                >
+                  +{tags.length - 2}
+                </Tag>
+              </Tooltip>
+            )}
+          </Space>
+        );
+      },
       width: 150,
-      responsive: ['md'],
     },
     {
       title: '最後聯繫',
@@ -273,86 +292,54 @@ const CustomerList: React.FC = () => {
       title: '操作',
       key: 'actions',
       render: (record: Customer) => (
-        <Space size={4}>
-          <Tooltip title="查看詳情">
-            <Button 
-              type="primary"
-              size="small"
-              icon={<EyeOutlined style={{ color: '#ffffff', fontSize: '14px' }} />} 
-              onClick={() => handleView(record)}
-              style={{ 
-                minWidth: '32px',
-                height: '32px',
-                padding: '4px 8px',
-                backgroundColor: '#1890ff',
-                borderColor: '#1890ff',
-                color: '#ffffff',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            />
-          </Tooltip>
-          <Tooltip title="編輯客戶">
-            <Button 
-              type="primary"
-              size="small"
-              icon={<EditOutlined style={{ color: '#ffffff', fontSize: '14px' }} />} 
-              onClick={() => handleEdit(record)}
-              style={{ 
-                minWidth: '32px',
-                height: '32px',
-                padding: '4px 8px',
-                backgroundColor: '#52c41a',
-                borderColor: '#52c41a',
-                color: '#ffffff',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            />
-          </Tooltip>
-          <Tooltip title="聯繫客戶">
-            <Button 
-              type="primary"
-              size="small"
-              icon={<PhoneOutlined style={{ color: '#ffffff', fontSize: '14px' }} />} 
-              onClick={() => handleContact(record)}
-              style={{ 
-                minWidth: '32px',
-                height: '32px',
-                padding: '4px 8px',
-                backgroundColor: '#faad14',
-                borderColor: '#faad14',
-                color: '#ffffff',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            />
-          </Tooltip>
-          <Tooltip title="刪除客戶">
-            <Button 
-              type="primary"
-              size="small"
-              icon={<DeleteOutlined style={{ color: '#ffffff', fontSize: '14px' }} />} 
-              onClick={() => handleDelete(record)}
-              style={{ 
-                minWidth: '32px',
-                height: '32px',
-                padding: '4px 8px',
-                backgroundColor: '#ff4d4f',
-                borderColor: '#ff4d4f',
-                color: '#ffffff',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            />
-          </Tooltip>
+        <Space size={8} wrap>
+          <Button 
+            type="primary"
+            size="small"
+            icon={<EyeOutlined />} 
+            onClick={() => handleView(record)}
+            style={{ 
+              backgroundColor: '#1890ff',
+              borderColor: '#1890ff'
+            }}
+          >
+            查看
+          </Button>
+          <Button 
+            type="primary"
+            size="small"
+            icon={<EditOutlined />} 
+            onClick={() => handleEdit(record)}
+            style={{ 
+              backgroundColor: '#52c41a',
+              borderColor: '#52c41a'
+            }}
+          >
+            編輯
+          </Button>
+          <Button 
+            size="small"
+            icon={<PhoneOutlined />} 
+            onClick={() => handleContact(record)}
+            style={{ 
+              backgroundColor: '#faad14',
+              borderColor: '#faad14',
+              color: '#ffffff'
+            }}
+          >
+            聯繫
+          </Button>
+          <Button 
+            danger
+            size="small"
+            icon={<DeleteOutlined />} 
+            onClick={() => handleDelete(record)}
+          >
+            刪除
+          </Button>
         </Space>
       ),
-      width: 150,
+      width: 200,
     },
   ];
 
