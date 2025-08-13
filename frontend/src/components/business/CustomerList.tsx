@@ -431,23 +431,19 @@ const CustomerList: React.FC = () => {
   const handleContact = (customer: Customer) => {
     console.log('點擊聯繫按鈕:', customer);
     
-    // 使用 setTimeout 確保 Modal 能正確渲染
-    setTimeout(() => {
-      console.log('準備顯示 Modal.confirm...');
-      
-      const modal = Modal.confirm({
-        title: '聯繫客戶',
-        content: (
-          <div>
-            <p>您要聯繫客戶 <strong>{customer.first_name} {customer.last_name}</strong> 嗎？</p>
-            <p>電話：{customer.phone}</p>
-          </div>
-        ),
-        okText: '已聯繫',
-        cancelText: '直接撥號',
-        maskClosable: false,
-        keyboard: false,
-        zIndex: 10000,
+    Modal.confirm({
+      title: '聯繫客戶',
+      content: (
+        <div>
+          <p>您要聯繫客戶 <strong>{customer.first_name} {customer.last_name}</strong> 嗎？</p>
+          <p>電話：{customer.phone}</p>
+        </div>
+      ),
+      okText: '已聯繫',
+      cancelText: '直接撥號',
+      maskClosable: true,
+      keyboard: true,
+      zIndex: 1000,
         onOk: async () => {
           console.log('用戶點擊了已聯繫');
           try {
@@ -481,46 +477,39 @@ const CustomerList: React.FC = () => {
             return Promise.resolve();
           }
         },
-        onCancel: () => {
-          console.log('用戶選擇直接撥號');
-          if (customer.phone) {
-            try {
-              console.log('嘗試撥打電話:', customer.phone);
-              window.location.href = `tel:${customer.phone}`;
-            } catch (error) {
-              console.log('無法開啟電話應用:', error);
-              message.info(`客戶電話：${customer.phone}`);
-            }
+      onCancel: () => {
+        console.log('用戶選擇直接撥號');
+        if (customer.phone) {
+          try {
+            console.log('嘗試撥打電話:', customer.phone);
+            window.location.href = `tel:${customer.phone}`;
+          } catch (error) {
+            console.log('無法開啟電話應用:', error);
+            message.info(`客戶電話：${customer.phone}`);
           }
         }
-      });
-      
-      console.log('Modal 實例創建完成:', modal);
-    }, 10);
+      }
+    });
   };
 
   // 刪除客戶
   const handleDelete = (customer: Customer) => {
     console.log('點擊刪除按鈕:', customer);
     
-    // 使用 setTimeout 確保 Modal 能正確渲染
-    setTimeout(() => {
-      console.log('準備顯示刪除確認 Modal...');
-      
-      const modal = Modal.confirm({
-        title: '確認刪除',
-        content: (
-          <div>
-            <p>確定要刪除客戶 <strong style={{color: '#f5222d'}}>{customer.first_name} {customer.last_name}</strong> 嗎？</p>
-            <p style={{color: '#8c8c8c'}}>此操作無法復原，請謹慎確認。</p>
-          </div>
-        ),
-        okText: '確認刪除',
-        cancelText: '取消',
-        okType: 'danger',
-        maskClosable: false,
-        keyboard: false,
-        zIndex: 10000,
+    Modal.confirm({
+      title: '確認刪除',
+      content: (
+        <div>
+          <p>確定要刪除客戶 <strong style={{color: '#f5222d'}}>{customer.first_name} {customer.last_name}</strong> 嗎？</p>
+          <p style={{color: '#8c8c8c'}}>此操作無法復原，請謹慎確認。</p>
+        </div>
+      ),
+      okText: '確認刪除',
+      cancelText: '取消',
+      okType: 'danger',
+      maskClosable: true,
+      keyboard: true,
+      zIndex: 1000,
         onOk: async () => {
           console.log('用戶確認刪除');
           try {
@@ -550,11 +539,8 @@ const CustomerList: React.FC = () => {
             message.error('網路錯誤，請稍後再試');
             throw error;
           }
-        }
-      });
-      
-      console.log('刪除 Modal 實例創建完成:', modal);
-    }, 10);
+      }
+    });
   };
 
   // 處理分頁變更

@@ -1,0 +1,16 @@
+{
+  "name": "函數定義搜尋",
+  "description": "搜尋各種函數定義形式",
+  "patterns": [
+    "function\\s+\\w+\\s*\\(",
+    "const\\s+\\w+\\s*=\\s*\\(",
+    "const\\s+\\w+\\s*=\\s*async\\s*\\(",
+    "export\\s+(function|const)\\s+\\w+",
+    "\\w+\\s*:\\s*\\([^)]*\\)\\s*=>",
+    "async\\s+function\\s+\\w+"
+  ],
+  "globs": ["**/*.{ts,tsx,js,jsx}"],
+  "head_limit": 50,
+  "context_lines": 2,
+  "case_insensitive": false
+}

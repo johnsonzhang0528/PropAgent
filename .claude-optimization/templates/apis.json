@@ -1,0 +1,20 @@
+{
+  "name": "API相關代碼搜尋",
+  "description": "搜尋API路由、HTTP請求等",
+  "patterns": [
+    "app\\.(get|post|put|delete|patch)",
+    "router\\.(get|post|put|delete|patch)",
+    "fetch\\s*\\(",
+    "axios\\.",
+    "\\.(get|post|put|delete)\\s*\\(",
+    "async/await",
+    "req\\.",
+    "res\\.",
+    "next\\s*\\(",
+    "middleware"
+  ],
+  "globs": ["**/*.{ts,js}"],
+  "head_limit": 35,
+  "context_lines": 3,
+  "case_insensitive": false
+}

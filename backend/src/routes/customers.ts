@@ -305,6 +305,59 @@ router.delete('/:id', authMiddleware, async (req: any, res) => {
   }
 });
 
+// 記錄客戶聯繫
+router.patch('/:id/contact', authMiddleware, async (req: any, res) => {
+  try {
+    const { id } = req.params;
+    const { contact_type, notes } = req.body;
+
+    // 查找客戶
+    const customer = await Customer.findById(id);
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'CUSTOMER_NOT_FOUND', message: '客戶不存在' }
+      });
+    }
+
+    // 檢查權限
+    if (req.user.role !== 'admin' && req.user.role !== 'manager' && 
+        customer.agent_id.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: { code: 'FORBIDDEN', message: '沒有權限修改此客戶' }
+      });
+    }
+
+    // 更新最後聯繫時間
+    customer.last_contact_at = new Date();
+    
+    // 添加聯繫記錄到備註
+    if (notes) {
+      const contactNote = `[${new Date().toLocaleString('zh-TW')}] 聯繫記錄 (${contact_type}): ${notes}`;
+      customer.notes = customer.notes ? 
+        `${customer.notes}\n${contactNote}` :
+        contactNote;
+    }
+    
+    await customer.save();
+
+    res.json({
+      success: true,
+      data: {
+        id: customer._id,
+        last_contact_at: customer.last_contact_at
+      }
+    });
+  } catch (error) {
+    console.error('記錄聯繫錯誤:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: '服務器錯誤' }
+    });
+  }
+});
+
 // 更新客戶意願評分
 router.patch('/:id/intent-score', authMiddleware, async (req: any, res) => {
   try {

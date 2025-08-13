@@ -1,0 +1,18 @@
+{
+  "name": "TypeScript類型定義搜尋",
+  "description": "搜尋interface、type、enum等類型定義",
+  "patterns": [
+    "interface\\s+\\w+\\s*\\{",
+    "type\\s+\\w+\\s*=",
+    "enum\\s+\\w+\\s*\\{",
+    "class\\s+\\w+\\s*[\\{implements]",
+    "extends\\s+\\w+",
+    "implements\\s+\\w+",
+    ":\\s*\\w+\\[\\]",
+    "<[A-Z]\\w*>"
+  ],
+  "globs": ["**/*.{ts,tsx}"],
+  "head_limit": 35,
+  "context_lines": 2,
+  "case_insensitive": false
+}

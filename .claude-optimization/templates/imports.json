@@ -1,0 +1,16 @@
+{
+  "name": "Import語句搜尋",
+  "description": "搜尋各種import和require語句",
+  "patterns": [
+    "import\\s+.*from\\s+['\"]",
+    "import\\s*\\{[^}]+\\}\\s*from",
+    "import\\s*\\*\\s*as\\s+\\w+",
+    "const\\s+.*=\\s*require\\s*\\(",
+    "import\\s*\\(['\"]",
+    "export\\s*\\{[^}]+\\}\\s*from"
+  ],
+  "globs": ["**/*.{ts,tsx,js,jsx}"],
+  "head_limit": 100,
+  "context_lines": 1,
+  "case_insensitive": false
+}

@@ -1,0 +1,26 @@
+{
+  "name": "配置文件搜尋",
+  "description": "搜尋各種配置文件和設置",
+  "patterns": [
+    "\"scripts\"\\s*:",
+    "\"dependencies\"\\s*:",
+    "\"devDependencies\"\\s*:",
+    "module\\.exports",
+    "export\\s+default\\s*\\{",
+    "process\\.env\\.",
+    "NODE_ENV",
+    "PORT"
+  ],
+  "globs": [
+    "**/package.json",
+    "**/*.config.{js,ts}",
+    "**/.*rc",
+    "**/.env*",
+    "**/tsconfig*.json",
+    "**/vite.config.*",
+    "**/jest.config.*"
+  ],
+  "head_limit": 25,
+  "context_lines": 3,
+  "case_insensitive": false
+}

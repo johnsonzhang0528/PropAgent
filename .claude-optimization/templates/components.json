@@ -1,0 +1,18 @@
+{
+  "name": "React組件搜尋",
+  "description": "搜尋React組件定義和使用",
+  "patterns": [
+    "export\\s+(default\\s+)?function\\s+[A-Z]\\w*",
+    "const\\s+[A-Z]\\w*\\s*[=:]\\s*\\(",
+    "interface\\s+[A-Z]\\w*Props",
+    "type\\s+[A-Z]\\w*Props\\s*=",
+    "React\\.FC<",
+    "useState\\s*\\(",
+    "useEffect\\s*\\(",
+    "Props\\s*>"
+  ],
+  "globs": ["**/*.{tsx,jsx}"],
+  "head_limit": 40,
+  "context_lines": 3,
+  "case_insensitive": false
+}

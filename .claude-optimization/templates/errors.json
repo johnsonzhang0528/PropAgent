@@ -1,0 +1,16 @@
+{
+  "name": "錯誤和異常處理搜尋",
+  "description": "搜尋錯誤處理、異常拋出和catch語句",
+  "patterns": [
+    "try\\s*\\{[\\s\\S]*?catch",
+    "throw\\s+new\\s+\\w*Error",
+    "console\\.(error|warn)",
+    "\\.catch\\s*\\(",
+    "Error\\s*\\(",
+    "reject\\s*\\("
+  ],
+  "globs": ["**/*.{ts,tsx,js,jsx}"],
+  "head_limit": 30,
+  "context_lines": 3,
+  "case_insensitive": false
+}

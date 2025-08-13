@@ -1,0 +1,4 @@
+#!/bin/bash
+# 專案最佳化工具快速腳本
+TOOL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "${TOOL_DIR}/claude-optimizer.sh" "$@"

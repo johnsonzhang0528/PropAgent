@@ -1,0 +1,22 @@
+{
+  "name": "性能相關代碼搜尋",
+  "description": "搜尋性能相關的代碼和最佳化",
+  "patterns": [
+    "useMemo\\s*\\(",
+    "useCallback\\s*\\(",
+    "React\\.memo\\s*\\(",
+    "shouldComponentUpdate",
+    "lazy\\s*\\(",
+    "Suspense",
+    "console\\.time",
+    "performance\\.",
+    "setTimeout",
+    "setInterval",
+    "debounce",
+    "throttle"
+  ],
+  "globs": ["**/*.{ts,tsx,js,jsx}"],
+  "head_limit": 25,
+  "context_lines": 3,
+  "case_insensitive": false
+}

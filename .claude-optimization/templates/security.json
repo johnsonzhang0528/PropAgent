@@ -1,0 +1,22 @@
+{
+  "name": "安全相關代碼搜尋",
+  "description": "搜尋安全相關代碼和潛在風險",
+  "patterns": [
+    "password",
+    "token",
+    "secret",
+    "auth",
+    "jwt",
+    "bcrypt",
+    "crypto",
+    "validate",
+    "sanitize",
+    "xss",
+    "sql.*injection",
+    "cors"
+  ],
+  "globs": ["**/*.{ts,tsx,js,jsx}"],
+  "head_limit": 30,
+  "context_lines": 2,
+  "case_insensitive": true
+}

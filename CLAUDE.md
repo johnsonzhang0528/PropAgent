@@ -28,3 +28,35 @@ cd backend && npm run dev     # 後端開發 (端口 3000)
 - **資料庫**: MongoDB (localhost:27017/propagent)
 - **API**: http://localhost:3000
 - **前端**: http://localhost:5175
+## Claude Code API 速率限制避免策略
+
+本專案已集成 Claude Code API 最佳化工具套件，提供以下功能：
+
+### 快速開始
+```bash
+# 檢查工具狀態
+./.claude-optimization/optimize quick
+
+# 快速搜尋錯誤
+./.claude-optimization/optimize search errors src/
+
+# 監控成本使用
+./.claude-optimization/optimize cost dashboard
+```
+
+### 常用命令
+```bash
+# 載入別名
+source ./.claude-optimization/aliases.sh
+
+# 使用別名
+claude-search todos .
+claude-cost analyze large-file.ts
+my-first-project-analyze
+```
+
+### 工具文檔
+詳細說明請參考：
+- `.claude-optimization/README.md` - 完整文檔
+- `.claude-optimization/QUICK_REFERENCE.md` - 快速參考
+

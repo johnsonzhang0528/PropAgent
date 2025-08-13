@@ -1,0 +1,33 @@
+{
+  "pricing": {
+    "models": {
+      "claude-sonnet": {
+        "inputCostPer1k": 0.003,
+        "outputCostPer1k": 0.015
+      },
+      "claude-haiku": {
+        "inputCostPer1k": 0.00025,
+        "outputCostPer1k": 0.00125
+      }
+    }
+  },
+  "thresholds": {
+    "dailyTokenWarning": 100000,
+    "dailyCostWarning": 50.0,
+    "hourlyTokenWarning": 10000
+  },
+  "optimization": {
+    "maxFilesPerBatch": 5,
+    "maxTokensPerRequest": 8000,
+    "recommendedHeadLimit": 50,
+    "costEfficiencyTargets": {
+      "tokensPerDollar": 1000,
+      "averageResponseTime": 10
+    }
+  },
+  "monitoring": {
+    "enableRealTimeAlerts": true,
+    "reportInterval": "daily",
+    "retentionDays": 30
+  }
+}

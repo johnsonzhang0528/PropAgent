@@ -1,0 +1,25 @@
+{
+  "name": "測試文件搜尋",
+  "description": "搜尋測試相關代碼和函數",
+  "patterns": [
+    "describe\\s*\\(",
+    "it\\s*\\(",
+    "test\\s*\\(",
+    "expect\\s*\\(",
+    "beforeEach\\s*\\(",
+    "afterEach\\s*\\(",
+    "jest\\.\\w+",
+    "cy\\.\\w+",
+    "\\.test\\.",
+    "\\.spec\\."
+  ],
+  "globs": [
+    "**/*.{test,spec}.{ts,tsx,js,jsx}",
+    "**/test/**/*",
+    "**/tests/**/*",
+    "**/__tests__/**/*"
+  ],
+  "head_limit": 40,
+  "context_lines": 2,
+  "case_insensitive": false
+}

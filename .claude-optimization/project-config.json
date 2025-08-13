@@ -1,0 +1,23 @@
+{
+  "project": {
+    "name": "my-first-project",
+    "path": "/home/johnson/ai-dev-projects/Tmux-Orchestrator/projects/my-first-project",
+    "type": "tmux-orchestrator-project"
+  },
+  "optimization": {
+    "defaultBatchSize": 5,
+    "preferredModel": "sonnet",
+    "maxDailyCost": 10.0,
+    "commonPaths": {
+      "frontend": "frontend/src",
+      "backend": "backend/src",
+      "docs": "docs",
+      "tests": "tests"
+    }
+  },
+  "customTemplates": {
+    "project-errors": "src/**/*.{ts,tsx,js,jsx}",
+    "project-todos": "**/*.{ts,tsx,js,jsx,md}",
+    "project-configs": "**/package.json,**/*.config.*,**/tsconfig*.json"
+  }
+}
