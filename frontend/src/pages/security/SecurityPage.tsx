@@ -90,30 +90,42 @@ const SecurityPage: React.FC = () => {
   // 解除封鎖 IP
   const handleUnblockIP = (ip: string) => {
     console.log('點擊解除封鎖 IP:', ip);
-    Modal.confirm({
-      title: '確認解除封鎖',
-      content: (
-        <div>
-          <p>確定要解除封鎖 IP <strong style={{ color: '#f5222d' }}>{ip}</strong> 嗎？</p>
-          <p style={{ color: '#8c8c8c', fontSize: '12px' }}>
-            解除封鎖後，此 IP 將能夠正常存取系統。
-          </p>
-        </div>
-      ),
-      okText: '確定解除',
-      cancelText: '取消',
-      okType: 'primary',
-      onOk: async () => {
-        try {
-          await securityService.unblockIP(ip, '管理員手動解除');
-          message.success(`IP ${ip} 已解除封鎖`);
-          loadSecurityData();
-        } catch (error: any) {
-          const errorMsg = error.response?.data?.message || '解除封鎖失敗';
-          message.error(errorMsg);
+    
+    // 使用 setTimeout 確保 Modal 能正確渲染
+    setTimeout(() => {
+      console.log('準備顯示解除封鎖 Modal...');
+      
+      const modal = Modal.confirm({
+        title: '確認解除封鎖',
+        content: (
+          <div>
+            <p>確定要解除封鎖 IP <strong style={{ color: '#f5222d' }}>{ip}</strong> 嗎？</p>
+            <p style={{ color: '#8c8c8c', fontSize: '12px' }}>
+              解除封鎖後，此 IP 將能夠正常存取系統。
+            </p>
+          </div>
+        ),
+        okText: '確定解除',
+        cancelText: '取消',
+        okType: 'primary',
+        maskClosable: false,
+        keyboard: false,
+        zIndex: 10000,
+        onOk: async () => {
+          console.log('用戶確認解除封鎖 IP:', ip);
+          try {
+            await securityService.unblockIP(ip, '管理員手動解除');
+            message.success(`IP ${ip} 已解除封鎖`);
+            loadSecurityData();
+          } catch (error: any) {
+            const errorMsg = error.response?.data?.message || '解除封鎖失敗';
+            message.error(errorMsg);
+          }
         }
-      }
-    });
+      });
+      
+      console.log('解除封鎖 Modal 實例創建完成:', modal);
+    }, 10);
   };
 
 
@@ -161,7 +173,11 @@ const SecurityPage: React.FC = () => {
           <Button 
             type="primary"
             size="small" 
-            onClick={() => handleUnblockIP(record.ip)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleUnblockIP(record.ip);
+            }}
             style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
           >
             解除封鎖

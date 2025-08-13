@@ -344,7 +344,11 @@ const CustomerList: React.FC = () => {
           <Button 
             size="small"
             icon={<PhoneOutlined />} 
-            onClick={() => handleContact(record)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleContact(record);
+            }}
             style={{ 
               backgroundColor: '#faad14',
               borderColor: '#faad14',
@@ -357,7 +361,11 @@ const CustomerList: React.FC = () => {
             danger
             size="small"
             icon={<DeleteOutlined />} 
-            onClick={() => handleDelete(record)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDelete(record);
+            }}
           >
             刪除
           </Button>
@@ -420,83 +428,133 @@ const CustomerList: React.FC = () => {
   };
 
   // 聯繫客戶
-  const handleContact = async (customer: Customer) => {
+  const handleContact = (customer: Customer) => {
     console.log('點擊聯繫按鈕:', customer);
-    Modal.confirm({
-      title: '聯繫客戶',
-      content: (
-        <div>
-          <p>選擇聯繫方式：</p>
-          <p><strong>客戶：</strong>{customer.first_name} {customer.last_name}</p>
-          <p><strong>電話：</strong>{customer.phone}</p>
-          {customer.email && <p><strong>郵箱：</strong>{customer.email}</p>}
-        </div>
-      ),
-      okText: '已聯繫',
-      cancelText: '取消',
-      onOk: async () => {
-        try {
-          const response = await fetch(`/api/customers/${customer._id}/contact`, {
-            method: 'PATCH',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              contact_type: 'phone',
-              notes: '電話聯繫'
-            })
-          });
-
-          if (response.ok) {
-            message.success(`已記錄對 ${customer.first_name} ${customer.last_name} 的聯繫`);
-            loadCustomers(pagination.current);
-          } else {
+    
+    // 使用 setTimeout 確保 Modal 能正確渲染
+    setTimeout(() => {
+      console.log('準備顯示 Modal.confirm...');
+      
+      const modal = Modal.confirm({
+        title: '聯繫客戶',
+        content: (
+          <div>
+            <p>您要聯繫客戶 <strong>{customer.first_name} {customer.last_name}</strong> 嗎？</p>
+            <p>電話：{customer.phone}</p>
+          </div>
+        ),
+        okText: '已聯繫',
+        cancelText: '直接撥號',
+        maskClosable: false,
+        keyboard: false,
+        zIndex: 10000,
+        onOk: async () => {
+          console.log('用戶點擊了已聯繫');
+          try {
+            console.log('開始聯繫 API 請求...');
+            const response = await fetch(`/api/customers/${customer._id}/contact`, {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                contact_type: 'phone',
+                notes: '電話聯繫'
+              })
+            });
+            
+            console.log('聯繫 API 回應:', response.status);
+            
+            if (response.ok) {
+              message.success(`已記錄對 ${customer.first_name} ${customer.last_name} 的聯繫`);
+              loadCustomers(pagination.current);
+            } else {
+              const errorData = await response.json();
+              console.error('聯繫 API 錯誤:', errorData);
+              message.warning('聯繫記錄更新失敗，但您可以繼續聯繫客戶');
+            }
+            return Promise.resolve();
+          } catch (error) {
+            console.error('聯繫記錄錯誤:', error);
             message.warning('聯繫記錄更新失敗，但您可以繼續聯繫客戶');
+            return Promise.resolve();
           }
-        } catch (error) {
-          console.error('聯繫記錄錯誤:', error);
-          message.warning('聯繫記錄更新失敗，但您可以繼續聯繫客戶');
+        },
+        onCancel: () => {
+          console.log('用戶選擇直接撥號');
+          if (customer.phone) {
+            try {
+              console.log('嘗試撥打電話:', customer.phone);
+              window.location.href = `tel:${customer.phone}`;
+            } catch (error) {
+              console.log('無法開啟電話應用:', error);
+              message.info(`客戶電話：${customer.phone}`);
+            }
+          }
         }
-      },
-      onCancel: () => {
-        // 提供直接撥打電話的選項
-        if (customer.phone) {
-          window.open(`tel:${customer.phone}`);
-        }
-      }
-    });
+      });
+      
+      console.log('Modal 實例創建完成:', modal);
+    }, 10);
   };
 
   // 刪除客戶
   const handleDelete = (customer: Customer) => {
     console.log('點擊刪除按鈕:', customer);
-    Modal.confirm({
-      title: '確認刪除',
-      content: `確定要刪除客戶 ${customer.first_name} ${customer.last_name} 嗎？`,
-      okText: '確認',
-      cancelText: '取消',
-      onOk: async () => {
-        try {
-          const response = await fetch(`/api/customers/${customer._id}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
+    
+    // 使用 setTimeout 確保 Modal 能正確渲染
+    setTimeout(() => {
+      console.log('準備顯示刪除確認 Modal...');
+      
+      const modal = Modal.confirm({
+        title: '確認刪除',
+        content: (
+          <div>
+            <p>確定要刪除客戶 <strong style={{color: '#f5222d'}}>{customer.first_name} {customer.last_name}</strong> 嗎？</p>
+            <p style={{color: '#8c8c8c'}}>此操作無法復原，請謹慎確認。</p>
+          </div>
+        ),
+        okText: '確認刪除',
+        cancelText: '取消',
+        okType: 'danger',
+        maskClosable: false,
+        keyboard: false,
+        zIndex: 10000,
+        onOk: async () => {
+          console.log('用戶確認刪除');
+          try {
+            console.log('開始刪除 API 請求...');
+            const response = await fetch(`/api/customers/${customer._id}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            console.log('刪除 API 回應:', response.status);
+            
+            if (response.ok) {
+              message.success('客戶已刪除');
+              loadCustomers(pagination.current);
+            } else {
+              const errorData = await response.json();
+              console.error('刪除 API 錯誤:', errorData);
+              message.error(`刪除失敗: ${errorData.message || '未知錯誤'}`);
+              throw new Error('刪除失敗');
             }
-          });
-
-          if (response.ok) {
-            message.success('客戶已刪除');
-            loadCustomers(pagination.current);
-          } else {
-            message.error('刪除失敗');
+            return Promise.resolve();
+          } catch (error) {
+            console.error('刪除錯誤:', error);
+            message.error('網路錯誤，請稍後再試');
+            throw error;
           }
-        } catch (error) {
-          message.error('網路錯誤');
         }
-      }
-    });
+      });
+      
+      console.log('刪除 Modal 實例創建完成:', modal);
+    }, 10);
   };
 
   // 處理分頁變更
